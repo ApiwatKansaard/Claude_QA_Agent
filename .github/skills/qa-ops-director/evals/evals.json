@@ -1,0 +1,23 @@
+{
+  "skill_name": "qa-ops-director",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just finished the Figma design for a new AI-powered chat summarization feature. Users can highlight any chat conversation and click 'Summarize' — an LLM then produces a 3–5 sentence summary. The backend is a REST API endpoint POST /api/v1/summarize. I need test cases for this feature covering both the LLM behavior and the API. Can you generate test cases and then export them to a TestRail CSV?",
+      "expected_output": "A comprehensive set of test cases covering: (1) API tests — happy path, error cases, auth, boundary inputs; (2) LLM-specific tests — format compliance, consistency, adversarial inputs, latency; (3) TestRail CSV export with correct column schema including Title, Section, Type, Priority, Steps, Expected Result, Surface fields. Should include at least 10 test cases across P1-P3 priorities.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I found a bug today in our AI chatbot feature on staging. When the user sends a message that's over 2000 characters, the response comes back as an empty string instead of an error message or a graceful truncation. This happens 100% of the time. I'm on Chrome 124, macOS. The endpoint is POST /api/v1/chat. Can you write a proper bug report for Jira?",
+      "expected_output": "A structured bug report following the template in templates.md with: clear title, correct severity classification (S2-High or S3-Medium with reasoning), environment details, precise steps to reproduce, expected vs actual result, appropriate labels (ai-feature, api), and recommendations for additional evidence to gather. Should be ready to submit to Jira.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We're finishing sprint 14 and heading into a release candidate for v2.3.0. This sprint we: (1) added the AI summarization feature from scratch, (2) refactored the auth service to support SSO, (3) fixed 2 P1 bugs in the mobile notification flow, and (4) made config-only changes to the API rate limiter. I need a regression plan — what should we test, in what order, and how should we split it across 4 QA engineers?",
+      "expected_output": "A regression checklist using the template in templates.md that: correctly identifies high-risk areas (auth refactor, AI summarization as new feature, mobile notification fix), applies risk multipliers for auth changes, scopes P1/P2 test cases by area, provides effort estimates, recommends test distribution across 4 engineers, and calls out smoke-only areas for the config change.",
+      "files": []
+    }
+  ]
+}

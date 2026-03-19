@@ -1,0 +1,28 @@
+{
+	"servers": {
+		"atlassian": {
+			"command": "mcp-atlassian",
+			"args": [],
+			"env": {
+				"ATLASSIAN_BASE_URL": "https://ekoapp.atlassian.net",
+				"ATLASSIAN_EMAIL": "${input:atlassian_email}",
+				"ATLASSIAN_API_TOKEN": "${input:atlassian_token}",
+				"LOG_LEVEL": "error"
+			}
+		}
+	},
+	"inputs": [
+		{
+			"id": "atlassian_email",
+			"type": "promptString",
+			"description": "Atlassian email (e.g. yourname@amitysolutions.com)",
+			"password": false
+		},
+		{
+			"id": "atlassian_token",
+			"type": "promptString",
+			"description": "Atlassian API Token (get from https://id.atlassian.com/manage-profile/security/api-tokens)",
+			"password": true
+		}
+	]
+}
