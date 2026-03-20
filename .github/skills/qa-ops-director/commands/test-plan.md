@@ -28,7 +28,7 @@ If neither URL is provided: ask for at least one before proceeding.
 | Tool | Purpose | Call |
 |---|---|---|
 | Figma MCP | UI flows, component states, interaction details | `get_design_context`, `get_screenshot`, `get_metadata` |
-| Confluence (Atlassian MCP) | PRD, acceptance criteria, API contracts | `getConfluencePage`, `searchConfluenceUsingCql` |
+| Confluence (Atlassian MCP) | PRD, acceptance criteria, API contracts | `mcp_atlassian_read_confluence_page`, `mcp_atlassian_search_confluence_pages` |
 
 ## Execution Steps
 
@@ -43,15 +43,17 @@ If neither URL is provided: ask for at least one before proceeding.
    get_metadata(node_url)         → Component variants and named states
    ```
 
-   **Confluence URL** — extract page ID from URL path (`/pages/XXXXXXXX/`):
+   **Confluence URL** — extract **numeric page ID** from URL path (`/pages/XXXXXXXX/`):
    ```
-   getConfluencePage(pageId, cloudId="ekoapp.atlassian.net")
+   mcp_atlassian_read_confluence_page(page_id="3488645131")
    ```
+   ⚠️ CRITICAL: Pass only the numeric page_id, NOT the full URL.
+   There is NO cloudId parameter — the MCP server is already configured with the instance.
+
    Or search by feature name:
    ```
-   searchConfluenceUsingCql(
-     cql='space = "EP" AND title ~ "[feature name]"',
-     cloudId="ekoapp.atlassian.net"
+   mcp_atlassian_search_confluence_pages(
+     cql='space = "EP" AND title ~ "[feature name]"'
    )
    ```
 
@@ -103,119 +105,144 @@ After the review is complete, **do not stop — immediately apply all review fin
 
 ## Output Format
 
-### Part 1 — Test Plan
+⚠️ **CRITICAL**: This command produces **TWO separate files** in the sprint folder.
+Test cases are **ALWAYS in TestRail CSV format** — NEVER markdown tables.
+See [testrail-csv.md](../references/testrail-csv.md) for the exact 15-column schema and formatting rules.
+
+### Output File 1 — Test Plan (Markdown)
+
+**File:** `{sprint-folder}/{feature-slug}-test-plan.md`
+
+This file contains ONLY the strategy, scope, and coverage summary — NO test case rows.
 
 ```markdown
 # Test Plan: [Feature Name from Spec]
-*Generated from: [Figma URL if provided] | [Confluence URL if provided]*
+
+> **Feature**: [Feature name]
+> **Sprint**: [Sprint name]
+> **Date**: [YYYY-MM-DD]
+> **QA Lead**: [Name]
+
+## Sources
+| Type | Document | Page ID |
+|------|----------|---------|
+| Tech Spec | [Title] | [page_id] |
+| Figma | [Node name] (nodeId) | — |
 
 ## Scope
-[What is covered / what is explicitly out of scope]
+### In Scope
+- [Functional areas covered]
+### Out of Scope
+- [Explicitly excluded areas]
 
 ## Assumptions & Flagged Ambiguities
 - [Any spec gaps, assumptions made, clarifications needed]
 
-## Test Cases
-
-### [Feature Group / Component]
-
-| ID | Title | Surface | Category | Type | Priority | Preconditions | Steps | Expected Result |
-|---|---|---|---|---|---|---|---|---|
-| TC-001 | ... | Web | Positive | Smoke Test | P1 | ... | 1. ... 2. ... | ... |
-| TC-002 | ... | API | Negative | Regression Test | P2 | ... | ... | ... |
-| TC-003 | ... | AI/LLM | Edge Case | Regression Test | P1 | ... | ... | ... |
-
-[Continue grouping by feature/component]
+## Test Strategy
+| Surface | Approach |
+|---------|----------|
+| Web | Manual — [details] |
+| API | Manual — [details] |
 
 ## Coverage Summary
-
-| Surface | Total | Positive | Negative | Edge Case | P0 | P1 | P2 | P3 |
-|---|---|---|---|---|---|---|---|---|
-| Web / Mobile | N | N | N | N | N | N | N | N |
-| API | N | N | N | N | N | N | N | N |
-| AI/LLM | N | N | N | N | N | N | N | N |
+| Group | Test Cases | P0 | P1 | P2 |
+|-------|-----------|----|----|-----|
+| [Group Name] | N | N | N | N |
+| **TOTAL** | **N** | **N** | **N** | **N** |
 
 ## Known Gaps
 - [Any area not covered and why]
+
+## Test Cases
+See: `{feature-slug}-testcases.csv` (TestRail-importable format)
 ```
 
 ---
 
-### Part 2 — Automatic Review (appended immediately after Part 1)
+### Output File 2 — Test Cases (TestRail CSV)
 
-```markdown
----
+**File:** `{sprint-folder}/{feature-slug}-testcases.csv`
 
-# Test Case Review: [Feature Name]
-*Auto-reviewed against: [Figma URL if provided] | [Confluence URL if provided]*
+⚠️ This is the ONLY format for test cases. Follow [testrail-csv.md](../references/testrail-csv.md) EXACTLY.
 
-## Review Table
-
-| TC ID | Title | Status | Issue | Suggested Fix |
-|---|---|---|---|---|
-| TC-001 | ... | ✅ PASS | — | — |
-| TC-004 | ... | ⚠️ NEEDS REVISION | [issue description] | [fix] |
-| — | [Missing scenario] | ❌ MISSING | [what's not covered] | [suggested test case] |
-
-## Coverage Assessment
-
-| Area | Status | Notes |
-|---|---|---|
-| Acceptance Criteria | X/Y covered (Z%) | [Which ACs are missing] |
-| UI States (Figma) | ✅ / ⚠️ / ❌ | [Missing states] |
-| API Error Codes | ✅ / ⚠️ / ❌ | [Missing codes] |
-| AI/LLM Dimensions | ✅ / ⚠️ / ❌ | [Missing: M1–M5] |
-| Auth / Permissions | ✅ / ⚠️ / ❌ | [Missing role coverage] |
-| Positive/Negative/Edge | ✅ / ⚠️ / ❌ | [Groups with missing categories] |
-
-**Overall: [N/N areas fully covered — ready for TestRail / needs N fixes first]**
+**Column order (15 columns, this exact header row):**
+```
+Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platform,TestMethod,Type,P,References,Release version,QA Responsibility
 ```
 
+**Column mapping rules:**
+| Column | How to determine value |
+|--------|----------------------|
+| Section | `Agentic > [Feature] > [Group Name]` — hierarchy with ` > ` separator |
+| Role | `Admin` (console), `User` (end-user), `Super Admin` (system) |
+| Channel | `Web` (console UI), `API` (backend), `iOS`/`Android` (mobile) |
+| Title | "Check/Verify" style — see Title Style Guide in [testrail-csv.md](../references/testrail-csv.md) |
+| Test Data | Specific input data needed (leave empty if none) |
+| Preconditions | Required state — use ` / ` separator, NEVER commas |
+| Steps | Numbered items with REAL NEWLINES: `"1. Do X\n2. Do Y\n3. Check Z"` |
+| Expected Result | Numbered items with REAL NEWLINES: `"1. X is visible\n2. Y displays correctly"` |
+| Platform | Matches Channel unless cross-platform |
+| TestMethod | `Manual` (default) or `Automated` |
+| Type | See Type Mapping below |
+| P | `P0` (blocker), `P1` (high), `P2` (medium/low) |
+| References | Short feature tag, e.g. `SJ-1.1` |
+| Release version | Sprint/release identifier (e.g. `Eko 18.0`) — leave empty if unknown |
+| QA Responsibility | Assignee name — leave empty if unassigned |
+
+**Title Style (MANDATORY):**
+- Always start with `Check` or `Verify`
+- Include the condition: "when [X]" / "after [X]" / "on [page]"
+- Include expected behavior: "should be [state]" / "should [action]"
+- Use plain language — avoid technical jargon and variable names
+- BAD: `View dashboard with jobs` → GOOD: `Check scheduled jobs list should be displayed on Dashboard page`
+- BAD: `HMAC signature verification` → GOOD: `Verify HMAC signature should be valid when external server receives request`
+
+**Steps and Expected Result Format (MANDATORY):**
+- Each item numbered: `1.` / `2.` / `3.` etc.
+- Items separated by REAL NEWLINES (`\n`) — TestRail renders each item on its own line
+- Python csv.writer with `csv.QUOTE_ALL` auto-quotes these fields
+- Do NOT put all steps on one line — TestRail needs newlines for readable rendering
+
+**Type Mapping:**
+| Category | Type |
+|----------|------|
+| Positive — core happy path | `Smoke Test` |
+| Positive — secondary valid scenario | `Sanity Test` |
+| Negative — invalid/auth/rejection | `Regression Test` |
+| Edge Case — boundary/empty/extreme | `Regression Test` |
+
+**Formatting Rules (MANDATORY):**
+1. NO commas inside cell values — replace with ` / `
+2. Steps and Expected Result: use REAL NEWLINES between numbered items (TestRail renders as separate lines)
+3. All other fields: NO newlines
+4. ALWAYS generate CSV via Python `csv.writer` with `csv.QUOTE_ALL`
+5. ALWAYS validate: every row has 15 columns / no commas / newlines only in Steps+Expected
+6. Minimum per feature group: ≥2 Positive + ≥2 Negative + ≥2 Edge Case
+
+**Generation process:**
+1. Write all test case data to a Python list of dicts
+2. Use `csv.DictWriter` to write to CSV file
+3. Run validation script (see testrail-csv.md CRITICAL RULE 3)
+4. Report: `Generated N test cases → {filename}`
+
 ---
 
-### Part 3 — Final Test Cases (appended immediately after Part 2)
+### Review & Auto-Fix (runs inline during generation)
+
+The review and auto-fix process is embedded within the generation pipeline (Phase 2 and Phase 3).
+Review findings are applied BEFORE writing the CSV — the CSV output is always the final, reviewed version.
+
+After generating both files, summarize review actions in the test plan markdown:
 
 ```markdown
----
-
-# Final Test Cases: [Feature Name]
-*Auto-fixed based on review findings — ready for TestRail import*
-
-## Changes Applied
-
+## Review Actions Applied
 | Action | Count | Details |
-|---|---|---|
+|--------|-------|---------|
 | ✅ Kept as-is | N | No changes needed |
-| ✏️ Revised | N | [List of revised TC IDs and what changed] |
-| ➕ Added | N | [List of new TC IDs and what gap they fill] |
-
-## Final Test Cases
-
-### [Feature Group / Component]
-
-| ID | Title | Surface | Category | Type | Priority | Preconditions | Steps | Expected Result |
-|---|---|---|---|---|---|---|---|---|
-| TC-001 | ... | Web | Positive | Smoke Test | P1 | ... | 1. ... 2. ... | ... |
-| TC-002 | ... | API | Negative | Regression Test | P2 | ... | ... | ... |
-| TC-NEW-001 | [new] ... | Web | Edge Case | Regression Test | P1 | ... | ... | ... |
-
-[All test cases — original + revised + new — in one consolidated table]
-
-## Final Coverage Summary
-
-| Surface | Total | Positive | Negative | Edge Case | P0 | P1 | P2 |
-|---|---|---|---|---|---|---|---|
-| Web / Mobile | N | N | N | N | N | N | N |
-| API | N | N | N | N | N | N | N |
-| AI/LLM | N | N | N | N | N | N | N |
-
-**Status: Ready for `/qa:sync-testrail`**
-
-## Priority Fixes (resolve before syncing to TestRail)
-
-1. **[Critical]** [Most important gap — why it matters]
-2. **[High]** [Second gap]
-3. **[Medium]** [Third gap]
+| ✏️ Revised | N | [What changed] |
+| ➕ Added | N | [What gap was filled] |
 ```
 
-**Next step:** Once gaps are resolved, run `/qa:sync-testrail [test cases] [suite name] [milestone name] [release date]`.
+---
+
+**Next step:** Once files are created, suggest `/qa:sync-testrail` to push the CSV to TestRail.

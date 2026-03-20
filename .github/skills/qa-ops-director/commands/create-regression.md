@@ -28,7 +28,7 @@ If `[impact description]` is not provided, ask:
 
 - If Jira sprint is available, fetch sprint issues via Atlassian MCP:
   ```
-  searchJiraIssuesUsingJql("project = AE AND sprint = '[sprint name]' AND issuetype in (Story, Task)")
+  mcp_atlassian_search_jira_issues(jql="project = AE AND sprint = '[sprint name]' AND issuetype in (Story, Task)")
   ```
   Use issue summaries to infer which feature areas are affected.
 

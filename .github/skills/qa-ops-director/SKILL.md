@@ -44,6 +44,9 @@ Parameters shown in `[brackets]` are positional — parse them from the message 
 | `/qa:bug-triage` | bug-analyzer | `[Jira bug list or filter URL]` | [bug-triage.md](./commands/bug-triage.md) |
 | `/qa:regression-check` | test-planner + test-case-reviewer | `[release scope or changelog]` | [regression-check.md](./commands/regression-check.md) |
 | `/qa:eod-report` | report-compiler | *(TestRail progress optional)* | [eod-report.md](./commands/eod-report.md) |
+| `/qa:write-ac` | test-planner + bug-analyzer | `[Sprint Board URL]` | [write-ac.md](./commands/write-ac.md) |
+| `/qa:start-sprint` | report-compiler | `[Sprint Board URL]` *(optional)* | [start-sprint.md](./commands/start-sprint.md) |
+| `/qa:end-sprint` | report-compiler | `[Sprint Name or ID]` *(optional)* | [end-sprint.md](./commands/end-sprint.md) |
 
 **Parameter handling:** If a required parameter is missing (e.g., no URL provided for `/qa:test-plan`),
 ask for it before proceeding. For optional parameters, proceed without them and note the limitation.
@@ -60,8 +63,37 @@ Phase 3: Auto-fix → Apply review comments → Add missing test cases / revise 
          (review findings from Phase 2 are applied immediately — no user prompt needed)
 ```
 
-The full output is: **Test Plan** (Part 1) + **Review Report** (Part 2) + **Final Test Cases** (Part 3) in one response.
-Next step after the pipeline: `/qa:sync-testrail` to push to TestRail.
+The full output is **TWO separate files** in the sprint folder:
+1. `{sprint-folder}/{feature-slug}-test-plan.md` — Strategy, scope, coverage summary (NO test case rows)
+2. `{sprint-folder}/{feature-slug}-testcases.csv` — All test cases in **exact TestRail CSV format** (15 columns)
+
+⚠️ Test cases are ALWAYS in CSV format for TestRail import. NEVER output test cases as markdown tables.
+See [testrail-csv.md](./references/testrail-csv.md) for the exact column schema and formatting rules.
+
+Next step after the pipeline: `/qa:sync-testrail` to push the CSV to TestRail.
+
+### Recommended Full Pipeline (Once Per Sprint)
+
+```
+/qa:start-sprint  → Check readiness, verify clean workspace
+/qa:test-plan     → Generate + Review + Auto-fix → outputs test-plan.md + testcases.csv in sprint folder
+/qa:sync-testrail → Push CSV to TestRail
+/qa:write-ac      → Create feature spec + comment AC on Jira tickets
+  ... (testing phase — execute test cases, log bugs) ...
+/qa:end-sprint    → Archive sprint folder into archive/{sprint-name}/
+```
+
+**Sprint scope:** Focus on **Broccoli** quick filter only. Version numbers after sprint names
+(e.g., 18.0, 18.1) change every sprint — use sprint IDs, not version numbers.
+
+**Artifacts lifecycle:** All artifacts are created directly in the sprint folder (`{sprint-name}/`)
+from the start — NEVER at the workspace root. Each sprint folder contains:
+- `{feature-slug}-test-plan.md` — Strategy and coverage summary
+- `{feature-slug}-testcases.csv` — Test cases in TestRail CSV format (15 columns)
+- `generate-csv.py` — Script used to generate/validate the CSV (optional)
+
+At sprint end, `/qa:end-sprint` moves the sprint folder to `archive/{sprint-name}/` — files are
+**never deleted**, only archived. Previous sprint archives remain readable at all times.
 
 ---
 
@@ -83,23 +115,34 @@ look things up manually when an MCP can fetch it directly.
 
 **Figma MCP** — call when given a Figma URL:
 ```
-mcp_figma-remote-_get_design_context(fileKey, nodeId)   → UI flows, component hierarchy, annotations
-mcp_figma-remote-_get_screenshot(fileKey, nodeId)       → Visual snapshot of the frame
-get_metadata(node_url)         → Component names, variants, properties
+⚠️ NEVER use mcp_figma-remote-_get_design_context — it hangs indefinitely on complex nodes!
+
+✅ USE THESE INSTEAD:
+mcp_figma_get_figma_data(fileKey, nodeId, depth=2)   → Component names, layout, types, variants (LOCAL, fast)
+mcp_figma-remote-_get_screenshot(fileKey, nodeId)     → Visual snapshot of the frame (fast)
+
+Figma provides structure/layout/states — actual spec text comes from Confluence.
+Fetch nodes ONE AT A TIME. Use depth=2 (16KB) or depth=3 (50KB).
 ```
 
-**Atlassian MCP** — Jira (domain: `ekoapp.atlassian.net`):
+**Atlassian MCP** — Jira (instance: `ekoapp.atlassian.net`):
 ```
-searchJiraIssuesUsingJql(jql, cloudId)   → Bulk issue fetch by JQL filter
-getJiraIssue(issueKey, cloudId)          → Single issue with full details
-addCommentToJiraIssue(issueKey, comment) → Post QA findings to ticket
+mcp_atlassian_search_jira_issues(jql)           → Bulk issue fetch by JQL filter
+mcp_atlassian_read_jira_issue(issue_key)        → Single issue with full details
+mcp_atlassian_add_jira_comment(issue_key, body) → Post QA findings to ticket
 ```
-Confluence (same domain, space: `EP`):
+Confluence (same instance, space: `EP`):
 ```
-getConfluencePage(pageId, cloudId)                          → Full page content
-searchConfluenceUsingCql(cql, cloudId)                      → Find pages by title/label
-getPagesInConfluenceSpace(spaceKey, cloudId)                 → List all pages in space
+mcp_atlassian_read_confluence_page(page_id)     → Full page content (page_id is REQUIRED — extract from URL)
+mcp_atlassian_search_confluence_pages(cql)      → Find pages by title/label (CQL string)
+mcp_atlassian_list_confluence_spaces()          → List all available spaces
 ```
+
+⚠️ **CRITICAL — Confluence page_id extraction:**
+When given a Confluence URL like `https://ekoapp.atlassian.net/wiki/spaces/EP/pages/3488645131/Page+Title`,
+you MUST extract the numeric page_id (`3488645131`) and pass it as the `page_id` parameter.
+Do NOT pass the full URL — this causes: `Validation failed: Either pageId or title must be provided`.
+There is NO `cloudId` parameter — the MCP server is already configured with the Atlassian instance.
 
 **Gmail MCP** — always create a draft; never send directly without user confirmation:
 ```
@@ -147,6 +190,9 @@ When the user doesn't use a slash command, match their request to the best-fit a
 | Create regression milestone and test run in TestRail for a feature or sprint release | **testrail-manager** | [agent-testrail-manager.md](./references/agent-testrail-manager.md), [testrail-api.md](./references/testrail-api.md) |
 | Triage or analyze Jira bug reports, identify root causes, prioritize for dev team | **bug-analyzer** | [agent-bug-analyzer.md](./references/agent-bug-analyzer.md) |
 | Generate a QA standup report or EOD summary from Jira/TestRail status | **report-compiler** | [agent-report-compiler.md](./references/agent-report-compiler.md) |
+| Write acceptance criteria on Jira sprint tickets from spec + test cases | **test-planner + bug-analyzer** | [write-ac.md](./commands/write-ac.md) |
+| Start a new sprint — readiness check, verify clean workspace, tool connectivity | **report-compiler** | [start-sprint.md](./commands/start-sprint.md) |
+| End/close a sprint — archive specs, test cases, CSVs to sprint-named folder | **report-compiler** | [end-sprint.md](./commands/end-sprint.md) |
 
 ---
 
@@ -161,6 +207,38 @@ Load these when the active agent needs them — not upfront for every request:
 | [testrail-csv.md](./references/testrail-csv.md) | TestRail CSV schema — exact column order and formatting rules |
 | [jira-workflows.md](./references/jira-workflows.md) | JQL queries, bug field mapping, triage workflow |
 | [templates.md](./references/templates.md) | Bug report, test plan, standup, regression checklist templates |
+
+---
+
+## General Principles
+
+---
+
+## Known Issues & Troubleshooting
+
+### Confluence `readConfluencePage` — "Either pageId or title must be provided"
+- **Root cause:** Passing a full Confluence URL instead of the numeric `page_id` to `mcp_atlassian_read_confluence_page`.
+- **Fix:** Always extract the page ID from the URL path segment `/pages/XXXXXXXX/` and pass only the number.
+- **Example:** URL `https://ekoapp.atlassian.net/wiki/spaces/EP/pages/3488645131/Title` → `page_id="3488645131"`
+- **Also:** There is no `cloudId` parameter in the Atlassian MCP tools. Remove it from all calls.
+
+### Atlassian MCP tool names don't match
+- **Root cause:** The MCP tool names use `mcp_atlassian_` prefix (e.g., `mcp_atlassian_read_confluence_page`), not camelCase (e.g., `getConfluencePage`).
+- **Fix:** Always use the `mcp_atlassian_*` naming convention. Use `tool_search_tool_regex` with pattern `mcp_atlassian` to discover available tools if unsure.
+
+### Figma MCP — `get_design_context` HANGS indefinitely (CRITICAL)
+- **Root cause:** `mcp_figma-remote-_get_design_context` is a remote API that generates React+Tailwind code + screenshot for each node. On complex design pages (dashboards, multi-component frames), it hangs with **zero progress for 10+ minutes** and never returns.
+- **Impact:** Entire `/qa:test-plan` process stalls — no error, no timeout, no recovery.
+- **Fix:** **NEVER call `mcp_figma-remote-_get_design_context`**. Use `mcp_figma_get_figma_data` instead:
+  ```
+  mcp_figma_get_figma_data(fileKey="xxx", nodeId="341:7657", depth=2)
+  ```
+  - LOCAL tool (runs on `figma-developer-mcp` process), returns instantly
+  - 16KB at depth=2, 50KB at depth=3 — manageable sizes
+  - Returns component names, types, layout, variants — sufficient for QA
+  - Fetch nodes ONE AT A TIME, not in parallel
+- **For visual reference:** Use `mcp_figma-remote-_get_screenshot` (fast, returns single image)
+- **Strategy:** Confluence provides the spec text; Figma provides UI structure/states only
 
 ---
 

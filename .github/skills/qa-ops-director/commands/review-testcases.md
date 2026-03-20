@@ -28,7 +28,7 @@ coverage completeness by type) and note that AC alignment couldn't be verified.
 | Tool | Purpose | Call |
 |---|---|---|
 | Figma MCP | Verify UI states present in design | `get_design_context`, `get_screenshot` |
-| Confluence (Atlassian MCP) | Verify AC alignment | `getConfluencePage`, `searchConfluenceUsingCql` |
+| Confluence (Atlassian MCP) | Verify AC alignment | `mcp_atlassian_read_confluence_page`, `mcp_atlassian_search_confluence_pages` |
 
 ## Execution Steps
 
@@ -40,15 +40,15 @@ coverage completeness by type) and note that AC alignment couldn't be verified.
    mcp_figma-remote-_get_screenshot(fileKey, nodeId)       → Visually confirm states — loading/empty/error/success
    ```
 
-   **Confluence:**
+   **Confluence:** extract numeric page_id from URL `/pages/XXXXXXXX/`:
    ```
-   getConfluencePage(pageId, cloudId="ekoapp.atlassian.net")
+   mcp_atlassian_read_confluence_page(page_id="3488645131")
    -- or by search:
-   searchConfluenceUsingCql(
-     cql='space = "EP" AND title ~ "[feature name]"',
-     cloudId="ekoapp.atlassian.net"
+   mcp_atlassian_search_confluence_pages(
+     cql='space = "EP" AND title ~ "[feature name]"'
    )
    ```
+   ⚠️ Pass only the numeric page_id — NOT the full URL. No cloudId parameter.
    Number each AC extracted from Confluence so you can cross-reference in the review table.
 
 2. **Review each test case** across the 5 dimensions in [agent-test-case-reviewer.md](../references/agent-test-case-reviewer.md):

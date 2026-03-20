@@ -8,11 +8,11 @@ into concise, ready-to-send QA reports for morning standup and end-of-day summar
 
 **From Jira** — fetch live via Atlassian MCP. Don't ask the user to copy-paste what can be pulled directly:
 ```
-searchJiraIssuesUsingJql(
-  jql="project = AE AND issuetype = Bug AND sprint in openSprints() AND status not in (Done, Closed, Passed, \"Won't fix\", \"Can't reproduce\") ORDER BY priority ASC",
-  cloudId="ekoapp.atlassian.net"
+mcp_atlassian_search_jira_issues(
+  jql="project = AE AND issuetype = Bug AND sprint in openSprints() AND status not in (Done, Closed, Passed, \"Won't fix\", \"Can't reproduce\") ORDER BY priority ASC"
 )
 ```
+⚠️ No `cloudId` parameter needed — the MCP server is already configured with the Atlassian instance.
 
 **From Google Calendar** — read sprint and release milestones:
 ```

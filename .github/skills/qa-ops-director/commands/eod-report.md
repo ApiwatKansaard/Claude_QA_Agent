@@ -19,13 +19,13 @@ If not provided, mark TestRail section as `[pending — provide run progress to 
 
 | Tool | Purpose | Call |
 |---|---|---|
-| Jira (Atlassian MCP) | Today's bug activity, sprint status | `searchJiraIssuesUsingJql` |
+| Jira (Atlassian MCP) | Today's bug activity, sprint status | `mcp_atlassian_search_jira_issues` |
 | Google Calendar MCP | Sprint timeline context | `mcp_google-calend_list-events` |
 | Gmail MCP | Create EOD report draft | `mcp_gmail_draft_email` |
 
 ## Execution Steps
 
-1. **Pull Jira data** using `searchJiraIssuesUsingJql(jql, cloudId="ekoapp.atlassian.net")`:
+1. **Pull Jira data** using `mcp_atlassian_search_jira_issues(jql="...")` — no cloudId needed:
 
    ```
    -- Bugs filed today

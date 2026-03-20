@@ -39,9 +39,8 @@ context to the risk matrix (e.g., "Release in 5 days — only P0+P1 regression f
 
 **Bug history for risk multipliers from Jira:**
 ```
-searchJiraIssuesUsingJql(
-  jql="project = AE AND issuetype = Bug AND component = '[component name]' AND created >= -90d",
-  cloudId="ekoapp.atlassian.net"
+mcp_atlassian_search_jira_issues(
+  jql="project = AE AND issuetype = Bug AND component = '[component name]' AND created >= -90d"
 )
 ```
 If a component had 2+ bugs in the last 3 sprints, escalate its risk level by one tier.

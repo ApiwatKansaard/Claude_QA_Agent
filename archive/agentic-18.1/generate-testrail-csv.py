@@ -1,0 +1,247 @@
+import csv
+import sys
+
+# TestRail CSV: 15 columns - Section / Role / Channel / Title / Test Data / Preconditions / Steps / Expected Result / Platform / TestMethod / Type / P / References / Release version / QA Responsibility
+HEADER = ["Section", "Role", "Channel", "Title", "Test Data", "Preconditions", "Steps", "Expected Result", "Platform", "TestMethod", "Type", "P", "References", "Release version", "QA Responsibility"]
+
+rows = [HEADER]
+
+# Helper to sanitize: no commas / no newlines
+def s(text):
+    return text.replace(",", " / ").replace("\n", " ").replace("\r", " ").strip()
+
+SECTION_BASE = "Scheduled Jobs"
+RELEASE = ""
+QA = ""
+
+def add(section_suffix, role, channel, title, test_data, preconditions, steps, expected, platform, method, tc_type, priority, references):
+    section = f"{SECTION_BASE} > {section_suffix}"
+    rows.append([
+        s(section), s(role), s(channel), s(title), s(test_data), s(preconditions),
+        s(steps), s(expected), s(platform), s(method), s(tc_type), s(priority),
+        s(references), s(RELEASE), s(QA)
+    ])
+
+# ==================== Group 1: Dashboard & Statistics ====================
+sec = "Dashboard & Statistics"
+
+add(sec, "Admin", "Web", "Verify dashboard loads with correct statistics cards when jobs exist", "At least 1 scheduled job", "User is logged in as admin / at least 1 scheduled job exists", "1. Navigate to the Scheduled Jobs dashboard page. 2. Wait for the page to fully load. 3. Observe the stats cards section at the top.", "Dashboard loads with three stats cards: Total Schedulers / Success Rate / Failure Logs. All values match backend data.", "Web", "Manual", "Smoke Test", "P0", "Dashboard")
+add(sec, "Admin", "Web", "Verify dashboard stats refresh accurately after a job run completes", "A job run currently PROCESSING", "User is on the dashboard / a job run is currently PROCESSING", "1. Note current stats values. 2. Wait for job run to complete. 3. Refresh dashboard. 4. Observe stats cards.", "Stats update to reflect latest run. Success Rate recalculates. Failure Logs increments if run failed.", "Web", "Manual", "Sanity Test", "P1", "Dashboard")
+add(sec, "Admin", "Web", "Verify dashboard navigation to Create New Scheduler", "", "User is logged in and on the dashboard page", "1. Navigate to Scheduled Jobs dashboard. 2. Locate Create New Scheduler button. 3. Click button.", "User navigated to Create New Scheduler wizard Step 1. Form is empty.", "Web", "Manual", "Sanity Test", "P1", "Dashboard")
+add(sec, "Admin", "Web", "Verify dashboard returns error state when statistics API fails", "Backend stats endpoint returning HTTP 500", "User is logged in / backend stats endpoint returns 500", "1. Navigate to dashboard. 2. Wait for loading. 3. Observe stats cards.", "Dashboard displays fallback state (-- or N/A) in stats cards. Page does not crash.", "Web", "Manual", "Regression Test", "P2", "Dashboard")
+add(sec, "User", "Web", "Verify dashboard rejects access for unauthorized users", "", "User logged in with non-admin role", "1. Navigate directly to Scheduled Jobs dashboard URL. 2. Observe response.", "Access-denied message shown or user redirected. Dashboard data not rendered.", "Web", "Manual", "Regression Test", "P2", "Dashboard")
+add(sec, "Admin", "Web", "Verify dashboard handles zero scheduled jobs correctly", "No scheduled jobs exist", "User logged in as admin / no jobs exist", "1. Navigate to dashboard. 2. Observe stats cards. 3. Observe job list area.", "Stats: Total=0 / Rate=0% or N/A / Failures=0. Empty state message shown. No division-by-zero.", "Web", "Manual", "Regression Test", "P2", "Dashboard")
+add(sec, "Admin", "Web", "Verify dashboard handles extremely large statistics values", "10000+ jobs in system", "User logged in / system has 10000+ jobs", "1. Navigate to dashboard. 2. Observe stats cards.", "Values render without overflow or layout breakage. Numbers formatted with separators.", "Web", "Manual", "Regression Test", "P2", "Dashboard")
+add(sec, "Admin", "Web", "Verify dashboard handles Success Rate at 100% and 0% boundary", "Scenario A: all success / Scenario B: all failed", "Two scenarios: all runs succeeded / all runs failed", "1. Set up all-success data. 2. Navigate and verify 100%. 3. Set up all-failed data. 4. Verify 0%.", "Correct boundary percentages. No rounding errors or display artifacts.", "Web", "Manual", "Regression Test", "P2", "Dashboard")
+
+# ==================== Group 2: Job List & Search/Filter ====================
+sec = "Job List & Search"
+
+add(sec, "Admin", "Web", "Verify job list displays all scheduled jobs with correct details", "At least 5 jobs with various statuses", "User logged in / at least 5 jobs exist", "1. Navigate to dashboard. 2. Scroll job list. 3. Verify each card shows name / description / last run / status badge.", "All jobs displayed as cards with name / description / last run / status badge / delete icon.", "Web", "Manual", "Smoke Test", "P0", "Job List")
+add(sec, "Admin", "Web", "Verify search bar filters jobs by name keyword", "Jobs: Morning AI Workflow / Data Cleanup / User Analytics", "User on dashboard with multiple jobs", "1. Locate search bar. 2. Type Morning. 3. Observe results.", "Only Morning AI Workflow shown. Other jobs hidden.", "Web", "Manual", "Smoke Test", "P1", "Job List")
+add(sec, "Admin", "Web", "Verify status filter dropdown filters by selected status", "Jobs with Running / Active / Failed statuses", "User on dashboard with various status jobs", "1. Click status filter dropdown. 2. Select Running. 3. Observe job list.", "Only Running jobs displayed. Dropdown shows Running.", "Web", "Manual", "Sanity Test", "P1", "Job List")
+add(sec, "Admin", "Web", "Verify sort by Last update orders jobs correctly", "Multiple jobs with different timestamps", "User on dashboard", "1. Locate Last update sort option. 2. Verify default order. 3. Toggle direction.", "Jobs ordered most recent first by default. Toggle reverses order.", "Web", "Manual", "Sanity Test", "P2", "Job List")
+add(sec, "Admin", "Web", "Verify search returns empty state when no jobs match", "", "At least 3 jobs exist", "1. Type zzz_nonexistent_job in search. 2. Observe job list.", "Empty state message shown. No error. Clearing search restores list.", "Web", "Manual", "Regression Test", "P2", "Job List")
+add(sec, "Admin", "Web", "Verify search handles script injection safely", "", "User on dashboard", "1. Type <script>alert(XSS)</script> in search. 2. Observe page.", "Input treated as plain text. No script execution. UI not disrupted.", "Web", "Manual", "Regression Test", "P2", "Job List")
+add(sec, "Admin", "Web", "Verify combined search and filter work together", "Morning AI Workflow (Running) / Email Campaign (Running) / Data Cleanup (Active)", "User on dashboard with specific jobs", "1. Type Campaign in search. 2. Select Active filter. 3. Observe.", "No results (Campaign is Running not Active). Changing to Running shows it.", "Web", "Manual", "Regression Test", "P2", "Job List")
+add(sec, "Admin", "Web", "Verify search handles special characters correctly", "", "User on dashboard", "1. Type @#$%^&*() in search. 2. Observe. 3. Clear and type emoji. 4. Observe.", "Both handled gracefully. No crashes. Empty state if no matches.", "Web", "Manual", "Regression Test", "P2", "Job List")
+add(sec, "Admin", "Web", "Verify long job names without layout breakage", "Job with 200+ character name", "Dashboard with long-named job", "1. Navigate to dashboard. 2. Locate long-named job. 3. Observe card layout.", "Name truncated with ellipsis or wraps gracefully. No layout breakage.", "Web", "Manual", "Regression Test", "P2", "Job List")
+
+# ==================== Group 3: Create Scheduler Wizard ====================
+sec = "Create Scheduler Wizard"
+
+add(sec, "Admin", "Web", "Verify creating new scheduler with all required fields succeeds", "Name: Test Morning Brief / Webhook: https://api.example.com/ai-webhook / API Key: test-key", "User on Create New Scheduler wizard", "1. Enter Name. 2. Enter Description. 3. Select Repeat: Weekday. 4. Set Time: 08:00. 5. Click Next. 6. Select audience. 7. Enter Webhook URL. 8. Set Timeout. 9. Enter API Key. 10. Select Action: Morning Brief Widget. 11. Select Run Time. 12. Submit.", "Scheduler created. Redirected to dashboard. New job in list with Active status.", "Web", "Manual", "Smoke Test", "P0", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard navigates between steps using Next and Cancel", "", "User on Step 1 with required fields filled", "1. Fill Step 1 fields. 2. Click Next. 3. Verify Step 2 loads. 4. Navigate back. 5. Verify data retained. 6. Click Cancel.", "Next advances to Step 2. Back preserves data. Cancel exits without creating job.", "Web", "Manual", "Sanity Test", "P1", "Create Wizard")
+add(sec, "Admin", "Web", "Verify Schedule Time picker accepts valid times", "", "User on Step 1", "1. Click Schedule Time. 2. Select 14:30. 3. Verify. 4. Change to 00:00. 5. Verify.", "Both times accepted and displayed in HH:MM format.", "Web", "Manual", "Sanity Test", "P1", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard rejects when required Name is empty", "", "User on Step 1", "1. Leave Name empty. 2. Fill other fields. 3. Click Next.", "Form does not advance. Inline validation error on Name field.", "Web", "Manual", "Regression Test", "P1", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard rejects invalid webhook URL format", "Webhook URL: not-a-valid-url", "User on AI Agentic Process section", "1. Enter invalid URL. 2. Fill other fields. 3. Attempt submit.", "Validation error on URL field. Form does not submit.", "Web", "Manual", "Regression Test", "P1", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard rejects when API Key is empty", "", "User on AI Agentic Process section", "1. Enter valid Webhook URL. 2. Leave API Key empty. 3. Attempt submit.", "Validation error on API Key field. Form does not submit.", "Web", "Manual", "Regression Test", "P2", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard handles Timeout at maximum (1 hour)", "Timeout values: 01:00:00 / 01:00:01 / 02:00:00", "User on AI Agentic Process section", "1. Enter 01:00:00. 2. Try 01:00:01. 3. Try 02:00:00. 4. Submit with 01:00:00.", "01:00:00 accepted. Values exceeding 1 hour rejected or capped.", "Web", "Manual", "Regression Test", "P2", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard handles Name at max character length", "255-char name / 256-char name", "User on Step 1", "1. Enter 255-char name. 2. Complete wizard. 3. Try 256-char name.", "255 chars accepted. 256+ chars truncated or validation error.", "Web", "Manual", "Regression Test", "P2", "Create Wizard")
+add(sec, "Admin", "Web", "Verify wizard handles Set time with past time", "", "User on Set Action section", "1. Select Morning Brief Widget. 2. Select Set time. 3. Set time to 2 hours ago. 4. Submit.", "System rejects past time or schedules next occurrence. Clear indication.", "Web", "Manual", "Regression Test", "P2", "Create Wizard")
+
+# ==================== Group 4: Edit Scheduler - Job Configuration ====================
+sec = "Edit Scheduler > Job Configuration"
+
+add(sec, "Admin", "Web", "Verify edit loads pre-filled fields correctly", "Existing job: Morning AI Workflow", "Job exists with Repeat=Weekday / Time=08:00 / Webhook / API Key / Action=Morning Brief Widget", "1. Click Morning AI Workflow. 2. Verify Job Configuration tab active. 3. Check all fields.", "All fields pre-filled with saved values. Fields are editable.", "Web", "Manual", "Smoke Test", "P0", "Edit Config")
+add(sec, "Admin", "Web", "Verify saving changes updates the job", "", "User on Job Configuration tab of existing job", "1. Change Time to 09:00. 2. Change Description. 3. Click Save changes. 4. Navigate away and return.", "Success message. Updated time and description persisted. Timestamp refreshed.", "Web", "Manual", "Smoke Test", "P1", "Edit Config")
+add(sec, "Admin", "Web", "Verify tabs switch correctly", "", "User on detail page of existing job", "1. Verify Job Configuration active. 2. Click Audience. 3. Verify loads. 4. Click History Logs. 5. Verify loads. 6. Click Job Configuration.", "Each tab switches correctly. No data corruption between switches.", "Web", "Manual", "Sanity Test", "P1", "Edit Config")
+add(sec, "Admin", "Web", "Verify save rejects when required field cleared", "", "User on Job Configuration with all fields populated", "1. Clear Name field. 2. Click Save changes.", "Save blocked. Inline validation error on Name. Job not updated.", "Web", "Manual", "Regression Test", "P1", "Edit Config")
+add(sec, "Admin", "Web", "Verify editing deleted job shows error", "", "Direct URL to deleted job", "1. Navigate to deleted job URL. 2. Observe response.", "Job not found error page. Link to return to dashboard.", "Web", "Manual", "Regression Test", "P2", "Edit Config")
+add(sec, "Admin", "Web", "Verify edit rejects malicious webhook URL", "URL: javascript:alert(1)", "User on Job Configuration tab", "1. Replace Webhook URL with javascript:alert(1). 2. Click Save.", "URL validation error. Malicious URL rejected. Original preserved.", "Web", "Manual", "Regression Test", "P2", "Edit Config")
+add(sec, "Admin", "Web", "Verify no-change save does not create false update", "", "User on Job Configuration / timestamp noted", "1. Open tab without modifying. 2. Click Save changes.", "Save button disabled or save succeeds without timestamp change.", "Web", "Manual", "Regression Test", "P2", "Edit Config")
+add(sec, "Admin", "Web", "Verify concurrent edit conflict handled", "Two users editing same job", "Two admins have same job config open", "1. User A changes time and saves. 2. User B changes description and saves.", "User B receives conflict warning or last-write-wins applied. No silent data loss.", "Web", "Manual", "Regression Test", "P2", "Edit Config")
+
+# ==================== Group 5: Audience Management ====================
+sec = "Edit Scheduler > Audience"
+
+add(sec, "Admin", "Web", "Verify selecting individual users updates count", "", "User on Audience tab / users available", "1. Click Audience tab. 2. Check User A. 3. Check User B. 4. Observe count.", "Both checked. Count shows 2 selected.", "Web", "Manual", "Smoke Test", "P0", "Audience")
+add(sec, "Admin", "Web", "Verify selecting directory groups adds members", "Engineering Team (15 members)", "Groups exist in system", "1. Search Engineering in groups. 2. Check Engineering Team. 3. Click Update Audience.", "Group checked. Count reflects selection. Save succeeds.", "Web", "Manual", "Smoke Test", "P1", "Audience")
+add(sec, "Admin", "Web", "Verify combined individual users and groups audience", "", "Users and groups available", "1. Select 2 users. 2. Select 1 group. 3. Click Update Audience. 4. Navigate away and return.", "Audience saved. Returning shows same selections.", "Web", "Manual", "Sanity Test", "P1", "Audience")
+add(sec, "Admin", "Web", "Verify Update Audience rejects zero selection", "", "Audience tab / 0 selected", "1. Ensure no checkboxes checked. 2. Click Update Audience.", "Button disabled or validation error. Not saved as empty.", "Web", "Manual", "Regression Test", "P2", "Audience")
+add(sec, "Admin", "Web", "Verify user search returns no results for non-existent name", "", "User in Individual Users section", "1. Type zzz_fakeuserXYZ in search. 2. Observe.", "Empty state message. No error. Clearing restores list.", "Web", "Manual", "Regression Test", "P2", "Audience")
+add(sec, "Admin", "Web", "Verify deselecting all users after previous save", "", "Job has 3 users selected", "1. Uncheck all 3. 2. Click Update Audience.", "Warning about empty audience or consistent with zero selection behavior.", "Web", "Manual", "Regression Test", "P2", "Audience")
+add(sec, "Admin", "Web", "Verify selecting all 500+ users", "500+ users available", "Audience tab with large user list", "1. Click Select All (if exists). 2. Observe count and performance. 3. Click Update Audience.", "All selected with correct count. UI not frozen. Save completes.", "Web", "Manual", "Regression Test", "P2", "Audience")
+add(sec, "Admin", "Web", "Verify duplicate users across individual and group deduplicated", "User A in both individual list and Engineering Team", "User A exists individually and in a group", "1. Select User A individually. 2. Select group containing User A. 3. Update Audience.", "System deduplicates. User A receives delivery once. Count reflects unique users.", "Web", "Manual", "Regression Test", "P2", "Audience")
+
+# ==================== Group 6: History Logs & Retry ====================
+sec = "Edit Scheduler > History Logs"
+
+add(sec, "Admin", "Web", "Verify History Logs displays rates and run history", "", "Job has 5+ completed runs (mix success/failure)", "1. Click History Logs tab. 2. Observe stats. 3. Observe run history table.", "Accurate rates (e.g. 60.5% / 19.5%). Table shows Job Name / Failed at / audience count.", "Web", "Manual", "Smoke Test", "P0", "History Logs")
+add(sec, "Admin", "Web", "Verify retrying failed deliveries triggers reprocessing", "", "History Logs tab / failed deliveries with retry buttons", "1. Locate failed delivery. 2. Click Retry. 3. Observe confirmation dialog. 4. Confirm.", "Dialog: Retry Failed Deliveries?. Retry initiated. Status updates.", "Web", "Manual", "Smoke Test", "P1", "History Logs")
+add(sec, "Admin", "Web", "Verify export downloads history log data", "", "History Logs with data", "1. Click Export. 2. Observe download.", "CSV/Excel downloaded with all columns. Data matches UI.", "Web", "Manual", "Sanity Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify pagination navigates correctly", "", "400+ run records exist", "1. Observe 1-10 of 400. 2. Click next. 3. Click previous.", "Page 2: 11-20 of 400. Previous: 1-10. No duplicates.", "Web", "Manual", "Sanity Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify retry disabled when no failures exist", "", "Run with all COMPLETED deliveries", "1. Navigate to History Logs. 2. View successful run. 3. Check retry buttons.", "Retry buttons hidden or disabled. Failure section empty.", "Web", "Manual", "Regression Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify export handles empty history gracefully", "", "Newly created job with no runs", "1. Navigate to History Logs. 2. Observe empty table. 3. Click Export.", "Export disabled or No data to export message. If file: headers only.", "Web", "Manual", "Regression Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify retry disabled on already-retrying delivery", "", "Failed delivery retry currently PROCESSING", "1. Locate in-progress retry. 2. Attempt click Retry again.", "Button disabled. No duplicate retry. Status tooltip shown.", "Web", "Manual", "Regression Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify last page pagination with fewer records", "", "Total records = 43", "1. Navigate to last page. 2. Observe indicator and rows.", "Shows 41-43 of 43. Next disabled. Only 3 rows.", "Web", "Manual", "Regression Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify rapid retry clicks handled correctly", "", "Failed delivery visible", "1. Rapidly double/triple click Retry.", "Only one retry triggered. Button debounced or dialog prevents duplicates.", "Web", "Manual", "Regression Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify stats recalculate after retry success", "", "Success Rate 60.5% / failed delivery exists", "1. Note rates. 2. Retry failed delivery. 3. Wait for success. 4. Refresh.", "Success Rate increases / Failed Rate decreases. Mathematically consistent.", "Web", "Manual", "Regression Test", "P2", "History Logs")
+
+# ==================== Group 7: Job CRUD API ====================
+sec = "Job CRUD API"
+
+add(sec, "Admin", "API", "Verify job creation succeeds with all required fields", "Body: { name / cron_expression: 0 8 * * * / webhook_url / webhook_api_key / action_type: home_page_widget }", "Admin authenticated with valid JWT", "1. POST /api/v1/scheduled-jobs with required fields. 2. Inspect response.", "201 with job object / generated id / status ACTIVE.", "API", "Manual", "Smoke Test", "P0", "Job CRUD")
+add(sec, "Admin", "API", "Verify job creation with all required and optional fields", "Required + description / timezone / timeout / audience_user_ids / audience_group_ids", "Admin authenticated", "1. POST /api/v1/scheduled-jobs with all fields. 2. Inspect response.", "201 with all optional fields stored correctly.", "API", "Manual", "Sanity Test", "P1", "Job CRUD")
+add(sec, "Admin", "API", "Verify job list returns paginated results", "15+ jobs exist", "Admin authenticated / 15+ jobs", "1. GET /api/v1/scheduled-jobs?page=1&limit=10. 2. GET page=2.", "First: 10 jobs with pagination metadata. Second: remaining jobs.", "API", "Manual", "Smoke Test", "P0", "Job CRUD")
+add(sec, "Admin", "API", "Verify get job detail succeeds with valid ID", "Known job ID", "Admin authenticated / job exists", "1. GET /api/v1/scheduled-jobs/:id. 2. Inspect body.", "200 with full job object including audience / cron / webhook / action.", "API", "Manual", "Smoke Test", "P0", "Job CRUD")
+add(sec, "Admin", "API", "Verify job update succeeds with partial fields", "Body: { description: Updated }", "Admin authenticated / ACTIVE job exists", "1. PUT /api/v1/scheduled-jobs/:id. 2. GET to confirm.", "200. Only description changed / other fields unchanged.", "API", "Manual", "Sanity Test", "P1", "Job CRUD")
+add(sec, "Admin", "API", "Verify job deletion returns 204", "ACTIVE job ID", "Admin authenticated / ACTIVE job exists", "1. DELETE /api/v1/scheduled-jobs/:id. 2. GET same ID.", "204 on delete. 404 on subsequent GET.", "API", "Manual", "Smoke Test", "P0", "Job CRUD")
+add(sec, "Admin", "API", "Verify creation returns 400 when required field missing", "Body missing name field", "Admin authenticated", "1. POST without name. 2. Inspect response.", "400 with validation error: name required.", "API", "Manual", "Regression Test", "P1", "Job CRUD")
+add(sec, "Admin", "API", "Verify creation returns 422 for invalid cron", "cron_expression: invalid-cron", "Admin authenticated", "1. POST with invalid cron. 2. Inspect response.", "422 with invalid cron expression error.", "API", "Manual", "Regression Test", "P1", "Job CRUD")
+add(sec, "Admin", "API", "Verify update returns 409 when PROCESSING", "", "Admin authenticated / run PROCESSING", "1. PUT /api/v1/scheduled-jobs/:id.", "409: cannot update while PROCESSING.", "API", "Manual", "Regression Test", "P1", "Job CRUD")
+add(sec, "Admin", "API", "Verify deletion returns 409 when PROCESSING", "", "Admin authenticated / run PROCESSING", "1. DELETE /api/v1/scheduled-jobs/:id.", "409: cannot delete while PROCESSING.", "API", "Manual", "Regression Test", "P1", "Job CRUD")
+add(sec, "Admin", "API", "Verify get detail returns 404 for non-existent ID", "", "Admin authenticated", "1. GET /api/v1/scheduled-jobs/non-existent-uuid.", "404: job not found.", "API", "Manual", "Regression Test", "P2", "Job CRUD")
+add(sec, "Admin", "API", "Verify list filters by status and search with pagination", "Query: ?status=ACTIVE&search=Morning&page=1&limit=5", "Admin authenticated / various jobs", "1. GET with status + search + pagination params. 2. Inspect schema.", "200 with only ACTIVE jobs matching Morning. Pagination metadata included.", "API", "Manual", "Sanity Test", "P2", "Job CRUD")
+add(sec, "Admin", "API", "Verify creation handles max length name", "255-char name / 256-char name", "Admin authenticated", "1. POST with 255-char name. 2. POST with 256-char name.", "255 → 201. 256 → 400 validation error.", "API", "Manual", "Regression Test", "P2", "Job CRUD")
+add(sec, "Admin", "API", "Verify list handles zero results", "search=zzz_nonexistent", "Admin authenticated / no matching jobs", "1. GET with non-matching search.", "200 with empty array / total: 0.", "API", "Manual", "Regression Test", "P2", "Job CRUD")
+add(sec, "Admin", "API", "Verify list handles page beyond total pages", "page=999&limit=10", "Admin authenticated / 5 jobs", "1. GET with page=999.", "200 with empty array / correct metadata.", "API", "Manual", "Regression Test", "P2", "Job CRUD")
+
+# ==================== Group 8: Trigger & Cron ====================
+sec = "Trigger Step & Cron"
+
+add(sec, "Admin", "API", "Verify manual trigger succeeds and creates job run", "", "Admin authenticated / ACTIVE job with audience", "1. POST /api/v1/scheduled-jobs/:id/trigger. 2. Inspect response. 3. GET runs.", "202. New run record: PENDING → PROCESSING.", "API", "Manual", "Smoke Test", "P0", "Trigger")
+add(sec, "Admin", "API", "Verify cron fires at configured schedule", "cron: * * * * * (every minute)", "ACTIVE job with every-minute cron", "1. Create job. 2. Wait for next minute. 3. Query runs.", "New run automatically created at scheduled time.", "API", "Manual", "Sanity Test", "P1", "Trigger")
+add(sec, "Admin", "API", "Verify audience resolution deduplicates overlapping groups", "user_ids: [u1] / group_ids: [g1 containing u1]", "Job with overlapping audience", "1. Trigger job. 2. Inspect run total_users.", "u1 appears once. total_users = unique count.", "API", "Manual", "Regression Test", "P1", "Trigger")
+add(sec, "Admin", "API", "Verify timezone applied correctly to cron", "cron: 0 8 * * * / timezone: Asia/Bangkok", "Job with timezone config", "1. Create job. 2. Inspect next run time.", "Scheduled at 08:00 ICT not UTC.", "API", "Manual", "Regression Test", "P2", "Trigger")
+add(sec, "Admin", "API", "Verify manual trigger returns 404 for non-existent job", "", "Admin authenticated", "1. POST /trigger for non-existent ID.", "404: job not found.", "API", "Manual", "Regression Test", "P2", "Trigger")
+add(sec, "Admin", "API", "Verify trigger fails when job has no audience", "", "Job with empty audience", "1. POST /trigger.", "400: no audience to process / or run with total_users: 0.", "API", "Manual", "Regression Test", "P2", "Trigger")
+add(sec, "Admin", "API", "Verify trigger handles 10000+ users", "10000+ users via groups", "Job with large audience", "1. Trigger. 2. Monitor progress.", "Run created with correct total. Batch processing succeeds.", "API", "Manual", "Regression Test", "P2", "Trigger")
+add(sec, "Admin", "API", "Verify concurrent manual triggers handled", "", "ACTIVE job exists", "1. Send 2 simultaneous trigger requests. 2. Query runs.", "Either both create runs or second returns 409. No corruption.", "API", "Manual", "Regression Test", "P2", "Trigger")
+
+# ==================== Group 9: Process Step & Webhook ====================
+sec = "Process Step & Webhook"
+
+add(sec, "Admin", "API", "Verify webhook sends correct payload to AI service", "3 users in audience", "Job triggered / mock webhook", "1. Trigger with 3 users. 2. Inspect mock request.", "POST with { job_id / run_id / audiences: [{user_id / display_name / email}] / metadata }.", "API", "Manual", "Smoke Test", "P0", "Webhook")
+add(sec, "Admin", "API", "Verify webhook has correct auth headers", "", "Job triggered / mock webhook", "1. Trigger. 2. Inspect headers.", "X-API-Key matches config. X-Signature is valid HMAC-SHA256.", "API", "Manual", "Smoke Test", "P0", "Webhook")
+add(sec, "Admin", "API", "Verify callback processes and updates per-user status", "Callback: { job_id / run_id / user_id: u1 / status: success / result_payload }", "Run PROCESSING / users PENDING", "1. POST /callback with valid data + X-Signature. 2. Inspect status.", "200. User u1 → SUCCESS.", "API", "Manual", "Smoke Test", "P0", "Webhook")
+add(sec, "Admin", "API", "Verify batch throttling at 10 per batch", "25 users", "Job with 25 users / mock with timestamps", "1. Trigger. 2. Inspect request logs.", "3 batches: 10 / 10 / 5 with delays between.", "API", "Manual", "Regression Test", "P1", "Webhook")
+add(sec, "Admin", "API", "Verify webhook timeout respected", "Timeout: 5s / mock delays 10s", "Job with 5s timeout", "1. Trigger. 2. Wait. 3. Inspect run.", "After 5s: timeout. Run → FAILED/CUTOFF.", "API", "Manual", "Regression Test", "P1", "Webhook")
+add(sec, "Admin", "API", "Verify callback rejects invalid HMAC signature", "X-Signature with wrong secret", "Run PROCESSING", "1. POST /callback with wrong signature.", "401. Callback rejected. Status unchanged.", "API", "Manual", "Regression Test", "P1", "Webhook")
+add(sec, "Admin", "API", "Verify callback returns 404 for non-existent run", "run_id: fake-run", "No matching run", "1. POST /callback with fake run_id.", "404: run not found.", "API", "Manual", "Regression Test", "P2", "Webhook")
+add(sec, "Admin", "API", "Verify timeout at max boundary (3600s)", "Timeout: 3600 / 3601", "Admin authenticated", "1. Create with 3600. 2. Create with 3601.", "3600 → 201. 3601 → 400.", "API", "Manual", "Regression Test", "P2", "Webhook")
+add(sec, "Admin", "API", "Verify duplicate callback handled idempotently", "u1 already SUCCESS", "Run with u1 already succeeded", "1. Send callback for u1 again.", "200 no change or 409. No duplicate widgets.", "API", "Manual", "Regression Test", "P2", "Webhook")
+add(sec, "Admin", "API", "Verify empty result_payload handled", "result_payload: null", "Run PROCESSING", "1. POST /callback with null payload.", "400 or processes with empty content.", "API", "Manual", "Regression Test", "P2", "Webhook")
+
+# ==================== Group 10: Action & Home Page Delivery ====================
+sec = "Action & Home Page Delivery"
+
+add(sec, "Admin", "Web", "Verify Morning Brief widget created after successful callback", "result_payload: { type: morning_brief / title / content / generated_at }", "Job triggered with home_page_widget / success callback", "1. Trigger. 2. Send success callback for u1. 3. Open u1 home page.", "Widget displayed with correct title / content / timestamp.", "Web", "Manual", "Smoke Test", "P0", "Home Page Widget")
+add(sec, "Admin", "Web", "Verify widget updated not duplicated on new callback", "", "u1 already has Morning Brief", "1. Trigger new run. 2. Send callback for u1 with new content. 3. Open home page.", "Existing widget updated. Not duplicated.", "Web", "Manual", "Regression Test", "P1", "Home Page Widget")
+add(sec, "Admin", "API", "Verify immediate delivery mode works instantly", "", "Job with immediate delivery / run PROCESSING", "1. Send success callback. 2. Immediately query widgets.", "Widget available immediately.", "API", "Manual", "Sanity Test", "P1", "Home Page Widget")
+add(sec, "Admin", "API", "Verify scheduled delivery mode delivers at specified time", "Delivery time: 5 min in future", "Job with scheduled delivery", "1. Send callback. 2. Check immediately. 3. Wait. 4. Check again.", "Not visible immediately. Appears at scheduled time.", "API", "Manual", "Regression Test", "P1", "Home Page Widget")
+add(sec, "Admin", "API", "Verify widget not created when callback status failed", "status: failed", "Run PROCESSING", "1. Send failed callback for u1. 2. Check home page.", "No widget created. Per-user status = FAILED.", "API", "Manual", "Regression Test", "P1", "Home Page Widget")
+add(sec, "Admin", "API", "Verify unsupported action_type rejected", "action_type: unsupported_action", "Admin authenticated", "1. POST /api/v1/scheduled-jobs with unsupported action.", "400: unsupported action_type.", "API", "Manual", "Regression Test", "P2", "Home Page Widget")
+add(sec, "Admin", "Web", "Verify widget handles 50000+ char content", "Content: 50000+ characters", "Callback with huge content", "1. Send callback. 2. Check widget.", "Widget rendered without errors. Content displayed or gracefully truncated.", "Web", "Manual", "Regression Test", "P2", "Home Page Widget")
+add(sec, "Admin", "Web", "Verify widget handles HTML/script injection safely", "title: <script>alert(1)</script>", "Callback with script in result_payload", "1. Send callback with script tags. 2. Open home page.", "HTML sanitized. No XSS. Content renders safely.", "Web", "Manual", "Regression Test", "P2", "Home Page Widget")
+add(sec, "Admin", "API", "Verify delivery handles deactivated user gracefully", "", "u1 deactivated after trigger", "1. Trigger with u1. 2. Deactivate u1. 3. Send callback.", "No unhandled error. Widget skipped or warning logged.", "API", "Manual", "Regression Test", "P2", "Home Page Widget")
+
+# ==================== Group 11: Job Run Lifecycle ====================
+sec = "Job Run Lifecycle"
+
+add(sec, "Admin", "API", "Verify PENDING → PROCESSING → COMPLETED when all succeed", "3 users / all success", "Job with 3 users / mock success", "1. Trigger. 2. Verify PENDING. 3. Wait (PROCESSING). 4. All callbacks succeed. 5. Query.", "COMPLETED. total: 3 / success: 3 / failed: 0 / cutoff: 0.", "API", "Manual", "Smoke Test", "P0", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify run history returns paginated results", "", "Job has 15+ runs", "1. GET /runs?page=1&limit=10.", "200 with 10 runs / pagination / most recent first.", "API", "Manual", "Sanity Test", "P1", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify retry of failed deliveries succeeds", "", "Run COMPLETED / 2 of 5 users FAILED", "1. POST /retry. 2. Monitor re-processing.", "202. 2 failed users re-processed. Success → per-user SUCCESS.", "API", "Manual", "Regression Test", "P1", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify run FAILED when all deliveries fail", "3 users / all fail", "Job with 3 users / all fail", "1. Trigger. 2. All callbacks fail. 3. Query.", "FAILED. success: 0 / failed: 3.", "API", "Manual", "Regression Test", "P1", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify CUTOFF when timeout exceeded", "20 users / timeout 10s", "Webhook delays beyond timeout", "1. Trigger. 2. First batch succeeds. 3. Timeout expires. 4. Query.", "CUTOFF. success: 10 / cutoff for remaining.", "API", "Manual", "Regression Test", "P1", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify retry returns error for PROCESSING run", "", "Run currently PROCESSING", "1. POST /retry.", "409: cannot retry while processing.", "API", "Manual", "Regression Test", "P2", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify run history 404 for non-existent job", "", "Admin authenticated", "1. GET /runs for non-existent job ID.", "404: job not found.", "API", "Manual", "Regression Test", "P2", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify mixed results (partial success) per-user status", "5 users: 3 success / 1 fail / 1 timeout", "Job with 5 users / mixed outcomes", "1. Trigger. 2. Send mixed callbacks. 3. Query.", "Per-user status correct. Stats: success 3 / failed 1 / cutoff 1.", "API", "Manual", "Regression Test", "P1", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify stats accurate after multiple retries", "", "Run with 2 FAILED / retry partially", "1. Retry. 2. One succeeds / one fails. 3. Retry again. 4. Query.", "Stats updated cumulatively. No double-counting.", "API", "Manual", "Regression Test", "P2", "Run Lifecycle")
+add(sec, "Admin", "API", "Verify late callback after CUTOFF handled", "", "Run CUTOFF / late callback arrives", "1. Let run reach CUTOFF. 2. Send late success callback.", "Either ignored or accepted deterministically. No errors.", "API", "Manual", "Regression Test", "P2", "Run Lifecycle")
+
+# ==================== Group 12: Auth & Security ====================
+sec = "Auth & Security"
+
+add(sec, "Admin", "API", "Verify admin can create scheduled job", "", "Admin role JWT", "1. POST /api/v1/scheduled-jobs with admin JWT.", "201: job created.", "API", "Manual", "Smoke Test", "P0", "Auth")
+add(sec, "Admin", "API", "Verify webhook X-Signature is valid HMAC-SHA256", "", "Job triggered / mock capturing", "1. Trigger. 2. Capture X-Signature + body. 3. Compute HMAC. 4. Compare.", "Computed HMAC matches X-Signature.", "API", "Manual", "Sanity Test", "P1", "Auth")
+add(sec, "Admin", "API", "Verify callback validates HMAC signature", "", "Run PROCESSING", "1. Compute correct HMAC. 2. POST /callback with correct signature.", "200: accepted.", "API", "Manual", "Regression Test", "P1", "Auth")
+add(sec, "User", "API", "Verify non-admin receives 403 on create", "", "Non-admin JWT", "1. POST /scheduled-jobs with non-admin JWT.", "403: insufficient permissions.", "API", "Manual", "Smoke Test", "P0", "Auth")
+add(sec, "User", "API", "Verify unauthenticated returns 401 on all endpoints", "", "No JWT token", "1. GET without auth. 2. POST without auth. 3. DELETE without auth.", "All return 401.", "API", "Manual", "Smoke Test", "P0", "Auth")
+add(sec, "User", "API", "Verify non-admin cannot update or delete", "", "Non-admin JWT / job exists", "1. PUT with non-admin JWT. 2. DELETE with non-admin JWT.", "Both return 403. Job unchanged.", "API", "Manual", "Regression Test", "P1", "Auth")
+add(sec, "User", "API", "Verify expired JWT returns 401", "Expired JWT token", "Expired JWT", "1. GET /scheduled-jobs with expired JWT.", "401: token expired.", "API", "Manual", "Regression Test", "P1", "Auth")
+add(sec, "Admin", "API", "Verify rate limiting returns 429", "", "Admin authenticated", "1. Send 100+ rapid requests.", "After threshold: 429 with Retry-After.", "API", "Manual", "Regression Test", "P2", "Auth")
+add(sec, "Admin", "API", "Verify webhook_api_key not exposed in GET response", "", "Admin authenticated / job with api_key", "1. GET /scheduled-jobs/:id. 2. Inspect webhook_api_key.", "Key masked or omitted. No plaintext leakage.", "API", "Manual", "Regression Test", "P1", "Auth")
+add(sec, "User", "API", "Verify tampered JWT payload rejected", "Tampered JWT", "Valid JWT available", "1. Decode JWT. 2. Modify role. 3. Re-encode without signing. 4. Send.", "401: signature verification failed.", "API", "Manual", "Regression Test", "P1", "Auth")
+
+# ==================== Group 13: AI/LLM M1-M5 ====================
+sec = "AI-LLM Mandatory Scenarios"
+
+add(sec, "Admin", "API", "[M1] Verify system ignores prompt injection in callback payload", "result_payload with injection text", "Run PROCESSING / AI webhook live", "1. Send callback with injected instructions in title/content. 2. Check widget.", "Widget shows literal text. No instructions executed. No secrets leaked.", "API", "Manual", "Regression Test", "P0", "AI-LLM M1")
+add(sec, "Admin", "API", "[M1] Verify injected display_name handled safely", "User display_name with injection", "User with malicious display_name in audience", "1. Create user with injected name. 2. Add to audience. 3. Trigger. 4. Inspect result.", "Name treated as literal text. Normal brief returned. No data leaked.", "API", "Manual", "Regression Test", "P0", "AI-LLM M1")
+add(sec, "Admin", "API", "[M2] Verify Morning Brief content is factually accurate", "User with 3 unread messages / 1 meeting", "User with verifiable known data", "1. Trigger. 2. Get callback. 3. Cross-reference with actual data.", "Brief accurately reflects real data. No fabricated content.", "API", "Manual", "Regression Test", "P1", "AI-LLM M2")
+add(sec, "Admin", "API", "[M2] Verify no fabricated content for inactive user", "User with zero activity", "User with no recent activity", "1. Trigger for inactive user. 2. Inspect content.", "Says No recent activity or generic greeting. No hallucinated data.", "API", "Manual", "Regression Test", "P1", "AI-LLM M2")
+add(sec, "Admin", "API", "[M3] Verify widget JSON valid with unusual characters", "Unicode / emoji / RTL text in payload", "AI returns diverse character payload", "1. Send callback with Unicode/emoji/RTL. 2. Inspect widget JSON.", "Valid JSON. Schema intact. All characters preserved.", "API", "Manual", "Regression Test", "P1", "AI-LLM M3")
+add(sec, "Admin", "API", "[M3] Verify widget JSON intact with minimal content", "title: empty / content: single space", "AI returns near-empty payload", "1. Send callback with minimal content. 2. Inspect widget.", "JSON schema valid. No malformed JSON or crash.", "API", "Manual", "Regression Test", "P2", "AI-LLM M3")
+add(sec, "Admin", "API", "[M4] Verify P95 latency within SLA under load", "50 concurrent jobs / 10 users each", "Load test environment", "1. Trigger 50 jobs simultaneously. 2. Measure response times. 3. Calculate P95.", "P95 within SLA. No unexpected timeouts. Accurate status.", "API", "Manual", "Regression Test", "P1", "AI-LLM M4")
+add(sec, "Admin", "API", "[M4] Verify throughput with max batch concurrency", "10 jobs x 100 users", "Load test environment", "1. Trigger 10 jobs within 1 minute. 2. Monitor queue.", "All complete. Throttling respected. Error rate < 1%.", "API", "Manual", "Regression Test", "P2", "AI-LLM M4")
+add(sec, "Admin", "API", "[M5] Verify graceful degradation when AI unavailable", "Webhook endpoint down", "Unreachable webhook URL", "1. Configure down endpoint. 2. Trigger. 3. Check run status. 4. Check home page.", "Run FAILED. All per-user FAILED. No widget. Friendly error. System stable.", "API", "Manual", "Regression Test", "P0", "AI-LLM M5")
+add(sec, "Admin", "API", "[M5] Verify degradation when AI returns 500", "", "Mock webhook returns 500", "1. Trigger. 2. Inspect run. 3. Check home pages.", "Run FAILED. No malformed widgets. Error logged. Recovery works.", "API", "Manual", "Regression Test", "P1", "AI-LLM M5")
+add(sec, "Admin", "API", "[M5] Verify partial degradation on batch timeout", "30 users / timeout 30s / first 10 succeed", "AI responds for first batch only", "1. Trigger. 2. First batch succeeds. 3. Rest timeout. 4. Inspect.", "CUTOFF. success: 10 / cutoff: 20. Widgets for 10 only.", "API", "Manual", "Regression Test", "P1", "AI-LLM M5")
+
+# ==================== New Test Cases from Review ====================
+sec = "Job List & Search"
+add(sec, "Admin", "Web", "Verify delete job from list shows confirmation and removes job", "", "User on dashboard / job exists", "1. Click trash-can icon on job card. 2. Observe confirmation dialog. 3. Confirm. 4. Observe list.", "Dialog appears. Job removed. Stats update. Success message.", "Web", "Manual", "Smoke Test", "P1", "Job List")
+add(sec, "Admin", "Web", "Verify delete confirmation can be cancelled", "", "Delete confirmation dialog shown", "1. Click trash-can. 2. Observe dialog. 3. Click Cancel. 4. Observe list.", "Dialog closes. Job remains. No deletion.", "Web", "Manual", "Regression Test", "P2", "Job List")
+
+sec = "Edit Scheduler > Job Configuration"
+add(sec, "Admin", "Web", "Verify back arrow returns to job list", "", "User on Edit Scheduler page", "1. Click back arrow in header. 2. Observe navigation.", "Returned to dashboard/job list. No unsaved warning if unmodified.", "Web", "Manual", "Sanity Test", "P1", "Edit Config")
+
+sec = "Create Scheduler Wizard"
+add(sec, "Admin", "Web", "Verify one-time job (Does not repeat) executes once", "", "Creating new scheduler", "1. Select Repeat: Does not repeat. 2. Set time. 3. Complete wizard. 4. Wait for execution. 5. Check status.", "Executes once. Status → Completed/Inactive. Does not re-run.", "Web", "Manual", "Regression Test", "P1", "Create Wizard")
+
+sec = "Edit Scheduler > History Logs"
+add(sec, "Admin", "Web", "Verify History Logs search filters by keyword", "", "Multiple runs with different dates", "1. Locate search bar. 2. Type keyword. 3. Observe filtered results.", "Results filtered. Only matching runs shown. Clear restores list.", "Web", "Manual", "Sanity Test", "P2", "History Logs")
+add(sec, "Admin", "Web", "Verify Select All + bulk retry re-processes all failures", "", "Failure Logs with multiple failed users", "1. Click Select all. 2. Click bulk Retry. 3. Observe dialog. 4. Confirm.", "All selected. Confirmation shown. All re-processed on confirm.", "Web", "Manual", "Smoke Test", "P1", "History Logs")
+
+# ==================== Write CSV ====================
+OUTPUT_FILE = "ekoai-scheduled-jobs-testrail.csv"
+
+with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+    writer.writerows(rows)
+
+# ==================== Validate ====================
+with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+    validated = list(csv.reader(f))
+
+bad_cols = [(i+1, len(r)) for i, r in enumerate(validated) if len(r) != 15]
+embedded_commas = [(i+1, r[3][:40]) for i, r in enumerate(validated[1:], start=1) for cell in r if "," in cell]
+embedded_newlines = [(i+1,) for i, r in enumerate(validated[1:], start=1) for cell in r if "\n" in cell or "\r" in cell]
+
+print(f"Total rows (including header): {len(validated)}")
+print(f"Test cases: {len(validated) - 1}")
+print(f"Rows with wrong column count: {bad_cols}")
+print(f"Cells with embedded commas: {len(embedded_commas)}")
+print(f"Cells with embedded newlines: {len(embedded_newlines)}")
+
+if not bad_cols and not embedded_commas and not embedded_newlines:
+    print("\n✅ CSV validation PASSED — ready for TestRail import")
+else:
+    print("\n❌ CSV validation FAILED — fix issues above")
+    if bad_cols:
+        print(f"  Bad rows: {bad_cols[:5]}")
+    if embedded_commas:
+        print(f"  Comma cells: {embedded_commas[:5]}")
+    if embedded_newlines:
+        print(f"  Newline cells: {embedded_newlines[:5]}")

@@ -20,16 +20,16 @@ to copy-paste bug details that can be pulled live.
 
 **Single issue:**
 ```
-getJiraIssue(issueKey="AE-XXXX", cloudId="ekoapp.atlassian.net")
+mcp_atlassian_read_jira_issue(issue_key="AE-XXXX")
 ```
 
 **Bulk fetch by JQL:**
 ```
-searchJiraIssuesUsingJql(
-  jql="project = AE AND issuetype = Bug AND ...",
-  cloudId="ekoapp.atlassian.net"
+mcp_atlassian_search_jira_issues(
+  jql="project = AE AND issuetype = Bug AND ..."
 )
 ```
+⚠️ No `cloudId` parameter needed — the MCP server is already configured.
 
 **Default JQL options** — offer these if the user doesn't specify a filter:
 ```

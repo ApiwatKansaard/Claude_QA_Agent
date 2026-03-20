@@ -13,11 +13,11 @@ Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platfor
 | 1 | Section | Yes | Hierarchy with ` > ` separator, e.g. `Agentic > Base Skill > Internal Library` |
 | 2 | Role | Yes | `User`, `Admin`, `Super Admin` |
 | 3 | Channel | Yes | `Web`, `iOS`, `Android`, `API` |
-| 4 | Title | Yes | Concise, action-oriented sentence describing what is being verified |
+| 4 | Title | Yes | "Check/Verify" style — see Title Style Guide below |
 | 5 | Test Data | No | Specific input data or content needed to execute the test |
 | 6 | Preconditions | No | State required before executing — use ` / ` separator, NEVER commas |
-| 7 | Steps | Yes | Numbered steps on a SINGLE LINE separated by `. ` — e.g. `1. Do this. 2. Do that. 3. Check result.` |
-| 8 | Expected Result | Yes | Observable, precise expected outcome |
+| 7 | Steps | Yes | Numbered steps with REAL NEWLINES between items — e.g. `"1. Open Dashboard\n2. Click Create button"` (TestRail renders as separate lines) |
+| 8 | Expected Result | Yes | Numbered expected outcomes with REAL NEWLINES — e.g. `"1. Wizard opens\n2. Name field is active"` (TestRail renders as separate lines) |
 | 9 | Platform | Yes | `Web`, `iOS`, `Android`, `API` — matches Channel unless cross-platform |
 | 10 | TestMethod | Yes | `Manual`, `Automated` |
 | 11 | Type | Yes | `Smoke Test`, `Sanity Test`, `Regression Test` |
@@ -38,6 +38,42 @@ Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platfor
 
 ---
 
+## Title Style Guide
+
+Titles must be **clear / direct / user-perspective**. Describe WHAT is being checked and under WHAT condition.
+
+### Approved Patterns
+
+| Pattern | When to use | Example |
+|---|---|---|
+| `Check [subject] should [behavior] when [condition]` | Most common — testing a behavior under a condition | `Check job list should be filtered when selecting status from dropdown` |
+| `Check [subject] should be [state] on/in [location]` | Verifying UI state on a page | `Check empty state should be shown when no scheduled jobs exist` |
+| `Verify [what] on [where]` | Page-level or layout verification | `Verify default layout elements on Dashboard page` |
+| `After [action] / check [subject] should [behavior]` | Action-result test | `After toggling job status / check isEnabled should be updated in config` |
+
+### Title Rules
+
+- **Always start with `Check` or `Verify`** — never start with a verb like "View" / "Create" / "Edit"
+- **Include the condition** — what triggers the behavior: "when [X]" / "after [X]" / "on [page]"
+- **Include the expected behavior** — "should be [state]" / "should [action]"
+- **Use plain language** — avoid technical jargon / internal variable names / implementation details
+- **Keep it one sentence** — no periods at the end
+
+### BAD vs GOOD Examples
+
+| BAD (vague / technical / no condition) | GOOD (clear / direct / user-perspective) |
+|---|---|
+| `View dashboard with scheduled jobs` | `Check scheduled jobs list should be displayed on Dashboard page` |
+| `Filter jobs by status` | `Check job list should be filtered correctly when selecting status filter` |
+| `Scheduler picks up due jobs` | `Check scheduler should pick up jobs when nextRun time is due` |
+| `HMAC signature verification` | `Verify HMAC signature should be valid when external server receives EkoAI request` |
+| `ScheduleJobRun snapshot captures config` | `Check job run snapshot should contain frozen config at trigger time` |
+| `BullMQ queue per run and action type` | `Check dynamic queue should be created for each job run` |
+| `Dashboard shows empty state` | `Check empty state should be shown when no scheduled jobs exist` |
+| `Per-user request dispatched to endpoint` | `Check individual request should be dispatched for each audience user` |
+
+---
+
 ## Scenario Category — MANDATORY: All 3 Must Exist Per Feature Group
 
 Every component or feature group in the test plan **must** have test cases from all three categories.
@@ -45,9 +81,9 @@ Do not ship a test plan that is missing any category for any feature group.
 
 | Category | When to use | Title pattern |
 |---|---|---|
-| **Positive** | Valid input / happy path / user successfully achieves goal | `Verify [X] succeeds when [valid condition]` |
-| **Negative** | Invalid input / missing field / unauthorized / system correctly rejects | `Verify [X] rejects or returns error when [invalid condition]` |
-| **Edge Case** | Boundary values / empty state / max length / zero / null / concurrent / extreme input | `Verify [X] handles [boundary / empty / extreme] correctly` |
+| **Positive** | Valid input / happy path / user successfully achieves goal | `Check [subject] should [succeed/display/work] when [valid condition]` |
+| **Negative** | Invalid input / missing field / unauthorized / system correctly rejects | `Check [error/validation] should [appear/reject] when [invalid condition]` |
+| **Edge Case** | Boundary values / empty state / max length / zero / null / concurrent / extreme input | `Check [subject] should [handle/display] correctly when [boundary condition]` |
 
 **Minimum per feature group:** ≥2 Positive + ≥2 Negative + ≥2 Edge Case.
 
@@ -68,17 +104,22 @@ Do not ship a test plan that is missing any category for any feature group.
 
 ## Formatting Rules
 
-### CRITICAL RULE 1 — No embedded newlines (causes rows to split)
+### CRITICAL RULE 1 — Steps and Expected Result use numbered multi-line format
 
-**Every cell must be on a single line. No embedded newlines anywhere in the CSV.**
+**Steps and Expected Result cells MUST use real newlines between numbered items.**
+This is how TestRail renders them as separate lines after import.
 
-| WRONG — rows split in Excel/Numbers | CORRECT |
-|---|---|
-| `"1. Login\n2. Click button\n3. Observe"` | `1. Login. 2. Click button. 3. Observe.` |
+| Field | CSV cell content (inside quotes) | TestRail renders as |
+|---|---|---|
+| Steps | `"1. Open Dashboard page\n2. Click Create button\n3. Fill in job name"` | 1. Open Dashboard page<br>2. Click Create button<br>3. Fill in job name |
+| Expected Result | `"1. Wizard opens in Step 1\n2. Name field is active"` | 1. Wizard opens in Step 1<br>2. Name field is active |
 
-- NEVER use real newlines (`\n`, `Enter`) inside any cell value, even inside quoted strings
-- Write all steps on ONE line with `. ` (period + space) as step separator
-- Apply this rule to ALL fields: Steps, Expected Result, Preconditions, Test Data
+- Each item starts with a number: `1.` / `2.` / `3.` / etc.
+- Items separated by REAL newlines (`\n`) — Python csv.writer auto-quotes these fields
+- TestRail CSV importer handles RFC 4180 multi-line quoted fields correctly
+- Use `csv.QUOTE_ALL` quoting strategy for maximum safety
+
+**All OTHER fields (Section / Role / Channel / Title / Preconditions / Test Data / etc.) must NOT contain newlines.**
 
 ---
 
@@ -98,30 +139,40 @@ Do not ship a test plan that is missing any category for any feature group.
 
 ---
 
-### CRITICAL RULE 3 — Always generate CSV via Python csv.writer, never raw string
+### CRITICAL RULE 3 — Always generate CSV via Python csv.writer with QUOTE_ALL
 
-**After writing all test case content, ALWAYS run a Python validation script:**
+**Use `csv.QUOTE_ALL` to ensure all fields are properly quoted — especially Steps and Expected Result which contain newlines.**
 
 ```python
 import csv
 
-# Step 1: Write via csv.writer — handles quoting automatically
+# Column indexes where newlines ARE allowed
+STEPS_COL = 6      # Steps (0-indexed)
+EXPECTED_COL = 7   # Expected Result (0-indexed)
+
+# Step 1: Write via csv.writer with QUOTE_ALL
 with open('output.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+    writer = csv.writer(f, quoting=csv.QUOTE_ALL)
     writer.writerows(all_rows)
 
-# Step 2: Validate — re-read and check every row
+# Step 2: Validate
 with open('output.csv', 'r', encoding='utf-8') as f:
     rows = list(csv.reader(f))
 
 bad_cols = [(i+1, len(r)) for i, r in enumerate(rows) if len(r) != 15]
-embedded_commas = [(i+1, r[0][:40]) for i, r in enumerate(rows[1:]) for cell in r if ',' in cell]
-embedded_newlines = [(i+1,) for i, r in enumerate(rows[1:]) for cell in r if '\n' in cell or '\r' in cell]
+comma_cells = []
+newline_wrong_col = []
+for i, r in enumerate(rows[1:], 2):
+    for j, cell in enumerate(r):
+        if ',' in cell:
+            comma_cells.append((i, j))
+        if ('\n' in cell or '\r' in cell) and j not in (STEPS_COL, EXPECTED_COL):
+            newline_wrong_col.append((i, j))
 
 assert not bad_cols, f"Column count errors: {bad_cols}"
-assert not embedded_commas, f"Embedded commas found: {embedded_commas}"
-assert not embedded_newlines, f"Embedded newlines found: {embedded_newlines}"
-print(f"PASS: {len(rows)-1} rows, all 15 cols, no commas, no newlines")
+assert not comma_cells, f"Embedded commas found: {comma_cells}"
+assert not newline_wrong_col, f"Newlines in wrong columns: {newline_wrong_col}"
+print(f"PASS: {len(rows)-1} rows / all 15 cols / no commas / newlines only in Steps+Expected")
 ```
 
 Do NOT ship the CSV without running this check. If any assertion fails, fix the offending cells before outputting.
@@ -132,16 +183,20 @@ Example: `Agentic > AI Scheduled Job > Empty State`
 
 ---
 
-## Sample CSV (correct single-line format)
+## Sample CSV (correct multi-line format for TestRail import)
 
 ```csv
-Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platform,TestMethod,Type,P,References,Release version,QA Responsibility
-Agentic > Base Skill > Internal Library,User,Web,Verify user can enable internal library mode,User with library permission,User logged in and has permission to use internal library,1. Login to the system. 2. Open Agentic chat. 3. Click on tool selector below message input. 4. Turn on Use internal library option.,Internal library mode is activated and shown as enabled,Web,Manual,Regression Test,P1,Library Mode UI,Eko 17.29,Peam
-Agentic > Base Skill > Internal Library,User,Web,Verify system uses internal data when user asks company-related information,Company internal content,Internal library mode enabled,1. Turn on Use internal library. 2. Ask about company policy or internal document. 3. Send message.,System answers using relevant internal company information,Web,Manual,Smoke Test,P0,Auto Matching Logic,Eko 17.29,Peam
+"Section","Role","Channel","Title","Test Data","Preconditions","Steps","Expected Result","Platform","TestMethod","Type","P","References","Release version","QA Responsibility"
+"Agentic > Base Skill > Internal Library","User","Web","Check internal library mode should be enabled when user turns it on","User with library permission","User is logged in and has permission to use internal library","1. Login to the system
+2. Open Agentic chat
+3. Click on tool selector below message input
+4. Turn on Use internal library option","1. Tool selector opens showing library toggle
+2. Internal library mode is activated
+3. Toggle shows enabled state","Web","Manual","Smoke Test","P1","Library Mode UI","Eko 17.29","Peam"
 ```
 
-**Notice:** No quotes wrapping fields unless the field contains a comma. No embedded newlines anywhere.
-Steps use `. ` separator and fit on one line.
+**Notice:** All fields wrapped in quotes (`csv.QUOTE_ALL`). Steps and Expected Result contain real newlines.
+TestRail renders each numbered item on its own line. No commas inside any cell value.
 
 ---
 

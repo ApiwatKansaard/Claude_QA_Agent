@@ -16,8 +16,8 @@ failure modes separately, and produce a prioritized triage table the dev team ca
 
 **Input formats accepted:**
 - Jira filter URL → extract filter ID and fetch via `fetchAtlassian`
-- Jira issue keys → fetch each via `getJiraIssue`
-- JQL query text → run via `searchJiraIssuesUsingJql`
+- Jira issue keys → fetch each via `mcp_atlassian_read_jira_issue`
+- JQL query text → run via `mcp_atlassian_search_jira_issues`
 - Bug descriptions pasted inline → parse directly
 
 If no bugs are provided at all, offer to pull using a default JQL:
@@ -29,15 +29,15 @@ project = AE AND issuetype = Bug AND sprint in openSprints() AND status not in (
 
 | Tool | Purpose | Call |
 |---|---|---|
-| Jira (Atlassian MCP) | Fetch bug details, comments, metadata | `getJiraIssue`, `searchJiraIssuesUsingJql`, `fetchAtlassian` |
+| Jira (Atlassian MCP) | Fetch bug details, comments, metadata | `mcp_atlassian_read_jira_issue`, `mcp_atlassian_search_jira_issues` |
 
 **Fetching strategies by input type:**
 
 | Input | How to fetch |
 |---|---|
-| Jira issue keys (e.g., AE-5001) | `getJiraIssue(issueKey, cloudId="ekoapp.atlassian.net")` for each |
-| JQL query text | `searchJiraIssuesUsingJql(jql, cloudId="ekoapp.atlassian.net")` |
-| Jira filter URL | Extract filter ID, call `fetchAtlassian(url="https://ekoapp.atlassian.net/rest/api/3/filter/{id}")` |
+| Jira issue keys (e.g., AE-5001) | `mcp_atlassian_read_jira_issue(issue_key="AE-5001")` for each |
+| JQL query text | `mcp_atlassian_search_jira_issues(jql="...")` |
+| Jira filter URL | Extract filter ID, use JQL from filter |
 | Bug text pasted inline | Parse directly, no MCP call needed |
 
 ## Execution Steps

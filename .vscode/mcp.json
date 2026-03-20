@@ -1,5 +1,10 @@
 {
 	"servers": {
+		"figma": {
+			"command": "npx",
+			"args": ["-y", "figma-developer-mcp", "--figma-api-key=${input:figma_token}", "--stdio"],
+			"env": {}
+		},
 		"atlassian": {
 			"command": "mcp-atlassian",
 			"args": [],
@@ -12,6 +17,12 @@
 		}
 	},
 	"inputs": [
+		{
+			"id": "figma_token",
+			"type": "promptString",
+			"description": "Figma Personal Access Token (get from figma.com → Settings → Security → Personal access tokens)",
+			"password": true
+		},
 		{
 			"id": "atlassian_email",
 			"type": "promptString",

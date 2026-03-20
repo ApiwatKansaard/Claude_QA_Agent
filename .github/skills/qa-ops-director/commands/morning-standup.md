@@ -12,12 +12,12 @@ the QA Lead can read aloud in under 2 minutes. No manual input needed — data c
 
 | Tool | Purpose | Call |
 |---|---|---|
-| Jira (Atlassian MCP) | Open bugs, in-progress tasks, assignees | `searchJiraIssuesUsingJql` |
+| Jira (Atlassian MCP) | Open bugs, in-progress tasks, assignees | `mcp_atlassian_search_jira_issues` |
 | Gmail MCP | Create standup draft for QA distribution | `mcp_gmail_draft_email` |
 
 ## Execution Steps
 
-1. **Pull Jira data** using `searchJiraIssuesUsingJql(jql, cloudId="ekoapp.atlassian.net")`:
+1. **Pull Jira data** using `mcp_atlassian_search_jira_issues(jql="...")` — no cloudId needed:
 
    ```
    -- Open bugs in current sprint (exclude sub-tasks like "Create Test Case")

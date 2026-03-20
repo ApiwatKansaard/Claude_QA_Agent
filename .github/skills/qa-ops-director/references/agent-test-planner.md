@@ -28,16 +28,16 @@ and any annotations about behavior. If the frame has nested components, inspect 
 
 ### Fetching Confluence Specs
 
-**By URL:** extract the page ID from the URL (`/pages/XXXXXXXXX/`) and call:
+**By URL:** extract the **numeric page ID** from the URL (`/pages/XXXXXXXXX/`) and call:
 ```
-getConfluencePage(pageId, cloudId="ekoapp.atlassian.net")
+mcp_atlassian_read_confluence_page(page_id="3488645131")
 ```
+⚠️ CRITICAL: Pass only the numeric page_id, NOT the full URL. No cloudId parameter.
 
 **By title/feature name:**
 ```
-searchConfluenceUsingCql(
-  cql='space = "EP" AND title ~ "feature name" AND type = page',
-  cloudId="ekoapp.atlassian.net"
+mcp_atlassian_search_confluence_pages(
+  cql='space = "EP" AND title ~ "feature name" AND type = page'
 )
 ```
 From the result, extract: acceptance criteria, API contract details, business rules,
@@ -46,7 +46,7 @@ non-functional requirements, out-of-scope items.
 ### Fetching Jira Story/Epic
 
 ```
-getJiraIssue(issueKey="AE-XXXX", cloudId="ekoapp.atlassian.net")
+mcp_atlassian_read_jira_issue(issue_key="AE-XXXX")
 ```
 From the result, extract: description, acceptance criteria in comments or description,
 linked Confluence pages, child/linked issues.
