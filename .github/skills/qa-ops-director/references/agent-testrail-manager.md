@@ -21,6 +21,15 @@ The agent can read AND write to TestRail directly — no manual CSV upload neede
 Show a full preview/diff table → wait for explicit user confirmation → then execute.
 Never write to TestRail without confirmation, regardless of how clear the intent seems.
 
+**Import execution rules (CRITICAL — prevents data loss):**
+1. **Write import script to `.py` file** — never inline Python for bulk operations
+2. **Run as background process** — `python3 script.py > /tmp/log.txt 2>&1` with `isBackground=true`
+3. **Save progress incrementally** — append each created case to a `.jsonl` file with `flush()`
+4. **Multi-select fields use arrays** — `custom_supportversion: [160]` NOT `160`, `custom_qa_responsibility: [26]` NOT `26`
+5. **Use `urllib.request`** — `requests` module is not always installed
+6. **On crash → resume** — never re-run full import; compare suite state vs CSV, import only missing cases
+7. **Discover dropdown IDs first** — call `GET /get_case_fields` before importing to map version/QA names to IDs
+
 When the user provides a **release date** but it isn't in the conversation, check Google Calendar:
 ```
 mcp_google-calend_list-calendars()

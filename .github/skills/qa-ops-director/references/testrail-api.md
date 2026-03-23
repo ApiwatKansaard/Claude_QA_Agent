@@ -432,4 +432,92 @@ def import_cases(project_id, suite_id, cases_data, auth):
 
 Always check `resp.status_code` before parsing the response body.
 
-**Rate limiting:** TestRail may throttle rapid sequential writes. Add a small delay (0.1–0.2s) between `add_case` calls for large imports (>50 cases).
+**Rate limiting:** TestRail may throttle rapid sequential writes. Add a small delay (0.15–0.2s) between `add_case` calls for large imports (>50 cases).
+
+---
+
+## Known Pitfalls & Lessons Learned
+
+These are real issues encountered during production imports. Follow these rules strictly.
+
+### 1. Multi-select fields MUST be arrays
+
+Both `custom_supportversion` and `custom_qa_responsibility` are **multi-select** dropdown fields.
+The API requires **array format** even for single values:
+
+```python
+# ✅ CORRECT — array format
+"custom_supportversion": [160],
+"custom_qa_responsibility": [26],
+
+# ❌ WRONG — bare int causes 400 error
+"custom_supportversion": 160,    # → "Field :custom_supportversion is not a valid array."
+"custom_qa_responsibility": 26,  # → "Field :custom_qa_responsibility is not a valid array."
+```
+
+**Rule:** Any field returned as `type: 12` (multi-select) in `GET /get_case_fields` MUST use `[id]` array syntax.
+
+### 2. Large imports MUST use background process + progress file
+
+Importing > 30 cases sequentially can take 30–120+ seconds depending on API latency.
+Running in a foreground terminal with a timeout causes the script to be killed mid-import:
+
+```python
+# ✅ CORRECT — write progress incrementally
+with open('/tmp/import_progress.jsonl', 'a') as pf:
+    for row in cases_to_import:
+        result = api_post(f'add_case/{section_id}', case_data)
+        pf.write(json.dumps({'id': result['id'], 'title': row['Title']}) + '\n')
+        pf.flush()  # ensure written to disk immediately
+        time.sleep(0.15)
+
+# ❌ WRONG — only saves at the end (lost if script crashes)
+results = []
+for row in cases_to_import:
+    result = api_post(...)
+    results.append(result)
+# If script crashes here, all progress is lost
+with open('/tmp/results.json', 'w') as f:
+    json.dump(results, f)
+```
+
+**Execution pattern:**
+```bash
+# Run as background process, capture output to file
+python3 /tmp/import_script.py > /tmp/import_log.txt 2>&1
+# Poll for completion
+cat /tmp/import_results.json  # written at script end
+wc -l /tmp/import_progress.jsonl  # check incremental progress
+```
+
+### 3. Resume pattern for crashed imports
+
+If an import crashes mid-way, NEVER re-run the full script. Instead:
+1. Fetch actual suite state: `GET /get_cases/{project_id}&suite_id={suite_id}`
+2. Compare imported titles against source CSV
+3. Generate a resume script importing only missing cases
+4. Run resume script using the same background + progress pattern
+
+### 4. Use urllib.request (not requests)
+
+The `requests` module is NOT always installed. All import scripts should use `urllib.request`:
+```python
+import urllib.request, json, base64, ssl
+ctx = ssl.create_default_context()
+creds = base64.b64encode(f'{email}:{api_key}'.encode()).decode()
+headers = {'Authorization': f'Basic {creds}', 'Content-Type': 'application/json'}
+
+def api_post(endpoint, data):
+    body = json.dumps(data).encode()
+    req = urllib.request.Request(f'{base_url}/{endpoint}', data=body, headers=headers, method='POST')
+    return json.loads(urllib.request.urlopen(req, context=ctx).read().decode())
+```
+
+### 5. Discover dropdown IDs before importing
+
+Always call `GET /get_case_fields` before the first import to discover:
+- `custom_supportversion` dropdown options (e.g., `Eko 18.0` → `160`)
+- `custom_qa_responsibility` dropdown options (e.g., `Sharp` → `26`)
+- Which fields are required vs optional
+
+Parse the `configs[].options.items` string (newline-separated `"id, label"` pairs).

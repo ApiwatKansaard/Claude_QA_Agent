@@ -164,10 +164,67 @@ Confirm import? (yes / cancel / adjust)
 
 After user confirmation:
 
+#### Script Execution Rules (CRITICAL)
+
+Importing > 30 cases takes significant time (each `add_case` API call takes 0.3–0.8s).
+The import script MUST follow these rules to avoid data loss:
+
+1. **Write script to a `.py` file** — never run inline Python in terminal for imports
+2. **Run as background process** with `isBackground=true` and output redirected to a file:
+   ```bash
+   python3 /tmp/import_script.py > /tmp/import_log.txt 2>&1
+   ```
+3. **Save progress incrementally** — write each created case ID to a progress file as it's created:
+   ```python
+   # After each successful add_case:
+   with open('/tmp/import_progress.jsonl', 'a') as pf:
+       pf.write(json.dumps({'id': case_id, 'title': title, 'section': section_name}) + '\n')
+   ```
+4. **Write final results JSON** at the end with created/failed counts
+5. **Poll for completion** by checking the results file, NOT by waiting on terminal output
+6. **Delay 0.15–0.2s** between `add_case` calls to respect rate limits
+
+#### Resume on Failure
+
+If the script crashes mid-import (timeout, network error, etc.):
+1. Read progress file to know which cases were already created
+2. Fetch current suite cases via `GET /get_cases` to confirm actual state
+3. Compare imported titles vs CSV → identify remaining cases
+4. Generate a **resume script** that only imports the missing cases
+5. Run the resume script the same way (background + progress file)
+
+**Never re-run the full import** — this creates duplicates.
+
+#### Field Value Rules
+
+| Field | Type | MUST be | Example | Error if wrong |
+|---|---|---|---|---|
+| `custom_supportversion` | **array of int** | `[160]` | `[160]` = Eko 18.0 | `"not a valid array"` if int |
+| `custom_qa_responsibility` | **array of int** | `[26]` | `[26]` = Sharp | `"not a valid array"` if int |
+| `priority_id` | int | `4` or `3` | P1→4, P2→3 | 400 if invalid |
+| `type_id` | int | `19`, `9`, `11` | Smoke→19 | 400 if invalid |
+
+> **LESSON LEARNED:** Both `custom_supportversion` and `custom_qa_responsibility` are
+> multi-select dropdown fields — the API requires **array format `[id]`** even for single values.
+> Using bare int (e.g., `160` instead of `[160]`) returns: `"Field :custom_supportversion is not a valid array."`
+
+#### Version/QA ID Discovery
+
+Before importing, call `GET /get_case_fields` to discover dropdown IDs:
+```python
+# Find custom_supportversion options
+for field in case_fields:
+    if field['system_name'] == 'custom_supportversion':
+        for ctx in field.get('configs', []):
+            options = ctx.get('options', {}).get('items', '')
+            # Parse "156, Eko 17.27\n160, Eko 18.0" → {"Eko 18.0": 160}
+```
+
 **For ADD cases** — create via API:
 1. Create missing sections first: `POST /add_section/{project_id}`
 2. Create cases: `POST /add_case/{section_id}` with full field mapping
-3. Add 0.1–0.2s delay between calls for batches > 50 cases
+3. Include ALL required fields: `title`, `type_id`, `priority_id`, `custom_supportversion`, `custom_qa_responsibility`
+4. Include optional fields: `custom_preconds`, `custom_steps`, `custom_expected`, `custom_test_data`
 
 **For UPDATE cases** — update via API:
 1. `POST /update_case/{case_id}` with only changed fields
@@ -189,6 +246,14 @@ After user confirmation:
 | ... | | | |
 
 🔗 View suite: https://ekoapp20.testrail.io/index.php?/suites/view/{suite_id}
+```
+
+If any cases failed, also report:
+```markdown
+### ⚠️ Failed Cases ({n})
+| # | Title | Error |
+|---|---|---|
+| 1 | Check ... | Field :custom_supportversion is not a valid array |
 ```
 
 ---

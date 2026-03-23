@@ -74,6 +74,12 @@ Next step after the pipeline: `/qa:import-testrail` with the target TestRail sui
 (with caching, comparison, and impact analysis).
 Alternatively, `/qa:sync-testrail` to generate a CSV for manual upload.
 
+> **⚠️ Import execution rules** (see [import-testrail.md](./commands/import-testrail.md) Phase 4):
+> - Multi-select fields (`custom_supportversion`, `custom_qa_responsibility`) **MUST be arrays**: `[160]` not `160`
+> - Import scripts MUST run as **background process** with incremental progress file
+> - Use `urllib.request` (not `requests` — may not be installed)
+> - On crash: **resume** by comparing suite state vs CSV; never re-run full import
+
 ### Recommended Full Pipeline (Once Per Sprint)
 
 ```
