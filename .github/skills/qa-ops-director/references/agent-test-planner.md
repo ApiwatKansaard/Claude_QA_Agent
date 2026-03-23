@@ -30,9 +30,9 @@ and any annotations about behavior. If the frame has nested components, inspect 
 
 **By URL:** extract the **numeric page ID** from the URL (`/pages/XXXXXXXXX/`) and call:
 ```
-mcp_atlassian_read_confluence_page(page_id="3488645131")
+mcp_atlassian_read_confluence_page(pageId="3488645131")
 ```
-⚠️ CRITICAL: Pass only the numeric page_id, NOT the full URL. No cloudId parameter.
+⚠️ CRITICAL: Pass only the numeric pageId, NOT the full URL. No cloudId parameter.
 
 **By title/feature name:**
 ```
@@ -46,7 +46,7 @@ non-functional requirements, out-of-scope items.
 ### Fetching Jira Story/Epic
 
 ```
-mcp_atlassian_read_jira_issue(issue_key="AE-XXXX")
+mcp_atlassian_read_jira_issue(issueKey="AE-XXXX")
 ```
 From the result, extract: description, acceptance criteria in comments or description,
 linked Confluence pages, child/linked issues.

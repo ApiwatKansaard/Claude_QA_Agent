@@ -35,7 +35,7 @@ project = AE AND issuetype = Bug AND sprint in openSprints() AND status not in (
 
 | Input | How to fetch |
 |---|---|
-| Jira issue keys (e.g., AE-5001) | `mcp_atlassian_read_jira_issue(issue_key="AE-5001")` for each |
+| Jira issue keys (e.g., AE-5001) | `mcp_atlassian_read_jira_issue(issueKey="AE-5001")` for each |
 | JQL query text | `mcp_atlassian_search_jira_issues(jql="...")` |
 | Jira filter URL | Extract filter ID, use JQL from filter |
 | Bug text pasted inline | Parse directly, no MCP call needed |

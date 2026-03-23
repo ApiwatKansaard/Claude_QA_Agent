@@ -20,7 +20,7 @@ to copy-paste bug details that can be pulled live.
 
 **Single issue:**
 ```
-mcp_atlassian_read_jira_issue(issue_key="AE-XXXX")
+mcp_atlassian_read_jira_issue(issueKey="AE-XXXX")
 ```
 
 **Bulk fetch by JQL:**

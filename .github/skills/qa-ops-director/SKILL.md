@@ -140,19 +140,19 @@ Fetch nodes ONE AT A TIME. Use depth=2 (16KB) or depth=3 (50KB).
 **Atlassian MCP** — Jira (instance: `ekoapp.atlassian.net`):
 ```
 mcp_atlassian_search_jira_issues(jql)           → Bulk issue fetch by JQL filter
-mcp_atlassian_read_jira_issue(issue_key)        → Single issue with full details
-mcp_atlassian_add_jira_comment(issue_key, body) → Post QA findings to ticket
+mcp_atlassian_read_jira_issue(issueKey)        → Single issue with full details
+mcp_atlassian_add_jira_comment(issueKey, body) → Post QA findings to ticket
 ```
 Confluence (same instance, space: `EP`):
 ```
-mcp_atlassian_read_confluence_page(page_id)     → Full page content (page_id is REQUIRED — extract from URL)
+mcp_atlassian_read_confluence_page(pageId)     → Full page content (pageId is REQUIRED — extract from URL)
 mcp_atlassian_search_confluence_pages(cql)      → Find pages by title/label (CQL string)
 mcp_atlassian_list_confluence_spaces()          → List all available spaces
 ```
 
-⚠️ **CRITICAL — Confluence page_id extraction:**
+⚠️ **CRITICAL — Confluence pageId extraction:**
 When given a Confluence URL like `https://ekoapp.atlassian.net/wiki/spaces/EP/pages/3488645131/Page+Title`,
-you MUST extract the numeric page_id (`3488645131`) and pass it as the `page_id` parameter.
+you MUST extract the numeric pageId (`3488645131`) and pass it as the `pageId` parameter.
 Do NOT pass the full URL — this causes: `Validation failed: Either pageId or title must be provided`.
 There is NO `cloudId` parameter — the MCP server is already configured with the Atlassian instance.
 
@@ -229,14 +229,15 @@ Load these when the active agent needs them — not upfront for every request:
 ## Known Issues & Troubleshooting
 
 ### Confluence `readConfluencePage` — "Either pageId or title must be provided"
-- **Root cause:** Passing a full Confluence URL instead of the numeric `page_id` to `mcp_atlassian_read_confluence_page`.
+- **Root cause:** Passing a full Confluence URL instead of the numeric `pageId` to `mcp_atlassian_read_confluence_page`.
 - **Fix:** Always extract the page ID from the URL path segment `/pages/XXXXXXXX/` and pass only the number.
-- **Example:** URL `https://ekoapp.atlassian.net/wiki/spaces/EP/pages/3488645131/Title` → `page_id="3488645131"`
+- **Example:** URL `https://ekoapp.atlassian.net/wiki/spaces/EP/pages/3488645131/Title` → `pageId="3488645131"`
 - **Also:** There is no `cloudId` parameter in the Atlassian MCP tools. Remove it from all calls.
 
-### Atlassian MCP tool names don't match
-- **Root cause:** The MCP tool names use `mcp_atlassian_` prefix (e.g., `mcp_atlassian_read_confluence_page`), not camelCase (e.g., `getConfluencePage`).
-- **Fix:** Always use the `mcp_atlassian_*` naming convention. Use `tool_search_tool_regex` with pattern `mcp_atlassian` to discover available tools if unsure.
+### Atlassian MCP parameter names are camelCase
+- **Root cause:** MCP parameters use **camelCase** (e.g., `issueKey`, `pageId`), NOT snake_case (`issue_key`, `page_id`).
+- **Fix:** Always use `issueKey` (not `issue_key`), `pageId` (not `page_id`), `maxResults` (not `max_results`).
+- **Reference:** Use `tool_search_tool_regex` with pattern `mcp_atlassian` to discover exact parameter names.
 
 ### Figma MCP — `get_design_context` HANGS indefinitely (CRITICAL)
 - **Root cause:** `mcp_figma-remote-_get_design_context` is a remote API that generates React+Tailwind code + screenshot for each node. On complex design pages (dashboards, multi-component frames), it hangs with **zero progress for 10+ minutes** and never returns.

@@ -40,15 +40,15 @@ coverage completeness by type) and note that AC alignment couldn't be verified.
    mcp_figma-remote-_get_screenshot(fileKey, nodeId)       → Visually confirm states — loading/empty/error/success
    ```
 
-   **Confluence:** extract numeric page_id from URL `/pages/XXXXXXXX/`:
+   **Confluence:** extract numeric pageId from URL `/pages/XXXXXXXX/`:
    ```
-   mcp_atlassian_read_confluence_page(page_id="3488645131")
+   mcp_atlassian_read_confluence_page(pageId="3488645131")
    -- or by search:
    mcp_atlassian_search_confluence_pages(
      cql='space = "EP" AND title ~ "[feature name]"'
    )
    ```
-   ⚠️ Pass only the numeric page_id — NOT the full URL. No cloudId parameter.
+   ⚠️ Pass only the numeric pageId — NOT the full URL. No cloudId parameter.
    Number each AC extracted from Confluence so you can cross-reference in the review table.
 
 2. **Review each test case** across the 5 dimensions in [agent-test-case-reviewer.md](../references/agent-test-case-reviewer.md):

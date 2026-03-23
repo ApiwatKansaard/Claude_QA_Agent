@@ -170,7 +170,7 @@ For each COVERED or PARTIAL ticket, generate AC using this format:
 
 3. **Post comments** using:
    ```
-   mcp_atlassian_add_jira_comment(issue_key="AE-14288", body="...")
+   mcp_atlassian_add_jira_comment(issueKey="AE-14288", body="...")
    ```
    Format the body with Jira wiki markup or ADF (Atlassian Document Format).
 

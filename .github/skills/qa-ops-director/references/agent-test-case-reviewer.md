@@ -29,19 +29,19 @@ covered by a test case is a `❌ MISSING` entry in the review table.
 
 **Confluence** — by page ID or title search:
 ```
-mcp_atlassian_read_confluence_page(page_id="3488645131")
+mcp_atlassian_read_confluence_page(pageId="3488645131")
 -- or --
 mcp_atlassian_search_confluence_pages(
   cql='space = "EP" AND title ~ "feature name"'
 )
 ```
-⚠️ CRITICAL: Pass only the numeric page_id from URL `/pages/XXXXXXXX/`. No cloudId parameter.
+⚠️ CRITICAL: Pass only the numeric pageId from URL `/pages/XXXXXXXX/`. No cloudId parameter.
 Map each Acceptance Criterion to a test case. ACs without corresponding test cases
 are `❌ MISSING`.
 
 **Jira** — for story-level AC:
 ```
-mcp_atlassian_read_jira_issue(issue_key="AE-XXXX")
+mcp_atlassian_read_jira_issue(issueKey="AE-XXXX")
 ```
 
 ## Review Framework

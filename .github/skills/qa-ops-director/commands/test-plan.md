@@ -45,9 +45,9 @@ If neither URL is provided: ask for at least one before proceeding.
 
    **Confluence URL** — extract **numeric page ID** from URL path (`/pages/XXXXXXXX/`):
    ```
-   mcp_atlassian_read_confluence_page(page_id="3488645131")
+   mcp_atlassian_read_confluence_page(pageId="3488645131")
    ```
-   ⚠️ CRITICAL: Pass only the numeric page_id, NOT the full URL.
+   ⚠️ CRITICAL: Pass only the numeric pageId, NOT the full URL.
    There is NO cloudId parameter — the MCP server is already configured with the instance.
 
    Or search by feature name:
