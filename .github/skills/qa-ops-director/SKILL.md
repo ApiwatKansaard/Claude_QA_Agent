@@ -38,7 +38,7 @@ Parameters shown in `[brackets]` are positional — parse them from the message 
 | `/qa:review-testcases` | test-case-reviewer | `[test cases]` `[Figma URL]` `[Confluence URL]` | [review-testcases.md](./commands/review-testcases.md) |
 | `/qa:sync-testrail` | testrail-manager | `[test cases]` `[suite name]` `[milestone name]` `[release date]` | [sync-testrail.md](./commands/sync-testrail.md) |
 | `/qa:fetch-testrail` | testrail-manager | `[suite_id]` `[section_filter]` | [fetch-testrail.md](./commands/fetch-testrail.md) |
-| `/qa:import-testrail` | testrail-manager | `[test cases]` `[suite_id]` `[project_id]` | [import-testrail.md](./commands/import-testrail.md) |
+| `/qa:import-testrail` | testrail-manager | `[suite link]` | [import-testrail.md](./commands/import-testrail.md) |
 | `/qa:edit-testrail` | testrail-manager | `[suite_id]` `[section or case filter]` `[change description]` | [edit-testrail.md](./commands/edit-testrail.md) |
 | `/qa:create-regression` | testrail-manager | `[feature or sprint name]` `[suite_id]` `[impact description]` | [create-regression.md](./commands/create-regression.md) |
 | `/qa:bug-triage` | bug-analyzer | `[Jira bug list or filter URL]` | [bug-triage.md](./commands/bug-triage.md) |
@@ -70,14 +70,16 @@ The full output is **TWO separate files** in the sprint folder:
 ⚠️ Test cases are ALWAYS in CSV format for TestRail import. NEVER output test cases as markdown tables.
 See [testrail-csv.md](./references/testrail-csv.md) for the exact column schema and formatting rules.
 
-Next step after the pipeline: `/qa:sync-testrail` to push the CSV to TestRail.
+Next step after the pipeline: `/qa:import-testrail` with the target TestRail suite link to import cases via API
+(with caching, comparison, and impact analysis).
+Alternatively, `/qa:sync-testrail` to generate a CSV for manual upload.
 
 ### Recommended Full Pipeline (Once Per Sprint)
 
 ```
 /qa:start-sprint  → Check readiness, verify clean workspace
 /qa:test-plan     → Generate + Review + Auto-fix → outputs test-plan.md + testcases.csv in sprint folder
-/qa:sync-testrail → Push CSV to TestRail
+/qa:import-testrail→ Read suite (cached) + Compare sprint cases + Import via API
 /qa:write-ac      → Create feature spec + comment AC on Jira tickets
   ... (testing phase — execute test cases, log bugs) ...
 /qa:end-sprint    → Archive sprint folder into archive/{sprint-name}/
@@ -94,6 +96,10 @@ from the start — NEVER at the workspace root. Each sprint folder contains:
 
 At sprint end, `/qa:end-sprint` moves the sprint folder to `archive/{sprint-name}/` — files are
 **never deleted**, only archived. Previous sprint archives remain readable at all times.
+
+**TestRail suite cache:** Suite data is cached at `testrail-cache/S{suite_id}/` (summary.md + cases.csv).
+Cache is created on first fetch, read on subsequent access, and updated after every write operation.
+Cache folders are NOT archived with sprints — they persist across sprints as the baseline.
 
 ---
 

@@ -30,11 +30,13 @@ Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platfor
 
 ## Priority Mapping
 
-| Our notation | CSV value |
-|---|---|
-| P0-Blocker | `P0` |
-| P1-Critical | `P1` |
-| P2-High / P2-Medium | `P2` |
+| CSV value | TestRail priority_id | Label |
+|---|---|---|
+| `P1` | 4 | Critical |
+| `P2` | 3 | High |
+
+> P1 and P2 are the team's standard priorities, confirmed by the TestRail import config.
+> P0 (Blocker) is reserved but has no pre-configured mapping — add manually on import screen if needed.
 
 ---
 
@@ -205,9 +207,38 @@ TestRail renders each numbered item on its own line. No commas inside any cell v
 1. Save as UTF-8 CSV
 2. In TestRail: target Test Suite → **Import Cases**
 3. Select **CSV** format
-4. Map columns to the schema above on the mapping screen
-5. Review section hierarchy and step formatting in preview
-6. Confirm import
+4. Click **Load config** and select `references/testrail-import-config.cfg`
+5. All column mappings and value transforms load automatically
+6. Review and adjust any new values not yet in the mapping (e.g., new Release version)
+7. Confirm import
+
+### Import Config Reference
+
+A saved TestRail import config is at [testrail-import-config.cfg](testrail-import-config.cfg).
+This config pre-maps all 15 CSV columns to their TestRail fields.
+
+**Column mapping from config:**
+
+| Col # | CSV Column | Config Key | Notes |
+|---|---|---|---|
+| 0 | Section | `cases:section_hierarchy` | Section path with ` > ` separator |
+| 1 | Role | *(skipped)* | Documentation only — not imported |
+| 2 | Channel | `cases:custom_platform` | Dropdown: Web→3 |
+| 3 | Title | `cases:title` | Direct |
+| 4 | Test Data | `cases:custom_test_data` | Direct |
+| 5 | Preconditions | `cases:custom_preconds` | Direct |
+| 6 | Steps | `cases:custom_steps` | Multi-line numbered |
+| 7 | Expected Result | `cases:custom_expected` | Multi-line numbered |
+| 8 | Platform | *(skipped)* | Already mapped via Channel (col 2) |
+| 9 | TestMethod | *(skipped)* | No TestRail field |
+| 10 | Type | `cases:type_id` | Smoke Test→19 / Regression Test→9 / Sanity Test→11 |
+| 11 | P | `cases:priority_id` | P1→4(Critical) / P2→3(High) |
+| 12 | References | *(skipped)* | Documentation only — not imported |
+| 13 | Release version | `cases:custom_supportversion` | Dropdown — map new values on import screen |
+| 14 | QA Responsibility | `cases:custom_qa_responsibility` | Dropdown — map names to IDs |
+
+**Skipped columns** (1, 8, 9, 12) remain in the CSV for human readability.
+The config expects all 15 columns in this exact order — do NOT remove skipped columns.
 
 ---
 

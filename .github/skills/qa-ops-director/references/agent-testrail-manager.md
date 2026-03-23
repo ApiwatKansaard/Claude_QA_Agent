@@ -61,15 +61,15 @@ Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platfor
 | Title | Test case name | Concise, action-oriented sentence |
 | Test Data | Input data needed | Specific values or content required to run the test |
 | Preconditions | Pre-execution state | Setup conditions before steps |
-| Steps | Numbered test steps | All steps on ONE line with `. ` separator (e.g., `1. Do this. 2. Do that.`) |
+| Steps | Numbered test steps | Real newlines between numbered items — `"1. Do this\n2. Do that"` (TestRail renders as separate lines) |
 | Expected Result | Observable outcome | Precise and unambiguous |
 | Platform | `Web`, `iOS`, `Android`, `API` | Usually same as Channel |
 | TestMethod | `Manual`, `Automated` | |
 | Type | `Smoke Test`, `Sanity Test`, `Regression Test` | |
 | P | `P0`, `P1`, `P2` | P0=Blocker, P1=Critical, P2=High/Medium |
 | References | Component/feature tag | Short label e.g. `File Preview`, `Permission Filtering` |
-| Release version | e.g. `Eko 18.0`, `EGT 18.1` | Sprint or release this targets |
-| QA Responsibility | Assignee name | e.g. `Peam`, `Sharp` |
+| Release version | e.g. `Eko 18.0`, `EGT 18.1` | Sprint or release this targets — maps to `custom_supportversion` |
+| QA Responsibility | Assignee name | e.g. `Peam`, `Sharp` — maps to `custom_qa_responsibility` |
 
 **Type mapping:**
 - Core happy path / critical flows → `Smoke Test`
@@ -77,8 +77,10 @@ Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platfor
 - Edge cases, negative, security, boundary, AI-mandatory → `Regression Test`
 
 **Formatting rules:**
-- Wrap any field containing commas in double quotes
-- Steps: all steps on ONE line with `. ` separator (e.g., `1. Do this. 2. Do that.`) — NO embedded newlines
+- Use `csv.QUOTE_ALL` quoting strategy for all fields
+- Steps and Expected Result: real newlines between numbered items (TestRail imports RFC 4180 multi-line fields correctly)
+- All OTHER fields must NOT contain newlines
+- NEVER put commas inside any cell value — replace with ` / `
 - Escape embedded double quotes as `""`
 
 **Sample row:**
@@ -126,11 +128,26 @@ When the user wants to define a test run for regression or sprint testing:
 
 | User intent | Command to follow |
 |---|---|
+| Import new sprint cases into existing suite | `/qa:import-testrail` (primary — with caching + comparison) |
 | Generate CSV for manual review / backup | `/qa:sync-testrail` |
-| Import cases directly into TestRail via API | `/qa:import-testrail` |
 | Edit existing cases when feature changes impact them | `/qa:edit-testrail` |
 | Fetch and inspect existing cases in a suite | `/qa:fetch-testrail` |
 | Create milestone + test run for regression | `/qa:create-regression` |
+
+## Suite Cache Management
+
+All TestRail suite data is cached locally at `testrail-cache/S{suite_id}/`.
+This avoids repeated API calls for the same suite.
+
+**Cache contents:**
+- `summary.md` — Suite overview, section tree, case stats
+- `cases.csv` — Full case dump in 15-column CSV format
+
+**Cache rules:**
+1. **First fetch** → create cache folder and both files
+2. **Subsequent reads** → use cached files (unless user says “re-fetch”)
+3. **After any write** (import / edit / delete) → re-fetch and update BOTH cache files
+4. **Never delete cache** — it serves as historical reference
 
 ## Output Order (for sync/CSV workflow)
 

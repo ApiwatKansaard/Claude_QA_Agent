@@ -158,12 +158,13 @@ Content-Type: application/json
   "custom_preconds": "User logged in",
   "custom_steps": "1. Login\n2. Open chat\n3. Enable library",
   "custom_expected": "Library mode is activated",
-  "custom_fix_version": 33,
+  "custom_supportversion": [156],
   "custom_qa_responsibility": [2]
 }
 ```
 
-> **CRITICAL:** `custom_fix_version` (int) and `custom_qa_responsibility` (array of int) are **required**. Omitting them causes a 400 error.
+> **CRITICAL:** `custom_supportversion` (array of int) and `custom_qa_responsibility` (array of int) are **required**.
+> Omitting them causes a 400 error. Call `GET /get_case_fields` to verify required fields on your instance.
 
 ---
 
@@ -200,12 +201,15 @@ def fetch_all_cases(project_id, suite_id):
 
 ## Priority ID Mapping
 
-| Priority ID | Label |
-|---|---|
-| 1 | Low |
-| 2 | Medium |
-| 3 | High |
-| 4 | Critical |
+| Priority ID | Label | CSV Value |
+|---|---|---|
+| 1 | Low | — |
+| 2 | Medium | — |
+| 3 | High | P2 |
+| 4 | Critical | P1 |
+
+> **Team convention:** P1 = Critical (4), P2 = High (3).
+> This is confirmed by the TestRail import config mapping: `p1→4, p2→3`.
 
 ---
 
@@ -228,21 +232,26 @@ def fetch_all_cases(project_id, suite_id):
 
 ## Required Custom Fields (add_case WILL FAIL without these)
 
-| Field | API key | Type | Values |
-|---|---|---|---|
-| Fix version | `custom_fix_version` | dropdown (int) | e.g. `33`=Soul, `32`=Rome, `31`=Queens — see full list via `get_case_fields` |
-| QA Responsibility | `custom_qa_responsibility` | multi-select (array of int) | e.g. `[2]`=Beer, `[26]`=Sharp — **must be an array** even for single value |
+| Field | API key | Type | Values | Notes |
+|---|---|---|---|---|
+| Support Version | `custom_supportversion` | multi-select (array of int) | e.g. `[156]`=Eko 17.27, `[160]`=Eko 18.0 — get values via `get_case_fields` **must be an array** | Mapped from CSV "Release version" column |
+| QA Responsibility | `custom_qa_responsibility` | multi-select (array of int) | e.g. `[2]`=Beer, `[26]`=Sharp — **must be an array** even for single value | Mapped from CSV "QA Responsibility" column |
+| Fix version | `custom_fix_version` | dropdown (int) | e.g. `33`=Soul, `32`=Rome, `31`=Queens | Internal release codename — verify if required via `get_case_fields` |
+
+> **Note:** `custom_supportversion` (product version) and `custom_fix_version` (release codename) are
+> TWO DIFFERENT fields. The CSV import config maps "Release version" → `custom_supportversion`.
+> Call `GET /get_case_fields` to verify which fields are actually required on your instance.
 
 Example `add_case` payload with required fields:
 ```json
 {
   "title": "Verify user can enable library mode",
   "type_id": 9,
-  "priority_id": 3,
+  "priority_id": 4,
   "custom_preconds": "User logged in",
-  "custom_steps": "1. Open chat. 2. Enable library.",
+  "custom_steps": "1. Open chat\n2. Enable library",
   "custom_expected": "Library mode activated",
-  "custom_fix_version": 33,
+  "custom_supportversion": [156],
   "custom_qa_responsibility": [2]
 }
 ```
@@ -288,7 +297,7 @@ Body:
   "custom_preconds": "User is logged in and has admin role",
   "custom_steps": "1. Navigate to Scheduled Jobs\n2. Click Add Scheduler\n3. Fill in required fields\n4. Click Save",
   "custom_expected": "Scheduler is created and appears in the list",
-  "custom_fix_version": 33,
+  "custom_supportversion": [156],
   "custom_qa_responsibility": [2]
 }
 ```
@@ -393,12 +402,12 @@ def import_cases(project_id, suite_id, cases_data, auth):
         body = {
             "title": row["Title"],
             "type_id": 9,  # Regression (valid: 9=Regression, 11=Sanity, 19=Smoke, 17=Acceptance, 20=Exploratory)
-            "priority_id": {"P0": 4, "P1": 3, "P2": 2}.get(row.get("P", "P2"), 2),
+            "priority_id": {"P1": 4, "P2": 3}.get(row.get("P", "P2"), 3),
             "refs": row.get("References", ""),
             "custom_preconds": row.get("Preconditions", ""),
             "custom_steps": row.get("Steps", ""),
             "custom_expected": row.get("Expected Result", ""),
-            "custom_fix_version": 33,
+            "custom_supportversion": [156],
             "custom_qa_responsibility": [2],
         }
         r = requests.post(f"{BASE}/add_case/{section_id}", auth=auth,

@@ -77,6 +77,12 @@ Proceed? (yes / cancel / adjust)
 🔗 Review changes: https://ekoapp20.testrail.io/index.php?/suites/view/{suite_id}
 ```
 
+7. **Update cache** — after successful edits:
+   - Re-fetch all cases from suite (or apply changes locally)
+   - Update `testrail-cache/S{suite_id}/cases.csv` with modified case data
+   - Update `testrail-cache/S{suite_id}/summary.md` with refreshed stats
+   - **ALWAYS update cache after write operations** — ensures next import has accurate baseline
+
 ## Impact Analysis
 
 Before showing the diff, briefly surface:

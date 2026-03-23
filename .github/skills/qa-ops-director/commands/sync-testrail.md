@@ -57,9 +57,10 @@ Use the found date as the milestone due date, or ask the user to confirm.
    ```
    Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platform,TestMethod,Type,P,References,Release version,QA Responsibility
    ```
-   - Steps: real newlines inside double-quoted field (not literal `\n`)
+   - Steps and Expected Result: real newlines inside double-quoted field between numbered items
+   - Use `csv.QUOTE_ALL` quoting strategy
    - Type: `Smoke Test` / `Sanity Test` / `Regression Test`
-   - Priority: `P0` / `P1` / `P2`
+   - Priority: `P1` / `P2`
    - Section: use ` > ` hierarchy matching the suite structure
 
 3. **Define milestone** using the `[milestone name]` and `[release date]` parameters.

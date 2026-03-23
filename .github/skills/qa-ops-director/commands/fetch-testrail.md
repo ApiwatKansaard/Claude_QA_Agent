@@ -1,25 +1,26 @@
-# /qa:fetch-testrail [suite_id] [section_filter]
+# /qa:fetch-testrail [suite link or suite_id] [section_filter]
 
 **Triggers:** testrail-manager agent
 **References:** [testrail-api.md](../references/testrail-api.md), [testrail-csv.md](../references/testrail-csv.md)
 
 ## What This Command Does
 
-Fetch all test cases from a TestRail suite via the REST API. Returns a structured summary:
-total count by section, full case list, and optional gap analysis against a spec or test plan.
+Fetch all test cases from a TestRail suite via the REST API. Creates a local cache
+for future use by `/qa:import-testrail` and other commands. Returns a structured summary:
+total count by section, full case list, and optional gap analysis.
 
 ## Parameters
 
 | Parameter | Required | Notes |
 |---|---|---|
-| `[suite_id]` | No | TestRail suite ID — defaults to `3924` ([Main] Agentic suite) |
+| `[suite link or suite_id]` | No | TestRail suite URL or ID — defaults to `3924` ([Main] Agentic suite) |
 | `[section_filter]` | No | Section name substring to narrow results (e.g., "AI Scheduled Job") |
+
+**URL parsing:** Same as `/qa:import-testrail` — extract suite_id from URL or use number directly.
 
 **Team defaults:**
 - Host: `ekoapp20.testrail.io`
-- Project ID: `1` (Main Eko)
-- Default suite: `3924` ([Main] Agentic)
-- Alternative: Project `6` (Amity solutions) / Suite `3923` (Agentic) — specify explicitly if needed
+- Projects: `1` (Eko/EGT — Suite 3924), `6` (Amity Solutions — Suite 3923)
 
 ## Credentials
 
@@ -36,7 +37,11 @@ At runtime, ask the user:
 
 ## Execution Steps
 
-1. **Collect credentials** — ask user for email and API key if not already provided in this session.
+1. **Check cache** — look for `testrail-cache/S{suite_id}/`:
+   - If cache exists AND user hasn't asked for re-fetch: report cached data and ask if refresh is needed.
+   - If no cache OR user wants fresh data: proceed to step 2.
+
+2. **Collect credentials** — ask user for email and API key if not already provided in this session.
 
 2. **Fetch suite info** — verify the suite exists:
    ```
@@ -59,7 +64,12 @@ At runtime, ask the user:
 
 5. **Apply section filter** (if provided) — filter cases whose section name contains `[section_filter]`.
 
-6. **Produce output** — format as the output spec below.
+6. **Save to cache** — create or update `testrail-cache/S{suite_id}/`:
+   - `summary.md` — Suite overview with section tree, case counts, priority/type stats
+   - `cases.csv` — Full case dump in 15-column CSV format (same schema as sprint testcases)
+   See [import-testrail.md](import-testrail.md) for the cache format specification.
+
+7. **Produce output** — format as the output spec below.
 
 ## Implementation via Bash
 
@@ -165,7 +175,7 @@ Parse the JSON output and format into the output structure below.
 
 **If the suite is empty (0 cases):**
 State clearly: "Suite [name] (ID: XXXX) has 0 test cases. It is ready for first import."
-Offer to run `/qa:sync-testrail` to generate the import CSV.
+Offer to run `/qa:import-testrail` with the suite link to import sprint cases directly.
 
 ## Error Handling
 
