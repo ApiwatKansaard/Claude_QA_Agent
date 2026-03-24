@@ -265,11 +265,14 @@ For each COVERED or PARTIAL ticket, generate AC using the appropriate template:
 
 **Scope:** [1-line description of what this ticket delivers]
 
-- [ ] [Positive — primary happy path behavior]
-- [ ] [Positive — secondary expected behavior]
-- [ ] [Negative — what MUST be rejected/handled correctly]
-- [ ] [Edge case — boundary, empty state, or extreme input]
-- [ ] [Additional criterion if needed — max 6 total]
+1. ✅ [Positive — primary happy path behavior] — TC-XXX
+2. ✅ [Positive — secondary expected behavior] — TC-XXX
+3. ❌ [Negative — what MUST be rejected/handled correctly] — TC-XXX
+4. ⚠️ [Edge case — boundary, empty state, or extreme input] — TC-XXX
+5. ✅ [Additional criterion if needed — max 6 total] — TC-XXX
+
+---
+**Icon Legend:** ✅ = Positive (expected behavior) · ❌ = Negative (error/rejection) · ⚠️ = Edge case (boundary/race condition)
 
 **Ref:** [Spec group name] · Test Cases: [TC-IDs e.g. TC-015, TC-016, TC-018]
 **Generated:** [date] by QA Agent from test plan
@@ -277,13 +280,16 @@ For each COVERED or PARTIAL ticket, generate AC using the appropriate template:
 
 **Template: Bug**
 ```
-### Acceptance Criteria (QA Generated)
+### Acceptance Criteria (Bug Fix)
 
 **Scope:** Fix for [bug description]
 
-- [ ] [Original bug is fixed — specific verification of the fix]
-- [ ] [No regression — related area still works correctly]
-- [ ] [Edge case around the fix — boundary condition]
+1. ✅ [Original bug is fixed — specific verification of the fix] — TC-XXX
+2. ❌ [Regression — related area still works correctly] — TC-XXX
+3. ⚠️ [Edge case around the fix — boundary condition] — TC-XXX
+
+---
+**Icon Legend:** ✅ = Positive (expected behavior) · ❌ = Negative (error/rejection) · ⚠️ = Edge case (boundary/race condition)
 
 **Ref:** [Related spec group if applicable] · Test Cases: [TC-IDs]
 **Generated:** [date] by QA Agent from test plan
@@ -295,8 +301,11 @@ For each COVERED or PARTIAL ticket, generate AC using the appropriate template:
 
 **Scope:** [Sub-task deliverable within parent story scope]
 
-- [ ] [Sub-task specific criterion — narrow scope]
-- [ ] [Integration — works correctly with parent story]
+1. ✅ [Sub-task specific criterion — narrow scope] — TC-XXX
+2. ✅ [Integration — works correctly with parent story] — TC-XXX
+
+---
+**Icon Legend:** ✅ = Positive (expected behavior) · ❌ = Negative (error/rejection) · ⚠️ = Edge case (boundary/race condition)
 
 **Ref:** Parent: [Parent issue key] · Test Cases: [TC-IDs]
 **Generated:** [date] by QA Agent from test plan
@@ -427,27 +436,39 @@ For each approved ticket:
 mcp_atlassian_add_jira_comment(issueKey="AE-14288", body="...")
 ```
 
-Format the `body` using Jira wiki markup. **ALWAYS include the icon legend** at the top of every comment so readers know what each icon means:
+Format the `body` as **plain text with Unicode emoji**.
+
+⛔ **NEVER use Jira wiki markup** — the following DO NOT render via the API:
+- `||table||` and `|cell|` — wiki tables show as raw pipe characters
+- `{panel:...}` — macros show as raw code
+- `(/)` `(x)` `(!)` — wiki icon shortcuts show as literal text
+- `h2.` / `h3.` — may or may not render depending on the MCP tool version
+
+✅ **ALWAYS use Unicode emoji** for icons — they render everywhere:
+- `✅` for positive criteria
+- `❌` for negative criteria
+- `⚠️` for edge case criteria
+
+✅ **ALWAYS use numbered lines** instead of tables — pipes `|` don't render.
+✅ **ALWAYS include the icon legend** at the bottom of every comment.
+
+**Correct format (copy this exactly):**
 ```
-h3. Acceptance Criteria — QA Generated
+Acceptance Criteria — QA Generated
 
-||#||Criteria||TC Ref||
-|1|(/) Positive criterion description|TC-001|
-|2|(x) Negative criterion description|TC-002|
-|3|(!) Edge case criterion description|TC-003|
+1. ✅ Positive criterion description — TC-001
+2. ✅ Another positive criterion — TC-002
+3. ❌ Negative criterion description — TC-003
+4. ⚠️ Edge case criterion description — TC-004
 
-----
-{panel:title=Icon Legend|borderStyle=solid|borderColor=#ccc|bgColor=#f7f7f7}
-(/) = ✅ Positive criterion (expected behavior works correctly)
-(x) = ❌ Negative criterion (error handling, invalid input, rejection)
-(!) = ⚠️ Edge case criterion (boundary, race condition, large data)
-{panel}
+---
+Icon Legend: ✅ = Positive (expected behavior) · ❌ = Negative (error/rejection) · ⚠️ = Edge case (boundary/race condition)
 
-*Ref:* [Spec group] · Test Cases: [TC-IDs]
-*Generated:* [date] by QA Agent from test plan
+Ref: [Spec group] · Test Cases: [TC-IDs]
+Generated: [date] by QA Agent from test plan
 ```
 
-The icon legend panel is **mandatory on every AC comment** — never omit it.
+The icon legend line is **mandatory on every AC comment** — never omit it.
 
 ⚠️ **Post one ticket at a time** — if any fails, report the error and continue with the rest.
 
