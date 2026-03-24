@@ -675,3 +675,44 @@ The full pipeline produces these outputs (shown to user at each phase boundary):
 | All tickets are UNRELATED | 5 | Warn user — spec may not match this sprint's scope |
 | MCP add_jira_comment fails (403/404) | 9 | Log error, continue with other tickets, report at end |
 | Comment verification fails | 9 | Note for manual check, do not retry automatically |
+
+---
+
+## GitHub Actions Integration
+
+This skill coexists with the **Daily AC Scan** GitHub Actions workflow:
+
+| Execution Context | File | Trigger | Use Case |
+|---|---|---|---|
+| VS Code (this skill) | `commands/write-ac.md` | `/qa:write-ac [URL]` | Full 10-phase pipeline with LLM review + user approval |
+| GitHub Actions | `.github/workflows/daily-ac-scan.yml` | Manual dispatch or daily cron (09:00 BKK) | Automated scan — find tickets without AC |
+
+**Key differences:**
+- **This skill** uses LLM for semantic matching, AC generation, and 6-point review → higher quality
+- **GitHub Actions** uses keyword-based matching (`scripts/daily-ac-agent.py`) → catches missed tickets daily
+- Both use the same ADF table format and Jira REST API v3 for posting
+- The daily job runs in `report-only` mode by default (safe) — manual trigger can `post`
+
+**Root cause fix (2025-03-24):**
+Previous `repost-ac-tables.py` used a hardcoded `TICKETS = [...]` list which missed tickets added
+to the sprint after the initial run. The `daily-ac-agent.py` script dynamically fetches ALL sprint
+tickets via `/rest/agile/1.0/sprint/{id}/issue` with pagination, eliminating this failure mode.
+
+**GitHub Actions modes:**
+```bash
+# Report-only (scheduled default) — just lists tickets needing AC
+python3 scripts/daily-ac-agent.py --project AE --report-only
+
+# Dry-run — shows what would be posted
+python3 scripts/daily-ac-agent.py --sprint-id 4077 --dry-run
+
+# Post — actually posts AC comments
+python3 scripts/daily-ac-agent.py --sprint-id 4077
+
+# Force re-post — overwrites existing AC
+python3 scripts/daily-ac-agent.py --sprint-id 4077 --force
+```
+
+**Required GitHub Secrets:**
+- `JIRA_EMAIL` — Jira user email
+- `JIRA_TOKEN` — Jira API token

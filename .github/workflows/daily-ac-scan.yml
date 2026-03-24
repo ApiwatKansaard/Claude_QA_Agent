@@ -1,0 +1,106 @@
+name: Daily AC Scan
+
+on:
+  # Manual trigger — paste Jira board URL or sprint ID
+  workflow_dispatch:
+    inputs:
+      jira_board_url:
+        description: >
+          Jira board URL (e.g., https://ekoapp.atlassian.net/jira/software/c/projects/AE/boards/257?sprints=4077)
+          Leave empty to auto-discover active sprints.
+        required: false
+        type: string
+      sprint_id:
+        description: 'Sprint ID (alternative to board URL, e.g., 4077)'
+        required: false
+        type: string
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'report-only'
+        type: choice
+        options:
+          - report-only
+          - dry-run
+          - post
+      force_repost:
+        description: 'Re-post AC on tickets that already have it'
+        required: false
+        default: false
+        type: boolean
+
+  # Scheduled: Mon-Fri at 09:00 Bangkok (02:00 UTC)
+  schedule:
+    - cron: '0 2 * * 1-5'
+
+env:
+  JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+  JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+
+jobs:
+  ac-scan:
+    name: Scan Sprint & Post AC
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate credentials
+        run: |
+          if [ -z "$JIRA_EMAIL" ] || [ -z "$JIRA_TOKEN" ]; then
+            echo "::error::JIRA_EMAIL and JIRA_TOKEN secrets must be set"
+            exit 1
+          fi
+          echo "✅ Credentials configured for $JIRA_EMAIL"
+
+      # ── Manual trigger: use inputs ──
+      - name: Run AC Agent (manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          ARGS=""
+
+          # Sprint source: URL > sprint_id > auto-discover
+          if [ -n "${{ inputs.jira_board_url }}" ]; then
+            ARGS="--board-url '${{ inputs.jira_board_url }}'"
+          elif [ -n "${{ inputs.sprint_id }}" ]; then
+            ARGS="--sprint-id ${{ inputs.sprint_id }}"
+          else
+            ARGS="--project AE"
+          fi
+
+          # Mode
+          if [ "${{ inputs.mode }}" = "report-only" ]; then
+            ARGS="$ARGS --report-only"
+          elif [ "${{ inputs.mode }}" = "dry-run" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+
+          # Force
+          if [ "${{ inputs.force_repost }}" = "true" ]; then
+            ARGS="$ARGS --force"
+          fi
+
+          echo "Running: python3 scripts/daily-ac-agent.py $ARGS"
+          eval python3 scripts/daily-ac-agent.py $ARGS
+
+      # ── Scheduled trigger: report-only (safe default) ──
+      - name: Run AC Agent (scheduled)
+        if: github.event_name == 'schedule'
+        run: |
+          python3 scripts/daily-ac-agent.py --project AE --report-only
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Daily AC Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode:** ${{ inputs.mode || 'report-only (scheduled)' }}" >> $GITHUB_STEP_SUMMARY
