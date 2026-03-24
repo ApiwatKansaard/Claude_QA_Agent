@@ -96,13 +96,30 @@ jobs:
           fi
 
           echo "Running: python3 scripts/daily-ac-agent.py ${ARGS[*]}"
-          python3 scripts/daily-ac-agent.py "${ARGS[@]}"
+          python3 scripts/daily-ac-agent.py "${ARGS[@]}" --summary-file /tmp/ac-summary.html
 
       # ── Scheduled trigger: report-only (safe default) ──
       - name: Run AC Agent (scheduled)
         if: github.event_name == 'schedule'
         run: |
-          python3 scripts/daily-ac-agent.py --project AE --report-only
+          python3 scripts/daily-ac-agent.py --project AE --report-only --summary-file /tmp/ac-summary.html
+
+      # ── Send email report ──
+      - name: Send email report
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.GMAIL_USER }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "Daily AC Scan — ${{ github.event_name }} — $(date -u '+%Y-%m-%d')"
+          to: ${{ secrets.GMAIL_USER }}
+          from: QA Agent <${{ secrets.GMAIL_USER }}>
+          html_body: file:///tmp/ac-summary.html
+          ignore_cert: false
+          convert_markdown: false
 
       - name: Summary
         if: always()
