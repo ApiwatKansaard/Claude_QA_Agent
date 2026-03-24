@@ -100,6 +100,28 @@ Phase 10: Release Notes → generate release-notes-{sprint}.md in sprint folder
 Key features: smart sprint detection (no hardcoded names), AC templates by issue type,
 duplicate AC detection, internal AI review loop, post-write verification, release notes generation.
 
+### Daily AC Scan — GitHub Actions Automation
+
+A **GitHub Actions workflow** (`.github/workflows/daily-ac-scan.yml`) runs alongside the VS Code skill
+to catch newly added sprint tickets that don't have AC comments yet.
+
+| Trigger | Mode | Behavior |
+|---|---|---|
+| **Scheduled** (Mon-Fri 09:00 BKK / 02:00 UTC) | `report-only` | Lists tickets missing AC — no writes |
+| **Manual dispatch** (board URL or sprint ID) | `report-only` / `dry-run` / `post` | User chooses action level |
+
+**Script:** `scripts/daily-ac-agent.py` — standalone Python, no LLM dependency.
+- Dynamic sprint ticket discovery via Jira Agile API (no hardcoded ticket lists)
+- Keyword-based matching to test plan groups from CSV
+- ADF table posting identical to the VS Code skill output
+- Auth: env vars `JIRA_EMAIL` + `JIRA_TOKEN` (GHA secrets) or macOS Keychain (local)
+
+**Key difference:** The VS Code skill (`/qa:write-ac`) uses LLM for semantic matching and 6-point review
+(higher quality). The GitHub Actions job uses keyword patterns (catches missed tickets daily, lower barrier).
+Both produce the same ADF table format on Jira.
+
+**Required GitHub Secrets:** `JIRA_EMAIL`, `JIRA_TOKEN`
+
 ### Recommended Full Pipeline (Once Per Sprint)
 
 ```

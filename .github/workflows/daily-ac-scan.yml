@@ -61,34 +61,42 @@ jobs:
           echo "✅ Credentials configured for $JIRA_EMAIL"
 
       # ── Manual trigger: use inputs ──
+      # NOTE: All inputs are passed via env vars to prevent shell injection.
+      # NEVER interpolate ${{ inputs.* }} directly in run: blocks.
       - name: Run AC Agent (manual)
         if: github.event_name == 'workflow_dispatch'
+        env:
+          INPUT_BOARD_URL: ${{ inputs.jira_board_url }}
+          INPUT_SPRINT_ID: ${{ inputs.sprint_id }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_FORCE: ${{ inputs.force_repost }}
         run: |
-          ARGS=""
+          set -euo pipefail
+          ARGS=()
 
           # Sprint source: URL > sprint_id > auto-discover
-          if [ -n "${{ inputs.jira_board_url }}" ]; then
-            ARGS="--board-url '${{ inputs.jira_board_url }}'"
-          elif [ -n "${{ inputs.sprint_id }}" ]; then
-            ARGS="--sprint-id ${{ inputs.sprint_id }}"
+          if [ -n "${INPUT_BOARD_URL}" ]; then
+            ARGS+=(--board-url "${INPUT_BOARD_URL}")
+          elif [ -n "${INPUT_SPRINT_ID}" ]; then
+            ARGS+=(--sprint-id "${INPUT_SPRINT_ID}")
           else
-            ARGS="--project AE"
+            ARGS+=(--project AE)
           fi
 
           # Mode
-          if [ "${{ inputs.mode }}" = "report-only" ]; then
-            ARGS="$ARGS --report-only"
-          elif [ "${{ inputs.mode }}" = "dry-run" ]; then
-            ARGS="$ARGS --dry-run"
+          if [ "${INPUT_MODE}" = "report-only" ]; then
+            ARGS+=(--report-only)
+          elif [ "${INPUT_MODE}" = "dry-run" ]; then
+            ARGS+=(--dry-run)
           fi
 
           # Force
-          if [ "${{ inputs.force_repost }}" = "true" ]; then
-            ARGS="$ARGS --force"
+          if [ "${INPUT_FORCE}" = "true" ]; then
+            ARGS+=(--force)
           fi
 
-          echo "Running: python3 scripts/daily-ac-agent.py $ARGS"
-          eval python3 scripts/daily-ac-agent.py $ARGS
+          echo "Running: python3 scripts/daily-ac-agent.py ${ARGS[*]}"
+          python3 scripts/daily-ac-agent.py "${ARGS[@]}"
 
       # ── Scheduled trigger: report-only (safe default) ──
       - name: Run AC Agent (scheduled)
@@ -98,9 +106,11 @@ jobs:
 
       - name: Summary
         if: always()
+        env:
+          INPUT_MODE: ${{ inputs.mode }}
         run: |
           echo "## Daily AC Scan Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Time:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "- **Mode:** ${{ inputs.mode || 'report-only (scheduled)' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode:** ${INPUT_MODE:-report-only (scheduled)}" >> $GITHUB_STEP_SUMMARY
