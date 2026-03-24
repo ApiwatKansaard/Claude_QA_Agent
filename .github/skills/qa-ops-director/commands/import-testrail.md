@@ -16,7 +16,12 @@ produces an impact analysis, then executes the import after user confirmation.
 | `[suite link]` | Yes | TestRail suite URL or suite_id number |
 
 **Sprint test cases** are auto-detected from the current sprint folder (`{sprint-folder}/*-testcases.csv`).
-If not found, ask the user to provide them.
+If not found:
+1. Ask the user to provide a CSV path or filename
+2. If no CSV exists anywhere → abort with: "No test cases found. Run `/qa:test-plan` first to generate test cases."
+
+**Sprint folder detection:** Scan workspace root for `agentic-*/` or `sprint-*/` directories
+(not inside `archive/`). If multiple found, use the most recent. See SKILL.md for full rules.
 
 **Team defaults:**
 - Host: `ekoapp20.testrail.io`

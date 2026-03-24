@@ -28,19 +28,34 @@ and accessible under the `archive/` folder for future reference.
 
 ### Step 1 — Identify Current Sprint Artifacts
 
-Scan the workspace for QA artifacts created during this sprint:
+Scan the workspace in two locations:
 
-1. **Spec files** — `specs/*.md` (feature spec files from `/qa:write-ac`)
-2. **Test plan files** — `*-test-plan.md` in workspace root
-3. **TestRail CSV files** — `*-testrail.csv` in workspace root
-4. **Generator scripts** — `generate-testrail-csv.py` or similar helper scripts
-5. **Any other `.md` files** that reference the sprint (e.g., `create-new-*-test-cases.md`)
+**1a. Sprint folder** (primary — all artifacts should be here):
+Locate the active sprint folder at the workspace root (e.g., `agentic-18.2/`).
+Sprint folders follow the pattern `agentic-*/` or `sprint-*/`.
+
+Expected contents:
+1. **Test plan** — `{feature-slug}-test-plan.md`
+2. **Test cases CSV** — `{feature-slug}-testcases.csv`
+3. **Generator script** — `generate-csv.py` or `generate-*.py`
+4. **Release notes** — `release-notes-{sprint-name}.md` (from `/qa:write-ac` Phase 10)
+5. **Other sprint files** — any `.md` or `.csv` files created during the sprint
+
+**1b. Root-level stray files** (secondary — should not be here):
+Check workspace root for any stray artifacts that belong in the sprint folder:
+- `*-test-plan.md`, `*-testcases.csv`, `*-testrail.csv`, `generate-*.py`, `release-notes-*.md`
+- These will be moved INTO the sprint archive folder alongside the sprint folder contents.
+
+**If no sprint folder AND no stray files found** → abort:
+> "❌ Nothing to archive — no sprint folder or stray artifacts found at workspace root.
+> Are you sure this sprint has active artifacts? Check `archive/` if the sprint was already archived."
 
 ⚠️ Do NOT touch:
 - `.github/` folder (skill definitions)
 - `.vscode/` folder (editor config)
 - `archive/` folder (previous sprint archives)
 - `scripts/` folder (reusable utility scripts)
+- `testrail-cache/` folder (persists across sprints — NOT archived)
 
 ### Step 2 — Determine Archive Folder Name
 
@@ -62,45 +77,47 @@ If only a sprint ID is available, use `sprint-{id}`.
 Show the user what will be moved before executing:
 
 ```
-📦 Sprint Archive Plan: Agentic 18.1
-   Target: archive/agentic-18.1/
+📦 Sprint Archive Plan: Agentic 18.2
+   Target: archive/agentic-18.2/
 
-   Files to archive:
-   ├── specs/ekoai-scheduled-jobs.md          → archive/agentic-18.1/specs/
-   ├── ekoai-scheduled-jobs-test-plan.md      → archive/agentic-18.1/
-   ├── ekoai-scheduled-jobs-testrail.csv      → archive/agentic-18.1/
-   ├── generate-testrail-csv.py               → archive/agentic-18.1/
-   └── create-new-scheduler-test-cases.md     → archive/agentic-18.1/
+   Sprint folder (move entire folder):
+   └── agentic-18.2/                           → archive/agentic-18.2/
+       ├── ekoai-scheduled-jobs-test-plan.md
+       ├── ekoai-scheduled-jobs-testcases.csv
+       ├── generate-csv.py
+       └── release-notes-broccoli-f.md
+
+   Root stray files (move into archive):
+   ├── ekoai-scheduled-jobs-test-plan.md       → archive/agentic-18.2/  (stray)
+   └── (none found)
 
    ⚠️ Files NOT touched:
-   ├── .github/  (skill definitions)
-   ├── .vscode/  (editor config)
-   ├── scripts/  (utility scripts)
-   └── archive/  (previous sprints)
+   ├── .github/        (skill definitions)
+   ├── .vscode/        (editor config)
+   ├── scripts/        (utility scripts)
+   ├── archive/        (previous sprints)
+   └── testrail-cache/ (persists across sprints)
 
-   Total: {N} files to move
+   Total: {N} files to archive
 ```
 
 **Wait for user confirmation before proceeding.**
 
 ### Step 4 — Execute Archive
 
-1. Create the archive directory structure:
+1. **Move the entire sprint folder** to `archive/`:
    ```bash
-   mkdir -p archive/{sprint-name}/specs
+   mv {sprint-folder} archive/{sprint-folder}
+   # Example: mv agentic-18.2 archive/agentic-18.2
    ```
 
-2. Move each file preserving folder structure:
+2. **Move any root-level stray files** into the same archive:
    ```bash
-   mv specs/ekoai-scheduled-jobs.md archive/{sprint-name}/specs/
-   mv ekoai-scheduled-jobs-test-plan.md archive/{sprint-name}/
-   mv ekoai-scheduled-jobs-testrail.csv archive/{sprint-name}/
+   # Only if stray files were found in Step 1b
+   mv ekoai-scheduled-jobs-test-plan.md archive/{sprint-folder}/
    ```
 
-3. If the `specs/` folder is now empty, remove it:
-   ```bash
-   rmdir specs/   # only if empty
-   ```
+3. **Verify** the workspace root is clean — no sprint artifacts remaining.
 
 ### Step 5 — Generate Archive Summary
 
@@ -115,15 +132,22 @@ Create `archive/{sprint-name}/ARCHIVE-SUMMARY.md` with:
 
 | File | Type | Description |
 |---|---|---|
-| specs/ekoai-scheduled-jobs.md | Feature Spec | {N} requirements · {M} UI states |
-| ekoai-scheduled-jobs-test-plan.md | Test Plan | {N} test cases across {M} groups |
-| ekoai-scheduled-jobs-testrail.csv | TestRail CSV | {N} rows, ready for import |
-| generate-testrail-csv.py | Script | CSV generator |
+| {feature-slug}-test-plan.md | Test Plan | {N} test cases across {M} groups |
+| {feature-slug}-testcases.csv | Test Cases CSV | {N} rows, TestRail-ready (15 columns) |
+| generate-csv.py | Script | CSV generator/validator |
+| release-notes-{sprint-name}.md | Release Notes | AC summary: {N} tickets, {M} AC items |
 
 ## Sprint Stats
 - **Test cases generated:** {N}
 - **Tickets with AC posted:** {N} of {M}
+- **Bugs filed this sprint:** {N} (via /qa:bug-report)
+- **TestRail import:** {N} cases imported to suite S{suite-id}
 - **Features covered:** [list]
+
+## Data Sources
+- **Confluence:** pages {page-ids}
+- **Figma:** file {file-key} (nodes: {node-ids})
+- **Jira:** project AE, board 257, sprint {sprint-id}
 
 ## How to Access
 These files can be read anytime for reference. They are preserved exactly as they were
@@ -132,12 +156,16 @@ at the end of the sprint — no modifications after archiving.
 
 ### Step 6 — Verify & Report
 
-1. Verify all files were moved successfully (check existence in archive, absence in root)
-2. Report:
+1. Verify the sprint folder was moved successfully (check existence in archive)
+2. Verify no stray files remain at workspace root
+3. Verify `testrail-cache/` is untouched
+4. Report:
 
 ```
-✅ Sprint archived: archive/agentic-18.1/
-   {N} files moved · ARCHIVE-SUMMARY.md created
+✅ Sprint archived: archive/{sprint-folder}/
+   📁 Sprint folder moved ({N} files)
+   📄 Root stray files cleaned ({N} files)
+   📝 ARCHIVE-SUMMARY.md created
    Workspace is now clean for the next sprint.
 
    Next: /qa:start-sprint to begin the new sprint.
@@ -156,5 +184,6 @@ The report from Step 6.
 - **NEVER delete files** — only move to `archive/`.
 - **NEVER overwrite** existing archives — if `archive/{sprint-name}/` already exists,
   append a suffix: `archive/{sprint-name}-2/`.
+- **NEVER touch `testrail-cache/`** — it persists across sprints as the baseline for comparison.
 - **Always confirm** with the user before moving any file.
-- **Preserve directory structure** — `specs/` files go to `archive/{sprint}/specs/`.
+- **Move the sprint folder as a whole** — don't move files individually.

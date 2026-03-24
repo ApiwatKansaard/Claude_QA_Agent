@@ -41,6 +41,7 @@ Parameters shown in `[brackets]` are positional — parse them from the message 
 | `/qa:import-testrail` | testrail-manager | `[suite link]` | [import-testrail.md](./commands/import-testrail.md) |
 | `/qa:edit-testrail` | testrail-manager | `[suite_id]` `[section or case filter]` `[change description]` | [edit-testrail.md](./commands/edit-testrail.md) |
 | `/qa:create-regression` | testrail-manager | `[feature or sprint name]` `[suite_id]` `[impact description]` | [create-regression.md](./commands/create-regression.md) |
+| `/qa:bug-report` | bug-reporter | `[bug description or screenshot]` | [bug-report.md](./commands/bug-report.md) |
 | `/qa:bug-triage` | bug-analyzer | `[Jira bug list or filter URL]` | [bug-triage.md](./commands/bug-triage.md) |
 | `/qa:regression-check` | test-planner + test-case-reviewer | `[release scope or changelog]` | [regression-check.md](./commands/regression-check.md) |
 | `/qa:eod-report` | report-compiler | *(TestRail progress optional)* | [eod-report.md](./commands/eod-report.md) |
@@ -53,10 +54,13 @@ ask for it before proceeding. For optional parameters, proceed without them and 
 
 ### Auto-Chain Pipeline
 
-`/qa:test-plan` runs a **3-phase pipeline automatically** — no extra command needed:
+`/qa:test-plan` runs a **4-phase pipeline automatically** — no extra command needed:
 
 ```
+Phase 0: Archive Context Scan → check archive/ for previous sprints with same Confluence/Figma sources
+         (read-only, non-blocking — skips if no match found)
 Phase 1: Fetch specs → Generate test cases → Output test plan
+         (uses Phase 0 context if available to avoid duplication and address previous gaps)
 Phase 2: Review test cases against the same specs → Output gap analysis
          (spec data is reused from Phase 1 — no re-fetch)
 Phase 3: Auto-fix → Apply review comments → Add missing test cases / revise flagged ones
@@ -125,12 +129,13 @@ Both produce the same ADF table format on Jira.
 ### Recommended Full Pipeline (Once Per Sprint)
 
 ```
-/qa:start-sprint   → Check readiness, verify clean workspace
+/qa:start-sprint   → Check readiness, verify clean workspace, create sprint folder
 /qa:test-plan      → Generate + Review + Auto-fix → outputs test-plan.md + testcases.csv in sprint folder
 /qa:import-testrail → Read suite (cached) + Compare sprint cases + Import via API
 /qa:write-ac       → 10-phase pipeline: select sprint → check prereqs → understand plan → fetch tickets
                      → generate AC → internal review → auto-fix → user review → post & verify → release notes
   ... (testing phase — execute test cases, log bugs) ...
+/qa:bug-report     → Create bug ticket in Jira + auto-post Bug Fix Criteria AC
 /qa:end-sprint     → Archive sprint folder into archive/{sprint-name}/
 ```
 
@@ -139,12 +144,25 @@ Both produce the same ADF table format on Jira.
 
 **Artifacts lifecycle:** All artifacts are created directly in the sprint folder (`{sprint-name}/`)
 from the start — NEVER at the workspace root. Each sprint folder contains:
+
+**Sprint folder detection** (used by all commands that need `{sprint-folder}`):
+1. Scan workspace root for directories matching `agentic-*/` or `sprint-*/` that are NOT inside `archive/`
+2. If exactly one found → use it
+3. If multiple found → use the most recent (highest version number)
+4. If none found → ask user for sprint name and create it (`mkdir -p {sprint-name}/`)
+
+Commands that use this: `/qa:test-plan`, `/qa:import-testrail`, `/qa:write-ac`, `/qa:bug-report`, `/qa:end-sprint`.
 - `{feature-slug}-test-plan.md` — Strategy and coverage summary
 - `{feature-slug}-testcases.csv` — Test cases in TestRail CSV format (15 columns)
 - `generate-csv.py` — Script used to generate/validate the CSV (optional)
 
 At sprint end, `/qa:end-sprint` moves the sprint folder to `archive/{sprint-name}/` — files are
 **never deleted**, only archived. Previous sprint archives remain readable at all times.
+
+**Cross-sprint context:** When `/qa:test-plan` runs, it first scans `archive/` for previous sprints
+that used the same Confluence pages or Figma files (Phase 0 — Archive Context Scan). If a match
+is found, the archived test plan is read as supplementary context to avoid duplication and address
+previous gaps. This is automatic and non-blocking — no match means fresh generation.
 
 **TestRail suite cache:** Suite data is cached at `testrail-cache/S{suite_id}/` (summary.md + cases.csv).
 Cache is created on first fetch, read on subsequent access, and updated after every write operation.
@@ -243,12 +261,14 @@ When the user doesn't use a slash command, match their request to the best-fit a
 | Import new test cases into TestRail via API (with user review before creating) | **testrail-manager** | [agent-testrail-manager.md](./references/agent-testrail-manager.md), [testrail-api.md](./references/testrail-api.md) |
 | Edit or update existing TestRail cases when a feature change impacts steps/expected results | **testrail-manager** | [agent-testrail-manager.md](./references/agent-testrail-manager.md), [testrail-api.md](./references/testrail-api.md) |
 | Create regression milestone and test run in TestRail for a feature or sprint release | **testrail-manager** | [agent-testrail-manager.md](./references/agent-testrail-manager.md), [testrail-api.md](./references/testrail-api.md) |
+| File/create a new bug ticket in Jira (auto-posts Bug Fix Criteria AC comment too) | **bug-reporter** | [agent-bug-reporter.md](./references/agent-bug-reporter.md), [bug-report.md](./commands/bug-report.md) |
+| Read a bug ticket's data and AC comments | **bug-reporter** | [agent-bug-reporter.md](./references/agent-bug-reporter.md) |
 | Triage or analyze Jira bug reports, identify root causes, prioritize for dev team | **bug-analyzer** | [agent-bug-analyzer.md](./references/agent-bug-analyzer.md) |
 | Generate a QA standup report or EOD summary from Jira/TestRail status | **report-compiler** | [agent-report-compiler.md](./references/agent-report-compiler.md) |
 | Write acceptance criteria on Jira sprint tickets from spec + test cases | **test-planner + ac-reviewer** | [write-ac.md](./commands/write-ac.md), [agent-ac-reviewer.md](./references/agent-ac-reviewer.md) |
 | Review generated AC for testability, traceability, completeness, and developer clarity | **ac-reviewer** | [agent-ac-reviewer.md](./references/agent-ac-reviewer.md) |
-| Start a new sprint — readiness check, verify clean workspace, tool connectivity | **report-compiler** | [start-sprint.md](./commands/start-sprint.md) |
-| End/close a sprint — archive specs, test cases, CSVs to sprint-named folder | **report-compiler** | [end-sprint.md](./commands/end-sprint.md) |
+| Start a new sprint — readiness check, verify clean workspace, tool connectivity, create sprint folder | **report-compiler** | [start-sprint.md](./commands/start-sprint.md) |
+| End/close a sprint — archive sprint folder + root stray files to archive/{sprint-name}/ | **report-compiler** | [end-sprint.md](./commands/end-sprint.md) |
 
 ---
 
@@ -296,6 +316,37 @@ Load these when the active agent needs them — not upfront for every request:
   - Fetch nodes ONE AT A TIME, not in parallel
 - **For visual reference:** Use `mcp_figma-remote-_get_screenshot` (fast, returns single image)
 - **Strategy:** Confluence provides the spec text; Figma provides UI structure/states only
+
+### Atlassian MCP — `create_jira_issue` returns `undefined` on project AE (CRITICAL)
+- **Root cause:** Project AE has required custom fields (`customfield_11536` EKO Squad, etc.) that `mcp_atlassian_create_jira_issue` does not support. The MCP tool silently fails and returns `{"webUrl": "https://ekoapp.atlassian.net/browse/undefined"}`.
+- **Impact:** Bug tickets are never created via MCP — no error message, no ticket.
+- **Fix:** **Use Jira REST API v3 via Python script** instead of MCP for issue creation:
+  ```python
+  # Write payload to /tmp/jira-bug-payload.json, then:
+  python3 /tmp/create-jira-bug.py
+  # Uses urllib.request, auth from macOS Keychain (jira-api-token)
+  ```
+
+### Jira Custom Fields — ADF format required for text fields (CRITICAL)
+- **Root cause:** Custom text fields (`customfield_11435` Actual results, `customfield_11436` Expected results, `customfield_11437` Step to reproduce) require **Atlassian Document Format (ADF)**, NOT plain strings.
+- **Error:** `"Operation value must be an Atlassian Document"` when passing plain strings.
+- **Fix:** Always convert text to ADF: `{"type": "doc", "version": 1, "content": [{"type": "paragraph", "content": [{"type": "text", "text": "..."}]}]}`
+
+### Jira Sprint — Cannot set during issue creation
+- **Root cause:** Sprint field (`customfield_10006`) cannot be reliably set in issue creation payload.
+- **Fix:** **2-step process:** (1) Create issue via POST /rest/api/3/issue, (2) Assign sprint via POST /rest/agile/1.0/sprint/{id}/issue with `{"issues": ["AE-XXXXX"]}`
+- **Active sprints:** Board 257 — discover via `GET /rest/agile/1.0/board/257/sprint?state=active`
+- **Required custom field:** `customfield_11536` (EKO Squad) — options:
+  - Broccoli = `{"id": "14379"}` (default for Agentic squad)
+  - EGT = `{"id": "11641"}`
+  - Carrot = `{"id": "14544"}`
+  - Spinach = `{"id": "14545"}`
+- **Note:** MCP read operations (`read_jira_issue`, `search_jira_issues`) work fine; only create is broken.
+
+### Post-creation rule — ALWAYS send the Jira link
+- After creating any Jira ticket (bug, story, task), **ALWAYS** send the full link back to the user immediately.
+- Format: `✅ Created: [AE-XXXXX](https://ekoapp.atlassian.net/browse/AE-XXXXX)`
+- Never just say "ticket created" without the link.
 
 ---
 

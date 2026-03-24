@@ -238,6 +238,10 @@ sprints), they should still be processed — the sprint ID is the source of trut
 5. **Duplicate AC Detection** — for each ticket, check:
    - Does the ticket description already contain an AC section?
    - Are there existing Jira comments with AC content?
+   - **Bug tickets from `/qa:bug-report`** — Phase 6 of bug-report auto-posts a
+     `"Bug Fix Criteria — QA Generated"` comment. This is a **lightweight AC** (no 6-point review).
+     When write-ac encounters such a comment, it should default to **Replace** to upgrade
+     with the full-quality AC that includes the 6-point review.
    
    If existing AC found → flag it:
    ```
@@ -246,6 +250,8 @@ sprints), they should still be processed — the sprint ID is the source of trut
    - [B] Replace — overwrite with new AC (will note "Updated by QA Agent")
    - [C] Append — add new AC as a separate comment
    ```
+   
+   For Bug tickets with existing `Bug Fix Criteria` from `/qa:bug-report` → default to [B] Replace.
 
 ---
 
@@ -296,8 +302,12 @@ For each COVERED or PARTIAL ticket, generate AC using the appropriate template:
 ```
 
 **Template: Bug**
+
+> **Title:** `"Bug Fix Criteria — QA Generated"` — matches `/qa:bug-report` Phase 6 and `daily-ac-agent.py`.
+> Duplicate detection signatures catch both this and the old `"Acceptance Criteria (Bug Fix)"` title.
+
 ```
-### Acceptance Criteria (Bug Fix)
+### Bug Fix Criteria — QA Generated
 
 **Scope:** Fix for [bug description]
 
@@ -518,6 +528,8 @@ The icon legend is **mandatory on every AC comment** — never omit it.
 
 ⚠️ **Post one ticket at a time** — if any fails, report the error and continue with the rest.
 ⚠️ **Delete before posting** — use `DELETE /rest/api/3/issue/{key}/comment/{id}` on old AC comments first.
+   This includes `Bug Fix Criteria — QA Generated` comments from `/qa:bug-report` Phase 6.
+   The write-ac full pipeline (with 6-point review) supersedes the lightweight bug-report AC.
 
 #### 9.2 — Verify Comments
 

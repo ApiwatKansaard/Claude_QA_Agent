@@ -9,7 +9,7 @@ Read the provided Figma design and/or Confluence spec, generate a complete struc
 then **automatically review and fix** — no extra command needed.
 
 The full pipeline runs in one shot:
-1. Fetch specs → 2. Generate test cases → 3. Review for gaps → 4. Auto-fix based on review → 5. Output final result
+0. Scan archives for previous sprint context → 1. Fetch specs → 2. Generate test cases → 3. Review for gaps → 4. Auto-fix based on review → 5. Output final result
 
 ## Parameters
 
@@ -31,6 +31,91 @@ If neither URL is provided: ask for at least one before proceeding.
 | Confluence (Atlassian MCP) | PRD, acceptance criteria, API contracts | `mcp_atlassian_read_confluence_page`, `mcp_atlassian_search_confluence_pages` |
 
 ## Execution Steps
+
+### Sprint Folder Resolution
+
+Before any phase runs, determine the target sprint folder for output:
+
+1. **Check for existing sprint folder** at workspace root — look for `agentic-*/` or `sprint-*/`
+   directories that are NOT inside `archive/`.
+2. **If found** — use it as `{sprint-folder}` (e.g., `agentic-18.3/`).
+3. **If not found** — ask the user for the sprint name, then create it:
+   ```bash
+   mkdir -p {sprint-folder}   # e.g., agentic-18.3/
+   ```
+   If the user ran `/qa:start-sprint` first, the folder should already exist (Step 4a).
+
+All output files are written to `{sprint-folder}/` — **never** to the workspace root.
+
+---
+
+### Phase 0 — Archive Context Scan (auto, before spec fetch)
+
+Before fetching new specs, check if previous sprints covered related features.
+This step is **read-only** and **non-blocking** — if no match is found, proceed normally.
+
+1. **Scan archive directory:**
+   - List all folders in `archive/`
+   - For each, read `ARCHIVE-SUMMARY.md` (skip folders without it)
+   - Extract: feature names, Confluence page IDs, Figma file keys, coverage stats
+
+2. **Match against current spec sources:**
+   Compare the user-provided Figma URL's `fileKey` and Confluence URL's `pageId`
+   against each archive's `## Data Sources` section.
+
+   | Signal | Match Strength | Action |
+   |---|---|---|
+   | Same Confluence page ID | **Strong** — same spec document, continued work | Read archived test plan + CSV coverage summary |
+   | Same Figma file key | **Strong** — same design, iterated | Read archived test plan + CSV coverage summary |
+   | Feature name keyword overlap in title | **Moderate** — similar feature area | Read archived ARCHIVE-SUMMARY only |
+   | No match at all | **None** — new feature | Skip, proceed fresh |
+
+   If multiple archived sprints match, use the **most recent** one (by archived date).
+
+3. **If Strong match found** — read these archived files:
+   - `archive/{sprint}/*-test-plan.md` → Coverage Summary, Known Gaps, Scope, Test Strategy
+   - `archive/{sprint}/*-testcases.csv` → Count cases per Section (don't load full content, just group/count)
+
+   Present to user:
+   ```
+   📂 Previous Sprint Context Found:
+      Sprint: Agentic 18.1 (archive/agentic-18.1/)
+      Feature: EkoAI Scheduled Jobs
+      Match: Same Confluence pages (3488645131, 3518726148, ...)
+      Previous coverage: 131 test cases across 13 groups
+      Known gaps: [list from previous plan]
+
+      This context will be used to:
+      ✅ Avoid duplicating identical test scenarios
+      ✅ Address known gaps from previous sprint
+      ✅ Build on existing coverage structure
+      ✅ Reference previous test case groups for continuity
+   ```
+
+4. **If Moderate match found:**
+   ```
+   📂 Possibly related previous sprint:
+      Sprint: Agentic 18.1 — feature "EkoAI Scheduled Jobs" (keyword overlap)
+      Previous coverage: 131 test cases
+      ⚠️ Specs differ — using as light reference only.
+   ```
+
+5. **If no match found:**
+   ```
+   📂 Archive scan: No related previous sprint found.
+      Proceeding with fresh test plan generation.
+   ```
+
+**How archived context is used in Phase 1:**
+- The archive data is **supplementary input**, NOT a replacement for spec analysis.
+- Specs may have changed between sprints — ALL test cases are still generated from the current spec.
+- Use archive context to:
+  - Keep consistent Section naming across sprints when the feature is the same
+  - Reference known gaps and ensure they're addressed this time
+  - Avoid generating test cases that are exact duplicates of already-imported TestRail cases
+  - Note in test plan output what was carried forward vs. what's new
+
+---
 
 ### Phase 1 — Test Plan Generation
 
@@ -128,6 +213,15 @@ This file contains ONLY the strategy, scope, and coverage summary — NO test ca
 |------|----------|---------|
 | Tech Spec | [Title] | [page_id] |
 | Figma | [Node name] (nodeId) | — |
+
+## Previous Sprint Context
+<!-- Include ONLY if Phase 0 found a match. Omit this section entirely if no match. -->
+- **Archived sprint:** [sprint name] (archive/{folder}/)
+- **Match type:** Strong (same Confluence pages) / Moderate (keyword)
+- **Previous coverage:** [N] test cases across [M] groups
+- **Known gaps addressed:** [list gaps from previous sprint that are now covered]
+- **Carried forward:** [what was reused — e.g., Section naming, test strategy]
+- **New in this sprint:** [what's different — new groups, changed scope, etc.]
 
 ## Scope
 ### In Scope
