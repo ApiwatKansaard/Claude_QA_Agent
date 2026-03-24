@@ -28,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      sprint_name_filter:
+        description: 'Filter sprints by name (e.g., broccoli). Case-insensitive.'
+        required: false
+        default: 'broccoli'
+        type: string
 
   # Scheduled: Mon-Fri at 09:00 Bangkok (02:00 UTC)
   schedule:
@@ -70,6 +75,7 @@ jobs:
           INPUT_SPRINT_ID: ${{ inputs.sprint_id }}
           INPUT_MODE: ${{ inputs.mode }}
           INPUT_FORCE: ${{ inputs.force_repost }}
+          INPUT_SPRINT_FILTER: ${{ inputs.sprint_name_filter }}
         run: |
           set -euo pipefail
           ARGS=()
@@ -81,6 +87,11 @@ jobs:
             ARGS+=(--sprint-id "${INPUT_SPRINT_ID}")
           else
             ARGS+=(--project AE)
+          fi
+
+          # Sprint name filter
+          if [ -n "${INPUT_SPRINT_FILTER}" ]; then
+            ARGS+=(--sprint-filter "${INPUT_SPRINT_FILTER}")
           fi
 
           # Mode
@@ -101,8 +112,18 @@ jobs:
       # ── Scheduled trigger: report-only (safe default) ──
       - name: Run AC Agent (scheduled)
         if: github.event_name == 'schedule'
+        env:
+          SPRINT_FILTER: broccoli
         run: |
-          python3 scripts/daily-ac-agent.py --project AE --report-only --summary-file /tmp/ac-summary.html
+          python3 scripts/daily-ac-agent.py --project AE --report-only --sprint-filter "$SPRINT_FILTER" --summary-file /tmp/ac-summary.html
+
+      # ── Ensure summary file exists (fallback if script crashed) ──
+      - name: Ensure summary file
+        if: always()
+        run: |
+          if [ ! -f /tmp/ac-summary.html ]; then
+            echo "<h2>Daily AC Scan — Failed</h2><p>The script exited before generating a summary. Check the workflow logs for errors.</p>" > /tmp/ac-summary.html
+          fi
 
       # ── Send email report ──
       - name: Send email report

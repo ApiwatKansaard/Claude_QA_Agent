@@ -201,12 +201,27 @@ class JiraClient:
             time.sleep(RATE_LIMIT_DELAY)
         return all_issues
 
-    def get_active_sprints(self, board_id):
-        """Get active sprints for a board."""
+    def get_active_sprints(self, board_id, name_filter=None):
+        """Get active sprints for a board, optionally filtered by name prefix.
+        
+        Args:
+            board_id: Jira board ID
+            name_filter: case-insensitive prefix/substring to filter sprint names
+                         (e.g., 'broccoli' matches 'Broccoli-F', 'Broccoli-G', etc.)
+        """
         result = self.request("GET", f"/rest/agile/1.0/board/{board_id}/sprint?state=active")
         if not result:
             return []
-        return result.get("values", [])
+        sprints = result.get("values", [])
+        if name_filter:
+            pattern = name_filter.lower()
+            filtered = [s for s in sprints if pattern in s.get("name", "").lower()]
+            if filtered:
+                return filtered
+            # Warn but return all if filter matches nothing
+            names = [s.get("name", "?") for s in sprints]
+            print(f"  ⚠️  Sprint filter '{name_filter}' matched nothing. Active sprints: {names}")
+        return sprints
 
     def get_issue_comments(self, issue_key):
         """Fetch comments for an issue."""
@@ -325,13 +340,21 @@ def get_ac_comment_ids(comments):
 # ── Test Plan Loader ──────────────────────────────────────────────────────
 
 def find_test_plan_csv():
-    """Auto-detect the test plan CSV in workspace."""
+    """Auto-detect the test plan CSV in workspace (prefer latest sprint folder)."""
     workspace = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    candidates = []
     for dirpath, _dirnames, filenames in os.walk(workspace):
+        # Skip archive folders
+        if "archive" in dirpath.lower():
+            continue
         for f in filenames:
             if f.endswith("-testcases.csv"):
-                return os.path.join(dirpath, f)
-    return None
+                candidates.append(os.path.join(dirpath, f))
+    if not candidates:
+        return None
+    # Sort descending by path so latest sprint folder (e.g., agentic-18.2) wins
+    candidates.sort(reverse=True)
+    return candidates[0]
 
 
 def load_test_groups(csv_path):
@@ -458,6 +481,28 @@ def parse_board_url(url):
     return result
 
 
+# ── Sprint Selection ───────────────────────────────────────────────────────
+
+def _pick_sprint(sprints, name_filter=""):
+    """Pick the best sprint from a list. Prefers latest by ID when multiple match.
+    
+    Returns (sprint_id, sprint_name).
+    """
+    if len(sprints) == 1:
+        return sprints[0]["id"], sprints[0].get("name", "")
+
+    # Multiple active sprints — show all, pick the one with highest ID (latest)
+    print(f"  Found {len(sprints)} active sprints:")
+    for s in sprints:
+        print(f"    - {s.get('name', '?')} (ID {s['id']})")
+
+    # Sort by ID descending → highest ID = most recently created sprint
+    sorted_sprints = sorted(sprints, key=lambda s: s["id"], reverse=True)
+    picked = sorted_sprints[0]
+    print(f"  → Selected: {picked.get('name', '?')} (ID {picked['id']}, latest)")
+    return picked["id"], picked.get("name", "")
+
+
 # ── Main Pipeline ─────────────────────────────────────────────────────────
 
 def main():
@@ -479,6 +524,9 @@ def main():
                         help="Path to test cases CSV (auto-detected if not set)")
     parser.add_argument("--force", action="store_true",
                         help="Re-post AC even on tickets that already have it")
+    parser.add_argument("--sprint-filter", type=str,
+                        default=os.environ.get("SPRINT_FILTER", ""),
+                        help="Filter active sprints by name (case-insensitive substring, e.g., 'broccoli')")
     parser.add_argument("--summary-file", type=str,
                         help="Write HTML summary report to file (for email)")
     args = parser.parse_args()
@@ -504,36 +552,30 @@ def main():
             sprint_id = parsed["sprint_id"]
             print(f"\n[1/6] Sprint: ID {sprint_id} (from URL)")
         elif parsed["board_id"]:
-            sprints = jira.get_active_sprints(parsed["board_id"])
+            sprints = jira.get_active_sprints(parsed["board_id"], args.sprint_filter)
             if not sprints:
                 print("ERROR: No active sprints found on board")
                 sys.exit(1)
-            sprint_id = sprints[0]["id"]
-            sprint_name = sprints[0].get("name", "")
+            sprint_id, sprint_name = _pick_sprint(sprints, args.sprint_filter)
             print(f"\n[1/6] Sprint: {sprint_name} (ID {sprint_id}, auto-discovered)")
         else:
             print("ERROR: Could not parse board URL")
             sys.exit(1)
 
     elif args.project:
-        # Auto-discover: find active sprints on the default board
-        sprints = jira.get_active_sprints(args.board_id)
+        sprints = jira.get_active_sprints(args.board_id, args.sprint_filter)
         if not sprints:
             print("ERROR: No active sprints found")
             sys.exit(1)
-        # Use the first active sprint
-        sprint_id = sprints[0]["id"]
-        sprint_name = sprints[0].get("name", "")
+        sprint_id, sprint_name = _pick_sprint(sprints, args.sprint_filter)
         print(f"\n[1/6] Sprint: {sprint_name} (ID {sprint_id}, auto-discovered from board {args.board_id})")
 
     else:
-        # Default: auto-discover from default board
-        sprints = jira.get_active_sprints(args.board_id)
+        sprints = jira.get_active_sprints(args.board_id, args.sprint_filter)
         if not sprints:
             print("ERROR: No active sprints. Use --sprint-id or --board-url")
             sys.exit(1)
-        sprint_id = sprints[0]["id"]
-        sprint_name = sprints[0].get("name", "")
+        sprint_id, sprint_name = _pick_sprint(sprints, args.sprint_filter)
         print(f"\n[1/6] Sprint: {sprint_name} (ID {sprint_id}, auto-discovered)")
 
     # ── Step 2: Load Test Plan ──

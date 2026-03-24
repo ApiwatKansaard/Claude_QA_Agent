@@ -64,6 +64,13 @@ If not, Phase 1 will discover all active sprints and let the user choose.
 
 **Goal:** Determine which sprint to write AC for without hardcoding sprint names.
 
+**Sprint Naming Convention:**
+- Sprint names change every sprint: Broccoli-F → Broccoli-G → Broccoli-H → ...
+- The board may also show other sprint families (e.g., EGT 18.x) simultaneously
+- **NEVER hardcode a sprint name** — always use sprint ID or dynamic discovery
+- **Default filter: "broccoli"** — when auto-discovering, prefer sprints matching this prefix
+- When multiple sprints match, pick the one with the **highest sprint ID** (most recent)
+
 1. **Parse the board URL** — extract projectKey, boardId, and sprintId (if present).
 
 2. **If sprintId is in the URL** → use it directly, skip to step 4.
@@ -75,7 +82,12 @@ If not, Phase 1 will discover all active sprints and let the user choose.
      maxResults=1
    )
    ```
-   From the results, extract unique sprint names and IDs. Present the choices:
+   From the results, extract unique sprint names and IDs.
+   
+   **Auto-filter:** If only one sprint name contains "broccoli" (case-insensitive), select it
+   automatically. If multiple match, pick the highest sprint ID.
+   
+   **Only ask the user if** the filter matches zero sprints or the user explicitly needs to choose:
 
    ```
    🏃 Active sprints on board {boardId}:
@@ -85,7 +97,7 @@ If not, Phase 1 will discover all active sprints and let the user choose.
    | 1 | EGT 18.1    | 4011      | ~25     |
    | 2 | Broccoli-F  | 4077      | ~18     |
    
-   Which sprint should I write AC for? (enter number or sprint ID)
+   → Auto-selected: Broccoli-F (matches filter "broccoli")
    ```
 
 4. **Confirm the target sprint** — once selected, store:
@@ -171,6 +183,11 @@ If not, Phase 1 will discover all active sprints and let the user choose.
 ### Phase 4 — Fetch Sprint Tickets
 
 **Goal:** Get all tickets in the target sprint and let the user select the focus scope.
+
+⚠️ **Important:** The `sprint = {sprintId}` JQL filter uses the **sprint ID selected in Phase 1**.
+Since Phase 1 already filtered for "broccoli" sprints, the tickets returned here belong to the
+correct sprint. If tickets from other sprint lanes appear (because a ticket can be in multiple
+sprints), they should still be processed — the sprint ID is the source of truth.
 
 1. **Fetch all tickets** in the sprint using JQL:
    ```
