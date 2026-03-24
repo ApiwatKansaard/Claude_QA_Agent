@@ -44,7 +44,7 @@ Parameters shown in `[brackets]` are positional — parse them from the message 
 | `/qa:bug-triage` | bug-analyzer | `[Jira bug list or filter URL]` | [bug-triage.md](./commands/bug-triage.md) |
 | `/qa:regression-check` | test-planner + test-case-reviewer | `[release scope or changelog]` | [regression-check.md](./commands/regression-check.md) |
 | `/qa:eod-report` | report-compiler | *(TestRail progress optional)* | [eod-report.md](./commands/eod-report.md) |
-| `/qa:write-ac` | test-planner + bug-analyzer | `[Sprint Board URL]` | [write-ac.md](./commands/write-ac.md) |
+| `/qa:write-ac` | test-planner + ac-reviewer | `[Sprint Board URL]` | [write-ac.md](./commands/write-ac.md) |
 | `/qa:start-sprint` | report-compiler | `[Sprint Board URL]` *(optional)* | [start-sprint.md](./commands/start-sprint.md) |
 | `/qa:end-sprint` | report-compiler | `[Sprint Name or ID]` *(optional)* | [end-sprint.md](./commands/end-sprint.md) |
 
@@ -80,15 +80,36 @@ Alternatively, `/qa:sync-testrail` to generate a CSV for manual upload.
 > - Use `urllib.request` (not `requests` — may not be installed)
 > - On crash: **resume** by comparing suite state vs CSV; never re-run full import
 
+### `/qa:write-ac` Pipeline (10 Phases)
+
+`/qa:write-ac` runs a **10-phase pipeline** — generates, reviews, fixes, and posts AC:
+
+```
+Phase 1:  Smart Sprint Selection → parse URL or discover active sprints, user picks lane
+Phase 2:  Prerequisite Check → test-plan.md + testcases.csv must exist in sprint folder
+Phase 3:  Understand Test Plan → read spec + build feature knowledge map
+Phase 4:  Fetch Sprint Tickets → JQL fetch, group by lane, user picks scope
+Phase 5:  Generate AC → map tickets to spec groups + test cases, write AC per template (Story/Bug/Sub-task)
+Phase 6:  Internal AI Review → 6-point checklist via agent-ac-reviewer (silent, not shown to user)
+Phase 7:  Auto-Fix → apply review findings (silent, merged into final)
+Phase 8:  User Review → Sprint Health Score + full AC batch preview → user approves/edits/skips
+Phase 9:  Post to Jira & Verify → comment on each ticket + re-read to confirm
+Phase 10: Release Notes → generate release-notes-{sprint}.md in sprint folder
+```
+
+Key features: smart sprint detection (no hardcoded names), AC templates by issue type,
+duplicate AC detection, internal AI review loop, post-write verification, release notes generation.
+
 ### Recommended Full Pipeline (Once Per Sprint)
 
 ```
-/qa:start-sprint  → Check readiness, verify clean workspace
-/qa:test-plan     → Generate + Review + Auto-fix → outputs test-plan.md + testcases.csv in sprint folder
-/qa:import-testrail→ Read suite (cached) + Compare sprint cases + Import via API
-/qa:write-ac      → Create feature spec + comment AC on Jira tickets
+/qa:start-sprint   → Check readiness, verify clean workspace
+/qa:test-plan      → Generate + Review + Auto-fix → outputs test-plan.md + testcases.csv in sprint folder
+/qa:import-testrail → Read suite (cached) + Compare sprint cases + Import via API
+/qa:write-ac       → 10-phase pipeline: select sprint → check prereqs → understand plan → fetch tickets
+                     → generate AC → internal review → auto-fix → user review → post & verify → release notes
   ... (testing phase — execute test cases, log bugs) ...
-/qa:end-sprint    → Archive sprint folder into archive/{sprint-name}/
+/qa:end-sprint     → Archive sprint folder into archive/{sprint-name}/
 ```
 
 **Sprint scope:** Focus on **Broccoli** quick filter only. Version numbers after sprint names
@@ -117,7 +138,7 @@ look things up manually when an MCP can fetch it directly.
 | Tool | MCP / Method | Scope | Used By |
 |---|---|---|---|
 | **Figma** | Figma MCP | Read-only: design files, node inspection, component states | test-planner, test-case-reviewer |
-| **Jira** | Atlassian MCP — `ekoapp.atlassian.net` | Read: bugs, sprint tasks, assignees, priorities | bug-analyzer, report-compiler, morning-standup, eod-report |
+| **Jira** | Atlassian MCP — `ekoapp.atlassian.net` | Read: bugs, sprint tasks, assignees, priorities | bug-analyzer, report-compiler, ac-reviewer, morning-standup, eod-report |
 | **Confluence** | Atlassian MCP — `ekoapp.atlassian.net` | Read: PRD, tech specs, project guides (space: EP) | test-planner, test-case-reviewer |
 | **Gmail** | Gmail MCP | Draft-only: standup digests and EOD reports for QA distribution | morning-standup, eod-report |
 | **Google Calendar** | Google Calendar MCP | Read-only: sprint milestones, release dates | regression-check, sync-testrail |
@@ -202,7 +223,8 @@ When the user doesn't use a slash command, match their request to the best-fit a
 | Create regression milestone and test run in TestRail for a feature or sprint release | **testrail-manager** | [agent-testrail-manager.md](./references/agent-testrail-manager.md), [testrail-api.md](./references/testrail-api.md) |
 | Triage or analyze Jira bug reports, identify root causes, prioritize for dev team | **bug-analyzer** | [agent-bug-analyzer.md](./references/agent-bug-analyzer.md) |
 | Generate a QA standup report or EOD summary from Jira/TestRail status | **report-compiler** | [agent-report-compiler.md](./references/agent-report-compiler.md) |
-| Write acceptance criteria on Jira sprint tickets from spec + test cases | **test-planner + bug-analyzer** | [write-ac.md](./commands/write-ac.md) |
+| Write acceptance criteria on Jira sprint tickets from spec + test cases | **test-planner + ac-reviewer** | [write-ac.md](./commands/write-ac.md), [agent-ac-reviewer.md](./references/agent-ac-reviewer.md) |
+| Review generated AC for testability, traceability, completeness, and developer clarity | **ac-reviewer** | [agent-ac-reviewer.md](./references/agent-ac-reviewer.md) |
 | Start a new sprint — readiness check, verify clean workspace, tool connectivity | **report-compiler** | [start-sprint.md](./commands/start-sprint.md) |
 | End/close a sprint — archive specs, test cases, CSVs to sprint-named folder | **report-compiler** | [end-sprint.md](./commands/end-sprint.md) |
 
