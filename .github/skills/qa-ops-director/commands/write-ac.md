@@ -429,48 +429,78 @@ The user only sees the final result after auto-fix. This is an internal quality 
 
 **Goal:** Comment AC on each approved ticket, then verify the comments were posted.
 
-#### 9.1 — Post Comments
+#### 9.1 — Post Comments via Jira REST API (ADF Table Format)
 
-For each approved ticket:
+Posting uses **Jira REST API v3 directly** with ADF (Atlassian Document Format) JSON.
+Do NOT use `mcp_atlassian_add_jira_comment` — it cannot render tables.
+
+**Method:** `POST /rest/api/3/issue/{issueKey}/comment` with `{"body": <ADF JSON>}`
+
+**Authentication:** Basic auth using Jira API token from macOS Keychain:
+```bash
+export JIRA_EMAIL="apiwat@amitysolutions.com"
+export JIRA_TOKEN=$(security find-generic-password -a "apiwat@amitysolutions.com" -s "jira-api-token" -w)
 ```
-mcp_atlassian_add_jira_comment(issueKey="AE-14288", body="...")
-```
 
-Format the `body` as **plain text with Unicode emoji**.
+**Script location:** `/tmp/repost_adf_tables.py` (or `scripts/repost-ac-tables.py`)
 
-⛔ **NEVER use Jira wiki markup** — the following DO NOT render via the API:
-- `||table||` and `|cell|` — wiki tables show as raw pipe characters
-- `{panel:...}` — macros show as raw code
-- `(/)` `(x)` `(!)` — wiki icon shortcuts show as literal text
-- `h2.` / `h3.` — may or may not render depending on the MCP tool version
+⛔ **NEVER use these formats** — they DO NOT render via the API:
+- Wiki markup: `||table||`, `{panel}`, `(/)` `(x)` `(!)`
+- Markdown tables: `| col | col |`
+- Plain text pipes: show as raw characters
+- ADF JSON as string body in MCP tool: shows as literal JSON text
 
-✅ **ALWAYS use Unicode emoji** for icons — they render everywhere:
-- `✅` for positive criteria
-- `❌` for negative criteria
-- `⚠️` for edge case criteria
-
-✅ **ALWAYS use numbered lines** instead of tables — pipes `|` don't render.
+✅ **ALWAYS use ADF JSON** posted directly to Jira REST API v3.
+✅ **ALWAYS use Unicode emoji** — `✅` `❌` `⚠️` — they render everywhere.
 ✅ **ALWAYS include the icon legend** at the bottom of every comment.
+✅ **ALWAYS delete old AC comments** before posting new ones.
 
-**Correct format (copy this exactly):**
+**ADF Table Structure:**
+```json
+{
+  "version": 1,
+  "type": "doc",
+  "content": [
+    {"type": "heading", "attrs": {"level": 3}, "content": [{"type": "text", "text": "Acceptance Criteria — QA Generated"}]},
+    {
+      "type": "table",
+      "attrs": {"isNumberColumnEnabled": false, "layout": "default"},
+      "content": [
+        {"type": "tableRow", "content": [
+          {"type": "tableHeader", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "#", "marks": [{"type": "strong"}]}]}]},
+          {"type": "tableHeader", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Type", "marks": [{"type": "strong"}]}]}]},
+          {"type": "tableHeader", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Criteria", "marks": [{"type": "strong"}]}]}]},
+          {"type": "tableHeader", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "TC Ref", "marks": [{"type": "strong"}]}]}]}
+        ]},
+        {"type": "tableRow", "content": [
+          {"type": "tableCell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "1"}]}]},
+          {"type": "tableCell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "✅ Positive"}]}]},
+          {"type": "tableCell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Criterion description here"}]}]},
+          {"type": "tableCell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "TC-001"}]}]}
+        ]}
+      ]
+    },
+    {"type": "rule"},
+    {"type": "paragraph", "content": [
+      {"type": "text", "text": "Icon Legend: ", "marks": [{"type": "strong"}]},
+      {"type": "text", "text": "✅ Positive (expected behavior) · ❌ Negative (error/rejection) · ⚠️ Edge case (boundary/race condition)"}
+    ]},
+    {"type": "paragraph", "content": [
+      {"type": "text", "text": "Ref: ", "marks": [{"type": "strong"}]},
+      {"type": "text", "text": "[Spec group] · Test Cases: [TC-IDs]"}
+    ]},
+    {"type": "paragraph", "content": [
+      {"type": "text", "text": "Generated: ", "marks": [{"type": "strong"}]},
+      {"type": "text", "text": "[date] by QA Agent from test plan"}
+    ]}
+  ]
+}
 ```
-Acceptance Criteria — QA Generated
 
-1. ✅ Positive criterion description — TC-001
-2. ✅ Another positive criterion — TC-002
-3. ❌ Negative criterion description — TC-003
-4. ⚠️ Edge case criterion description — TC-004
-
----
-Icon Legend: ✅ = Positive (expected behavior) · ❌ = Negative (error/rejection) · ⚠️ = Edge case (boundary/race condition)
-
-Ref: [Spec group] · Test Cases: [TC-IDs]
-Generated: [date] by QA Agent from test plan
-```
-
-The icon legend line is **mandatory on every AC comment** — never omit it.
+The icon legend is **mandatory on every AC comment** — never omit it.
 
 ⚠️ **Post one ticket at a time** — if any fails, report the error and continue with the rest.
+⚠️ **Delete before posting** — use `DELETE /rest/api/3/issue/{key}/comment/{id}` on old AC comments first.
 
 #### 9.2 — Verify Comments
 
