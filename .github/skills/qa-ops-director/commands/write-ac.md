@@ -427,20 +427,27 @@ For each approved ticket:
 mcp_atlassian_add_jira_comment(issueKey="AE-14288", body="...")
 ```
 
-Format the `body` using Jira wiki markup:
+Format the `body` using Jira wiki markup. **ALWAYS include the icon legend** at the top of every comment so readers know what each icon means:
 ```
-h3. Acceptance Criteria (QA Generated)
+h3. Acceptance Criteria — QA Generated
 
-*Scope:* [scope description]
+||#||Criteria||TC Ref||
+|1|(/) Positive criterion description|TC-001|
+|2|(x) Negative criterion description|TC-002|
+|3|(!) Edge case criterion description|TC-003|
 
-* (/) [Positive criterion]
-* (/) [Positive criterion]
-* (x) [Negative criterion]
-* (!) [Edge case criterion]
+----
+{panel:title=Icon Legend|borderStyle=solid|borderColor=#ccc|bgColor=#f7f7f7}
+(/) = ✅ Positive criterion (expected behavior works correctly)
+(x) = ❌ Negative criterion (error handling, invalid input, rejection)
+(!) = ⚠️ Edge case criterion (boundary, race condition, large data)
+{panel}
 
 *Ref:* [Spec group] · Test Cases: [TC-IDs]
 *Generated:* [date] by QA Agent from test plan
 ```
+
+The icon legend panel is **mandatory on every AC comment** — never omit it.
 
 ⚠️ **Post one ticket at a time** — if any fails, report the error and continue with the rest.
 
