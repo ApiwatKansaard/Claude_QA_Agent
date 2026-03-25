@@ -39,6 +39,10 @@ a slash command and the agent handles the rest.
 
 ### Step 1: Clone & Install
 
+> **💡 AI-Guided Setup Available!** ไม่ต้องทำ Step 1-5 เอง — หลัง clone แล้ว
+> เปิด Copilot Chat ในโหมด **qa-ops-director** แล้วกด `/` → เลือก **`qa-setup`**
+> Agent จะ check prerequisites, รัน script, ติดตั้ง hook, แนะนำ credentials และ verify ให้ทั้งหมด
+
 ```bash
 # Clone the repository
 git clone <repo-url>
@@ -83,10 +87,6 @@ Expected: Should list Atlassian tools (search_jira_issues, read_confluence_page,
 ```
 
 **That's it!** You're ready to use all Jira/Confluence commands.
-
-> **Prefer AI-guided setup?** After cloning, open Copilot Chat in qa-ops-director mode
-> and use the `/` menu → select **`qa-setup`**. The AI will check your prerequisites,
-> run the setup script, and walk you through each step interactively.
 
 ---
 
