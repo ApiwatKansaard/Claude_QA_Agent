@@ -1,5 +1,8 @@
 # QA Ops Director — Team Setup Guide
 
+> **See also:** [README.md](../README.md) for overview & command reference,
+> [ARCHITECTURE.md](../ARCHITECTURE.md) for system design & data flow.
+
 ## Prerequisites
 
 - VS Code with **GitHub Copilot** extension (+ Copilot Chat)
@@ -134,17 +137,21 @@ Each team member needs their own TestRail API key:
 
 | Command | What it does | Requires |
 |---|---|---|
-| `/qa:test-plan` | Generate test cases from Figma/Confluence (3-phase) | Atlassian, Figma |
+| `/qa:test-plan` | Generate test cases from Figma/Confluence (4-phase auto pipeline) | Atlassian, Figma |
 | `/qa:review-testcases` | Review test cases for coverage gaps | Atlassian, Figma |
+| `/qa:write-ac` | Generate & post Acceptance Criteria to Jira (10-phase) | Atlassian |
+| `/qa:bug-report` | Create Jira bug ticket with all custom fields | Atlassian |
+| `/qa:bug-triage` | Triage Jira bug reports | Atlassian |
 | `/qa:sync-testrail` | Export test cases to TestRail CSV | TestRail, GCal |
 | `/qa:import-testrail` | Import test cases into TestRail via API | TestRail |
+| `/qa:fetch-testrail` | Fetch existing cases from TestRail | TestRail |
 | `/qa:edit-testrail` | Edit existing TestRail cases | TestRail |
 | `/qa:create-regression` | Create milestone + test run for regression | TestRail, GCal |
-| `/qa:fetch-testrail` | Fetch existing cases from TestRail | TestRail |
-| `/qa:bug-triage` | Triage Jira bug reports | Atlassian |
 | `/qa:morning-standup` | Generate morning QA standup | Atlassian, Gmail |
 | `/qa:eod-report` | Generate end-of-day QA summary | Atlassian, Gmail, GCal |
 | `/qa:regression-check` | Generate regression checklist | Atlassian, GCal |
+| `/qa:start-sprint` | Check readiness, create sprint folder | Atlassian |
+| `/qa:end-sprint` | Archive sprint folder + generate summary | None |
 
 ## Minimum Setup
 
@@ -155,3 +162,30 @@ If you only need Jira + Confluence (test plans, bug triage, standups):
 4. Enter Atlassian credentials when prompted
 
 That's all — no other config needed.
+
+---
+
+## Running Scripts Locally (Optional)
+
+Some Python scripts (`daily-ac-agent.py`, `repost-ac-tables.py`) need Jira credentials:
+
+```bash
+# Option A: Environment variables
+export JIRA_EMAIL="yourname@amitysolutions.com"
+export JIRA_TOKEN="your-api-token"
+
+# Option B: macOS Keychain (daily-ac-agent.py supports auto-discovery)
+security add-generic-password -s 'jira-api-token' -a 'yourname@amitysolutions.com' -w 'your-token'
+```
+
+No `pip install` needed — all scripts use Python stdlib only.
+
+---
+
+## Documentation Maintenance
+
+> **⚠️ IMPORTANT:** When modifying this project (new commands, scripts, integrations),
+> you MUST also update the documentation. See the "Documentation Maintenance Policy" 
+> section in [README.md](../README.md) for the full checklist.
+
+**Last updated:** 2026-03-25
