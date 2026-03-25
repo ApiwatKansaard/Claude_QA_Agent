@@ -25,6 +25,10 @@ bash scripts/setup-mcp-atlassian.sh
 
 VS Code will prompt you for your Atlassian email + API token on first use.
 
+> **💡 AI-Guided Setup:** After cloning, open Copilot Chat in **qa-ops-director** mode
+> and use the `/` menu → select **`qa-setup`**. The AI will check prerequisites, run the
+> setup script, and guide you through credential setup interactively.
+
 ---
 
 ## Detailed Setup

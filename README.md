@@ -81,6 +81,10 @@ Expected: Should list Atlassian tools (search_jira_issues, read_confluence_page,
 
 **That's it!** You're ready to use all Jira/Confluence commands.
 
+> **Prefer AI-guided setup?** After cloning, open Copilot Chat in qa-ops-director mode
+> and use the `/` menu → select **`qa-setup`**. The AI will check your prerequisites,
+> run the setup script, and walk you through each step interactively.
+
 ---
 
 ## Optional Setup (Per Service)

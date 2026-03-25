@@ -53,12 +53,13 @@ multiple MCP (Model Context Protocol) servers and external APIs.
 │   ├── agents/
 │   │   └── qa-ops-director.agent.md   # Agent mode definition (VS Code)
 │   ├── prompts/                       # Quick-access prompt files (/qa:* shortcuts)
+│   │   ├── qa-setup.prompt.md         #   AI-guided onboarding for new team members
 │   │   ├── qa-test-plan.prompt.md
 │   │   ├── qa-bug-report.prompt.md
 │   │   ├── qa-bug-triage.prompt.md
 │   │   ├── qa-morning-standup.prompt.md
 │   │   ├── qa-eod-report.prompt.md
-│   │   └── ... (12 prompt files total)
+│   │   └── ... (13 prompt files total)
 │   ├── skills/
 │   │   └── qa-ops-director/
 │   │       ├── SKILL.md               # ★ ORCHESTRATOR — routing, pipeline, rules
