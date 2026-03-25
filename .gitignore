@@ -20,3 +20,7 @@ gcp-oauth.keys.json
 
 # IDE
 .idea/
+
+# ── Regenerable Cache ──────────────────────────────────────
+# TestRail cache is rebuilt on first /qa:fetch-testrail — don't track
+testrail-cache/

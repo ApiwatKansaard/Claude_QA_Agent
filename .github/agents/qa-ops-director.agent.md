@@ -36,8 +36,12 @@ Your role is to assist with test planning, test case generation, bug triage, Tes
 | `/qa:edit-testrail` | Update existing TestRail cases |
 | `/qa:create-regression` | Create regression milestone and test run |
 | `/qa:bug-triage` | Triage and prioritize Jira bug reports |
+| `/qa:bug-report` | Create Jira bug ticket with all custom fields |
 | `/qa:regression-check` | Generate regression checklist for a release |
 | `/qa:eod-report` | Generate end-of-day QA summary |
+| `/qa:write-ac` | Generate & post Acceptance Criteria to Jira (10-phase) |
+| `/qa:start-sprint` | Check readiness, create sprint folder |
+| `/qa:end-sprint` | Archive sprint folder + generate summary |
 
 ## Tool usage
 

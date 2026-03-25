@@ -46,20 +46,23 @@ multiple MCP (Model Context Protocol) servers and external APIs.
 .
 ├── README.md                          # Main documentation — START HERE
 ├── ARCHITECTURE.md                    # This file — system design & data flow
+├── CONTRIBUTING.md                    # What team members can/cannot push
 ├── .gitignore                         # Git ignore rules (credentials excluded)
 │
 ├── .github/
 │   ├── TEAM-SETUP.md                  # Step-by-step setup for each team member
+│   ├── CODEOWNERS                     # File ownership rules (protects infrastructure)
 │   ├── agents/
 │   │   └── qa-ops-director.agent.md   # Agent mode definition (VS Code)
 │   ├── prompts/                       # Quick-access prompt files (/qa:* shortcuts)
 │   │   ├── qa-setup.prompt.md         #   AI-guided onboarding for new team members
+│   │   ├── qa-review-before-push.prompt.md  # Pre-push review agent
 │   │   ├── qa-test-plan.prompt.md
 │   │   ├── qa-bug-report.prompt.md
 │   │   ├── qa-bug-triage.prompt.md
 │   │   ├── qa-morning-standup.prompt.md
 │   │   ├── qa-eod-report.prompt.md
-│   │   └── ... (13 prompt files total)
+│   │   └── ... (14 prompt files total)
 │   ├── skills/
 │   │   └── qa-ops-director/
 │   │       ├── SKILL.md               # ★ ORCHESTRATOR — routing, pipeline, rules
@@ -84,6 +87,9 @@ multiple MCP (Model Context Protocol) servers and external APIs.
 │   └── workflows/
 │       └── daily-ac-scan.yml          # GitHub Actions — daily AC posting
 │
+├── .githooks/
+│   └── pre-commit                     # Local guard: blocks infra file changes
+│
 ├── .vscode/
 │   └── mcp.json                       # MCP server config (shared, uses ${input:} for creds)
 │
@@ -93,7 +99,7 @@ multiple MCP (Model Context Protocol) servers and external APIs.
 │   ├── repost-ac-tables.py            # Reformat AC comments as ADF tables
 │   └── delete-old-ac-comments.py      # Clean up stale AC comments
 │
-├── testrail-cache/                    # Cached TestRail suite data (persistent)
+├── testrail-cache/                    # Cached TestRail data (gitignored, local only)
 │   └── S{suite_id}/
 │       ├── summary.md                 # Suite metadata
 │       └── cases.csv                  # Cached test cases
@@ -294,7 +300,7 @@ variables that prompt each user for their own credentials at runtime.
    for the VS Code agent; credentials never touch the filesystem.
 
 3. **TestRail cache** — Suite data is cached locally at `testrail-cache/S{id}/` to avoid repeated
-   API calls. Cache persists across sprints (not archived).
+   API calls. Cache survives sprint archival but is gitignored (local only, not committed).
 
 4. **Archive pattern** — Completed sprints move to `archive/` with an `ARCHIVE-SUMMARY.md`. 
    New test plans can reference archived data for cross-sprint context (Phase 0).
@@ -304,6 +310,9 @@ variables that prompt each user for their own credentials at runtime.
 
 6. **mcp-atlassian patch** — Atlassian deprecated `GET /search`, requiring a local patch script.
    Must re-run after every `npm update -g mcp-atlassian`.
+
+7. **File protection** — `CODEOWNERS` + `.githooks/pre-commit` prevent team members from
+   accidentally modifying infrastructure files. Sprint artifacts are unprotected.
 
 ---
 

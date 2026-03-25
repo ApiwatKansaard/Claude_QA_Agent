@@ -17,13 +17,19 @@ git clone <repo-url> && cd <repo-name>
 # 2. Install & patch mcp-atlassian (one-time)
 bash scripts/setup-mcp-atlassian.sh
 
-# 3. Reload VS Code
-# Cmd+Shift+P → "Developer: Reload Window"
+# 3. Enable pre-commit hook (protects infrastructure files)
+git config core.hooksPath .githooks
 
-# 4. Done! Switch to "qa-ops-director" agent mode in Copilot Chat
+# 4. Reload VS Code
+# Cmd+Shift+P (macOS) / Ctrl+Shift+P (Windows/Linux) → "Developer: Reload Window"
+
+# 5. Done! Switch to "qa-ops-director" agent mode in Copilot Chat
 ```
 
 VS Code will prompt you for your Atlassian email + API token on first use.
+
+> **📖 Before your first commit:** Read [CONTRIBUTING.md](../CONTRIBUTING.md) — it explains
+> what files you can push, naming conventions, and how to review before pushing.
 
 > **💡 AI-Guided Setup:** After cloning, open Copilot Chat in **qa-ops-director** mode
 > and use the `/` menu → select **`qa-setup`**. The AI will check prerequisites, run the

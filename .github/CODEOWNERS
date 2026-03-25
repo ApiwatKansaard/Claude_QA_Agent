@@ -1,0 +1,43 @@
+# ─────────────────────────────────────────────────────────────
+# CODEOWNERS — Protect infrastructure, allow sprint data sharing
+# ─────────────────────────────────────────────────────────────
+# Requires GitHub Branch Protection with "Require review from Code Owners"
+# enabled on the main branch for this file to have effect.
+#
+# Protected files: Only the team lead (@ApiwatKansaard) can approve changes.
+# Sprint artifacts: Any QA team member can push without approval.
+# ─────────────────────────────────────────────────────────────
+
+# ── Infrastructure (Team Lead approval required) ────────────
+
+# Agent definitions, skills, commands, references
+.github/skills/                    @ApiwatKansaard
+.github/agents/                    @ApiwatKansaard
+.github/prompts/                   @ApiwatKansaard
+
+# CI/CD workflows
+.github/workflows/                 @ApiwatKansaard
+
+# MCP & VS Code config
+.vscode/                           @ApiwatKansaard
+
+# Setup & utility scripts
+scripts/                           @ApiwatKansaard
+
+# Core documentation
+README.md                          @ApiwatKansaard
+ARCHITECTURE.md                    @ApiwatKansaard
+CONTRIBUTING.md                    @ApiwatKansaard
+.github/TEAM-SETUP.md              @ApiwatKansaard
+.github/CODEOWNERS                 @ApiwatKansaard
+
+# Git config
+.gitignore                         @ApiwatKansaard
+.githooks/                         @ApiwatKansaard
+
+# ── Sprint Artifacts (No CODEOWNERS restriction) ───────────
+# These paths are intentionally NOT listed here, meaning
+# any team member can push changes without approval:
+#   - agentic-*/        (active sprint folders)
+#   - archive/          (archived sprint data)
+#   - testrail-cache/   (regenerable cache)

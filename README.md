@@ -46,6 +46,9 @@ cd <repo-name>
 
 # Install and patch mcp-atlassian (one-time)
 bash scripts/setup-mcp-atlassian.sh
+
+# Enable pre-commit hook (protects infrastructure files)
+git config core.hooksPath .githooks
 ```
 
 ### Step 2: Get Your API Credentials
@@ -62,7 +65,7 @@ You need your **own** credentials for each service. Nothing is shared.
 ### Step 3: Reload VS Code
 
 ```
-Cmd+Shift+P → "Developer: Reload Window"
+Cmd+Shift+P (macOS) / Ctrl+Shift+P (Windows/Linux) → "Developer: Reload Window"
 ```
 
 ### Step 4: Switch to QA Ops Director Mode
@@ -248,16 +251,21 @@ Run these commands **in order** at the start of each sprint:
 .
 ├── README.md                    ← You are here
 ├── ARCHITECTURE.md              ← System design, data flow, tech stack
+├── CONTRIBUTING.md              ← What team members can/cannot push
 │
 ├── .github/
 │   ├── TEAM-SETUP.md            ← Detailed setup instructions
+│   ├── CODEOWNERS               ← File ownership (protects infrastructure)
 │   ├── agents/                  ← Agent mode definition
-│   ├── prompts/                 ← Slash command prompt files (12)
+│   ├── prompts/                 ← Slash command prompt files (14)
 │   ├── skills/qa-ops-director/  ← Core skill logic
 │   │   ├── SKILL.md             ← ★ Orchestrator (routing, pipelines)
 │   │   ├── commands/            ← Workflow files (15 commands)
 │   │   └── references/          ← Agent behaviors + shared knowledge (14 files)
 │   └── workflows/               ← GitHub Actions (daily-ac-scan)
+│
+├── .githooks/
+│   └── pre-commit               ← Blocks infra file changes (local guard)
 │
 ├── .vscode/
 │   └── mcp.json                 ← MCP server config (creds via ${input:})
@@ -268,7 +276,7 @@ Run these commands **in order** at the start of each sprint:
 │   ├── repost-ac-tables.py      ← Reformat AC as ADF tables
 │   └── delete-old-ac-comments.py← Clean stale AC comments
 │
-├── testrail-cache/              ← Cached TestRail data (persistent across sprints)
+├── testrail-cache/              ← Cached TestRail data (gitignored, local only)
 ├── {sprint-folder}/             ← Active sprint artifacts (auto-created)
 └── archive/                     ← Completed sprint archives
 ```
@@ -370,6 +378,18 @@ The `daily-ac-scan.yml` workflow needs two secrets:
 
 ---
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full details on:
+
+- **What you can push:** Sprint artifacts (`agentic-*/`, `archive/`) — no PR needed
+- **What you cannot modify:** Infrastructure files (skills, prompts, scripts, docs) — protected by CODEOWNERS
+- **Pre-commit hook:** Run `git config core.hooksPath .githooks` to install (blocks infra changes locally)
+- **Pre-push review:** Use `/qa:review-before-push` to validate test cases before pushing
+- **Commit messages:** Use `test:` prefix for sprint artifacts, `infra:` for infrastructure changes
+
+---
+
 ## Documentation Maintenance Policy
 
 > **Rule:** Any change to the project structure, commands, scripts, or integrations
@@ -383,6 +403,7 @@ The `daily-ac-scan.yml` workflow needs two secrets:
 | Directory structure change | `README.md`, `ARCHITECTURE.md` |
 | Credential flow change | `README.md` (credential summary), `ARCHITECTURE.md` (credential flow) |
 | Setup process change | `TEAM-SETUP.md`, `README.md` (quick start) |
+| New protected path | `CODEOWNERS`, `CONTRIBUTING.md`, `.githooks/pre-commit` |
 
 **Last verified:** 2026-03-25
 

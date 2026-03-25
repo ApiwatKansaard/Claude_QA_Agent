@@ -22,6 +22,7 @@ Run these checks in the terminal and report results:
 
 ```bash
 node --version      # Need 18+
+npm --version       # Need 6+ (comes with Node, but verify)
 python3 --version   # Need 3.8+
 git --version       # Any version
 code --version      # VS Code installed
@@ -29,9 +30,12 @@ code --version      # VS Code installed
 
 For each one:
 - ✅ if version is sufficient
-- ❌ if missing or too old — tell them how to install (brew install node, etc.)
+- ❌ if missing or too old — tell them how to install:
+  - macOS: `brew install node` (includes npm)
+  - Windows: Download from https://nodejs.org (includes npm) or use `nvm-windows`
+  - Linux: `sudo apt install nodejs npm` or use `nvm`
 
-**Stop here if any ❌ on Node.js** — it's required for mcp-atlassian.
+**Stop here if any ❌ on Node.js or npm** — they're required for mcp-atlassian.
 
 ---
 
@@ -42,8 +46,14 @@ Run the setup script:
 bash scripts/setup-mcp-atlassian.sh
 ```
 
-Report the output. If it succeeds, move to Phase 3.
+Report the output. If it succeeds, move on.
 If it fails, diagnose the error and suggest fixes.
+
+**Then install the pre-commit hook** (protects infrastructure files from accidental edits):
+```bash
+git config core.hooksPath .githooks
+```
+Verify: `git config core.hooksPath` should output `.githooks`.
 
 ---
 
@@ -78,7 +88,8 @@ Tell the user: **"At minimum, you only need #1 (Atlassian). The rest are optiona
 
 Tell the user to reload VS Code:
 ```
-Press Cmd+Shift+P → type "Developer: Reload Window" → Enter
+Press Cmd+Shift+P (macOS) or Ctrl+Shift+P (Windows/Linux)
+Type: Developer: Reload Window → Enter
 ```
 
 Then tell them to:
@@ -125,6 +136,11 @@ Optional (configure anytime):
 🟡 Google Calendar: [configured/not configured]
 
 You're ready! Try: /qa:morning-standup
+
+📖 Before your first commit, read CONTRIBUTING.md — it explains:
+   • What files you can/cannot push
+   • Sprint folder naming conventions
+   • How to use /qa:review-before-push
 ```
 
 ---
