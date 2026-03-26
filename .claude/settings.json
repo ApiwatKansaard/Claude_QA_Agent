@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "mcp-atlassian",
+      "env": {
+        "ATLASSIAN_BASE_URL": "https://ekoapp.atlassian.net",
+        "LOG_LEVEL": "error"
+      }
+    },
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp", "--stdio"],
+      "env": {}
+    }
+  }
+}
