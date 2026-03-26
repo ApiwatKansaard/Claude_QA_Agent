@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Playwright UI Mode",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/amity/Documents/Claude_QA_Automation && npx playwright test --ui --port 9323"],
+      "port": 9323
+    },
+    {
+      "name": "Playwright HTML Report (dev)",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/amity/Documents/Claude_QA_Automation && npx playwright show-report reports/dev/html --port 9324"],
+      "port": 9324
+    },
+    {
+      "name": "Playwright HTML Report (staging)",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/amity/Documents/Claude_QA_Automation && npx playwright show-report reports/staging/html --port 9325"],
+      "port": 9325
+    },
+    {
+      "name": "Playwright HTML Report (prod)",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/amity/Documents/Claude_QA_Automation && npx playwright show-report reports/prod/html --port 9326"],
+      "port": 9326
+    }
+  ]
+}
