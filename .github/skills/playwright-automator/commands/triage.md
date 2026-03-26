@@ -218,3 +218,11 @@ After analyzing all failures, output a summary table:
 5. **Auto-fix only when confident** — if in doubt, present fix for approval
 6. **Read the ACTUAL test code** — understand what the test expects before analyzing
 7. **Check the POM** — if the selector is in a page object, the fix goes in the page object, not the test file
+
+## Pipeline Integration
+
+When invoked from `/auto:pipeline`, triage runs in **pipeline mode**:
+- Output is structured as a `dispatchQueue` (grouped by classification)
+- Each entry includes all data needed for the next agent (fix context or bug report data)
+- No user interaction during triage — classification only
+- Dispatch happens in Stage 3 of the pipeline (see `commands/pipeline.md`)

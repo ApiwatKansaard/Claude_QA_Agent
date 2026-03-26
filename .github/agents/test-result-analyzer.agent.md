@@ -86,3 +86,22 @@ Phase 4: Output
 - **Reproduce before classifying** — try the same action live before calling it a bug
 - **Auto-fix automation bugs** — if classification is AUTOMATION_BUG with high confidence, fix the code
 - **Prepare structured data** — bug reports include steps, expected, actual, screenshots
+
+## Pipeline integration
+
+This agent is invoked as **Stage 2** of `/auto:pipeline`:
+
+```
+/auto:pipeline
+  Stage 1: RUN (playwright-automator)
+  Stage 2: TRIAGE (this agent) ← you are here
+  Stage 3: DISPATCH
+     ├─ AUTOMATION_BUG → playwright-automator (fix code)
+     ├─ PRODUCT_BUG   → qa-ops-director /qa:bug-report (create Jira ticket)
+     └─ ENVIRONMENT   → log only
+  Stage 4: VERIFY (re-run fixed tests)
+  Stage 5: REPORT (final summary)
+```
+
+When invoked from pipeline, output a structured `dispatchQueue` for Stage 3.
+See `commands/pipeline.md` for the full orchestration workflow.

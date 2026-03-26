@@ -42,6 +42,8 @@ test cases, and live application inspection.
 | `/auto:run` | Run tests with specific tags, projects, or files |
 | `/auto:map` | Show mapping between TestRail cases and automation files |
 | `/auto:update-selectors` | Re-inspect a URL and update selector maps |
+| `/auto:triage` | Analyze test failures and classify root cause |
+| `/auto:pipeline` | **Full pipeline:** run → triage → fix/report → verify → summary |
 
 ## Key principles
 

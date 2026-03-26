@@ -55,6 +55,26 @@ Read the corresponding command file from `./commands/` for the exact workflow an
 | `/auto:conflicts` | Detect cross-sprint conflicts | `[sprint-folder]` | [conflicts.md](./commands/conflicts.md) |
 | `/auto:health` | Full test suite health check | — | [health.md](./commands/health.md) |
 | `/auto:triage` | Analyze failed tests, classify root cause, auto-fix | `[results-path]` | [triage.md](./commands/triage.md) |
+| `/auto:pipeline` | **Full pipeline:** run → triage → fix/report → verify | `[tag or file]` `[project]` | [pipeline.md](./commands/pipeline.md) |
+
+---
+
+## `/auto:pipeline` — Master Orchestration (End-to-End Workflow)
+
+This is the **highest-level command** — it chains all other commands into a single automated flow:
+
+```
+Stage 1: RUN        →  /auto:run (execute tests)
+Stage 2: TRIAGE     →  /auto:triage (analyze failures)
+Stage 3: DISPATCH   →  Route by classification:
+   ├─ AUTOMATION_BUG  →  playwright-automator (fix code + verify)
+   ├─ PRODUCT_BUG     →  qa-ops-director /qa:bug-report (create Jira ticket)
+   └─ ENVIRONMENT     →  Log only
+Stage 4: VERIFY     →  Re-run tests after fixes
+Stage 5: REPORT     →  Final pipeline summary
+```
+
+See [pipeline.md](./commands/pipeline.md) for the full workflow.
 
 ---
 
@@ -287,6 +307,7 @@ When `/auto:generate` runs, the workflow is:
 | "map test cases to automation" | `/auto:map` |
 | "update selectors for..." | `/auto:update-selectors` |
 | "analyze failures" / "triage test results" / "why did the test fail" | `/auto:triage` |
+| "run and fix" / "full pipeline" / "run tests and analyze" / "รันแล้วแก้" | `/auto:pipeline` |
 
 ---
 
@@ -306,6 +327,9 @@ automation-reviewer validates:
                         ↓
 test-result-analyzer triages:
   /auto:triage → analyzes failures → bug reports or auto-fixes
+
+OR run everything at once:
+  /auto:pipeline → run → triage → fix/report → verify → summary
 ```
 
 **Shared artifacts:**
