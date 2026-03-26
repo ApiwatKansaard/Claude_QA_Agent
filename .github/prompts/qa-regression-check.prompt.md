@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Generate regression checklist for a release — risk-based test scoping"
 ---
 

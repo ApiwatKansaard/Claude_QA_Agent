@@ -1,5 +1,4 @@
 ---
-mode: agent
 agent: automation-reviewer
 description: "Full health check of the Playwright test suite"
 ---

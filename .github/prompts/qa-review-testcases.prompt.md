@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Review test cases for coverage gaps against Figma/Confluence specs"
 ---
 

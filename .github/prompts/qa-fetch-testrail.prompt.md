@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Fetch existing test cases from TestRail for gap analysis"
 ---
 

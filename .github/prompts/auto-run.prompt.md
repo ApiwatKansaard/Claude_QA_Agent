@@ -1,5 +1,4 @@
 ---
-mode: agent
 agent: playwright-automator
 description: "Run Playwright tests with specific tags, files, or projects"
 ---

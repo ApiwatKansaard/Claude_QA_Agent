@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "AI-guided setup for new QA team members — checks prerequisites, installs tools, and verifies everything works"
 ---
 

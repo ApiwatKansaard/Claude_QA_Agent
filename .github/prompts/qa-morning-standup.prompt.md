@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Generate QA morning standup report from Jira and TestRail status"
 ---
 

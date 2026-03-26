@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Review sprint artifacts (test cases, release notes) before pushing to Git — checks quality, coverage, and TestRail consistency"
 ---
 

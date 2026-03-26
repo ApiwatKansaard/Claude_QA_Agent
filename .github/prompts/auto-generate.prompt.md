@@ -1,5 +1,4 @@
 ---
-mode: agent
 agent: playwright-automator
 description: "Generate Playwright tests from sprint test cases (CSV)"
 ---

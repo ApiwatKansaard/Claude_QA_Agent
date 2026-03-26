@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Generate QA end-of-day summary report from today's progress"
 ---
 

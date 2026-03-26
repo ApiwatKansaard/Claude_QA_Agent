@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Create a new Jira bug ticket from screenshot or description — enriched with sprint context"
 ---
 

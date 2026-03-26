@@ -1,5 +1,4 @@
 ---
-mode: agent
 agent: automation-reviewer
 description: "Detect cross-sprint conflicts in automation code"
 ---

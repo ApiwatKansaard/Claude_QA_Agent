@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Sync test cases to TestRail — CSV export, milestone, and test run"
 ---
 

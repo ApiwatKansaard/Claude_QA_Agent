@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Generate test cases from Figma/Confluence specs with auto-review"
 ---
 

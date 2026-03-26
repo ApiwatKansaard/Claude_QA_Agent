@@ -1,5 +1,4 @@
 ---
-mode: agent
 agent: automation-reviewer
 description: "Review automation code for quality, fix patterns, and cross-sprint conflicts"
 ---

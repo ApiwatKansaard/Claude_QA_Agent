@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Import new test cases into TestRail via API with preview"
 ---
 

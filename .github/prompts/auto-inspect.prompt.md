@@ -1,5 +1,4 @@
 ---
-mode: agent
 agent: playwright-automator
 description: "Inspect a URL to extract selectors and element structure"
 ---

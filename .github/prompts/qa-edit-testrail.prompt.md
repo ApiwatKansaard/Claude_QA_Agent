@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Edit existing TestRail cases when feature changes impact tests"
 ---
 

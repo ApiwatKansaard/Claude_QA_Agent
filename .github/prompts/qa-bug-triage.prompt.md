@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Triage Jira bug reports — analyze, prioritize, and recommend actions"
 ---
 

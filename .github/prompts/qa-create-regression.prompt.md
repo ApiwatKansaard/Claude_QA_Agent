@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: qa-ops-director
 description: "Create regression milestone and test run in TestRail"
 ---
 
