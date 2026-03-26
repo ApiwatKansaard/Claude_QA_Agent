@@ -8,22 +8,36 @@
 - VS Code with **GitHub Copilot** extension (+ Copilot Chat)
 - Node.js 18+ (`node --version`)
 
-## Quick Start (3 minutes)
+> **2-Repo Architecture:** This project uses 2 repos opened via a VS Code Multi-Root Workspace:
+> - **QA_Agent** — AI agents, skills, prompts, scripts, sprint data, archives
+> - **QA_Automation** — Playwright test code, page objects, selectors, test data
+>
+> You work in ONE VS Code window. All agent commands work across both repos automatically.
+
+## Quick Start (5 minutes)
 
 ```bash
-# 1. Clone
-git clone <repo-url> && cd <repo-name>
+# 1. Clone BOTH repos side by side
+mkdir -p ~/Projects/QA && cd ~/Projects/QA
+git clone https://github.com/convolabai/QA_Agent.git
+git clone https://github.com/convolabai/QA_Automation.git
 
-# 2. Install & patch mcp-atlassian (one-time)
-bash scripts/setup-mcp-atlassian.sh
+# 2. Install QA_Automation dependencies
+cd QA_Automation && npm install && npx playwright install chromium && cd ..
 
-# 3. Enable pre-commit hook (protects infrastructure files)
+# 3. Install & patch mcp-atlassian (one-time)
+cd QA_Agent && bash scripts/setup-mcp-atlassian.sh
+
+# 4. Enable pre-commit hook (protects infrastructure files)
 git config core.hooksPath .githooks
 
-# 4. Reload VS Code
+# 5. Open the Multi-Root Workspace (opens both repos in one VS Code window)
+cd .. && code qa-workspace.code-workspace
+
+# 6. Reload VS Code after it opens
 # Cmd+Shift+P (macOS) / Ctrl+Shift+P (Windows/Linux) → "Developer: Reload Window"
 
-# 5. Done! Switch to "qa-ops-director" agent mode in Copilot Chat
+# 7. Done! Switch to "qa-ops-director" agent mode in Copilot Chat
 ```
 
 VS Code will prompt you for your Atlassian email + API token on first use.
@@ -166,12 +180,32 @@ Each team member needs their own TestRail API key:
 ## Minimum Setup
 
 If you only need Jira + Confluence (test plans, bug triage, standups):
-1. Clone the repo
-2. Run `bash scripts/setup-mcp-atlassian.sh`
-3. Reload VS Code
+1. Clone both repos (see Quick Start steps 1-2)
+2. Run `bash scripts/setup-mcp-atlassian.sh` in QA_Agent
+3. Open `qa-workspace.code-workspace` in VS Code
 4. Enter Atlassian credentials when prompted
 
 That's all — no other config needed.
+
+---
+
+## Running Playwright Tests (QA_Automation)
+
+```bash
+cd ~/Projects/QA/QA_Automation
+
+# Run all tests on staging
+TEST_ENV=staging npx playwright test
+
+# Run only smoke tests
+TEST_ENV=staging npx playwright test --grep @smoke
+
+# Run with UI mode
+TEST_ENV=staging npx playwright test --ui
+
+# TypeScript check
+npx tsc --noEmit
+```
 
 ---
 
@@ -198,4 +232,4 @@ No `pip install` needed — all scripts use Python stdlib only.
 > you MUST also update the documentation. See the "Documentation Maintenance Policy" 
 > section in [README.md](../README.md) for the full checklist.
 
-**Last updated:** 2026-03-25
+**Last updated:** 2026-03-26

@@ -247,21 +247,29 @@ Run these commands **in order** at the start of each sprint:
 
 ## Project Structure
 
+> **2-Repo Architecture:** This is repo 1 of 2. Test automation code lives in [convolabai/QA_Automation](https://github.com/convolabai/QA_Automation).
+> Open both repos via `qa-workspace.code-workspace` for full cross-repo agent functionality.
+
 ```
 .
 ├── README.md                    ← You are here
 ├── ARCHITECTURE.md              ← System design, data flow, tech stack
 ├── CONTRIBUTING.md              ← What team members can/cannot push
+├── MIGRATION-PLAN.md            ← 2-repo migration plan
 │
 ├── .github/
 │   ├── TEAM-SETUP.md            ← Detailed setup instructions
 │   ├── CODEOWNERS               ← File ownership (protects infrastructure)
-│   ├── agents/                  ← Agent mode definition
-│   ├── prompts/                 ← Slash command prompt files (14)
-│   ├── skills/qa-ops-director/  ← Core skill logic
+│   ├── agents/                  ← Agent mode definitions (3 agents)
+│   ├── prompts/                 ← Slash command prompt files (20)
+│   ├── skills/qa-ops-director/  ← QA Ops Director skill
 │   │   ├── SKILL.md             ← ★ Orchestrator (routing, pipelines)
 │   │   ├── commands/            ← Workflow files (15 commands)
-│   │   └── references/          ← Agent behaviors + shared knowledge (14 files)
+│   │   └── references/          ← Agent behaviors + shared knowledge
+│   ├── skills/playwright-automator/ ← Test Automation skill (targets QA_Automation repo)
+│   │   ├── SKILL.md             ← ★ Orchestrator (cross-repo workflows)
+│   │   ├── commands/            ← Workflow files (9 commands)
+│   │   └── references/          ← Best practices + code generation rules
 │   └── workflows/               ← GitHub Actions (daily-ac-scan)
 │
 ├── .githooks/
@@ -279,6 +287,15 @@ Run these commands **in order** at the start of each sprint:
 ├── testrail-cache/              ← Cached TestRail data (gitignored, local only)
 ├── {sprint-folder}/             ← Active sprint artifacts (auto-created)
 └── archive/                     ← Completed sprint archives
+
+── Sibling Repo (QA_Automation) ──────────────────────
+QA_Automation/                   ← convolabai/QA_Automation
+├── playwright.config.ts
+├── src/pages/                   ← Page Object Model classes
+├── tests/e2e/                   ← UI end-to-end tests
+├── tests/api/                   ← API integration tests
+├── selectors/                   ← JSON selector maps
+└── environments/                ← Per-environment .env files
 ```
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed component descriptions and data flow diagrams.

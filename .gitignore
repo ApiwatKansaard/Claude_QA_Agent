@@ -24,3 +24,7 @@ gcp-oauth.keys.json
 # ── Regenerable Cache ──────────────────────────────────────
 # TestRail cache is rebuilt on first /qa:fetch-testrail — don't track
 testrail-cache/
+
+# ── Playwright Test Artifacts (now in QA_Automation repo) ─
+# These rules kept for safety if playwright-tests/ folder still exists locally
+# After full migration cleanup, these lines can be removed

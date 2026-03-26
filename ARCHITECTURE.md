@@ -1,7 +1,8 @@
 # QA Ops Director — Architecture
 
-> **Last updated:** 2026-03-25
+> **Last updated:** 2026-03-26
 > **Maintainer:** QA Engineering Team
+> **Architecture:** 2-repo split (QA_Agent + QA_Automation)
 
 ---
 
@@ -42,48 +43,37 @@ multiple MCP (Model Context Protocol) servers and external APIs.
 
 ## Directory Structure
 
+> **2-Repo Architecture:** This repo (QA_Agent) + QA_Automation (sibling repo with Playwright tests)
+
+### Repo 1: QA_Agent (this repo)
+
 ```
 .
 ├── README.md                          # Main documentation — START HERE
 ├── ARCHITECTURE.md                    # This file — system design & data flow
 ├── CONTRIBUTING.md                    # What team members can/cannot push
+├── MIGRATION-PLAN.md                  # 2-repo migration plan
 ├── .gitignore                         # Git ignore rules (credentials excluded)
 │
 ├── .github/
 │   ├── TEAM-SETUP.md                  # Step-by-step setup for each team member
 │   ├── CODEOWNERS                     # File ownership rules (protects infrastructure)
 │   ├── agents/
-│   │   └── qa-ops-director.agent.md   # Agent mode definition (VS Code)
-│   ├── prompts/                       # Quick-access prompt files (/qa:* shortcuts)
-│   │   ├── qa-setup.prompt.md         #   AI-guided onboarding for new team members
-│   │   ├── qa-review-before-push.prompt.md  # Pre-push review agent
-│   │   ├── qa-test-plan.prompt.md
-│   │   ├── qa-bug-report.prompt.md
-│   │   ├── qa-bug-triage.prompt.md
-│   │   ├── qa-morning-standup.prompt.md
-│   │   ├── qa-eod-report.prompt.md
-│   │   └── ... (14 prompt files total)
+│   │   ├── qa-ops-director.agent.md   # Agent mode: QA Ops Director
+│   │   ├── playwright-automator.agent.md  # Agent mode: automation engineer
+│   │   └── automation-reviewer.agent.md   # Agent mode: code reviewer
+│   ├── prompts/                       # Quick-access prompt files (20 total)
+│   │   ├── qa-*.prompt.md             #   QA commands (14 files)
+│   │   └── auto-*.prompt.md           #   Automation commands (6 files)
 │   ├── skills/
-│   │   └── qa-ops-director/
-│   │       ├── SKILL.md               # ★ ORCHESTRATOR — routing, pipeline, rules
-│   │       ├── commands/              # Workflow definitions (15 commands)
-│   │       │   ├── test-plan.md       #   /qa:test-plan (4-phase pipeline)
-│   │       │   ├── write-ac.md        #   /qa:write-ac (10-phase pipeline)
-│   │       │   ├── import-testrail.md #   /qa:import-testrail
-│   │       │   ├── bug-report.md      #   /qa:bug-report
-│   │       │   └── ... (15 files)
-│   │       ├── references/            # Agent behavior definitions & shared knowledge
-│   │       │   ├── agent-test-planner.md
-│   │       │   ├── agent-test-case-reviewer.md
-│   │       │   ├── agent-bug-reporter.md
-│   │       │   ├── agent-testrail-manager.md
-│   │       │   ├── testrail-api.md
-│   │       │   ├── testrail-csv.md
-│   │       │   ├── testrail-import-config.cfg
-│   │       │   ├── ai-llm-testing.md
-│   │       │   └── ... (14 files)
-│   │       └── evals/
-│   │           └── evals.json         # Evaluation tests for skill quality
+│   │   ├── qa-ops-director/           # QA Ops Director skill
+│   │   │   ├── SKILL.md              # ★ Orchestrator (routing, pipelines)
+│   │   │   ├── commands/             # Workflow files (15 commands)
+│   │   │   └── references/           # Agent behaviors + shared knowledge
+│   │   └── playwright-automator/      # Playwright Automator skill (cross-repo)
+│   │       ├── SKILL.md              # ★ Orchestrator (targets QA_Automation)
+│   │       ├── commands/             # Workflow files (9 commands)
+│   │       └── references/           # Best practices + code generation
 │   └── workflows/
 │       └── daily-ac-scan.yml          # GitHub Actions — daily AC posting
 │
@@ -114,6 +104,38 @@ multiple MCP (Model Context Protocol) servers and external APIs.
     └── {sprint-name}/
         ├── ARCHIVE-SUMMARY.md         # Sprint summary + artifact index
         └── ... (preserved artifacts)
+```
+
+### Repo 2: QA_Automation (sibling repo — convolabai/QA_Automation)
+
+```
+QA_Automation/
+├── playwright.config.ts               # Playwright configuration
+├── package.json                       # Dependencies
+├── tsconfig.json                      # TypeScript config
+├── src/
+│   ├── config/env.config.ts           # Multi-environment config
+│   ├── fixtures/test-fixtures.ts      # Custom Playwright fixtures
+│   ├── helpers/                       # Auth, API, cleanup, data helpers
+│   ├── pages/                         # Page Object Model classes
+│   └── types/                         # TypeScript type definitions
+├── tests/
+│   ├── auth.setup.ts                  # Authentication setup
+│   ├── e2e/                           # UI end-to-end tests
+│   └── api/                           # API integration tests
+├── selectors/                         # JSON selector maps
+├── test-data/                         # Test data fixtures
+├── environments/                      # Per-environment .env files
+└── scripts/                           # DOM inspection + automation scripts
+```
+
+### Cross-Repo Workspace
+
+```
+~/Documents/
+├── QA_Agent_Copilot/                  ← git clone convolabai/QA_Agent
+├── QA_Automation/                     ← git clone convolabai/QA_Automation
+└── qa-workspace.code-workspace        ← Opens both repos in VS Code
 ```
 
 ---
@@ -313,6 +335,101 @@ variables that prompt each user for their own credentials at runtime.
 
 7. **File protection** — `CODEOWNERS` + `.githooks/pre-commit` prevent team members from
    accidentally modifying infrastructure files. Sprint artifacts are unprotected.
+
+---
+
+## Test Automation System (Playwright)
+
+A full Playwright-based test automation framework integrated into the QA lifecycle.
+Tests are generated from TestRail CSV files produced by `/qa:test-plan`.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      Test Automation Workflow                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  /qa:test-plan → testcases.csv                                         │
+│       ↓                                                                 │
+│  /auto:generate → reads CSV → generates Playwright code                │
+│       ↓                                                                 │
+│  /auto:inspect [URL] → fetches page → extracts selectors               │
+│       ↓                                                                 │
+│  /auto:review → checks code quality (8-point checklist)                │
+│  /auto:conflicts → detects cross-sprint conflicts (6 types)            │
+│  /auto:health → full suite health check (7 dimensions)                 │
+│       ↓                                                                 │
+│  /auto:run → executes tests → generates HTML/JSON/JUnit reports        │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Agents
+
+| Agent | File | Role |
+|---|---|---|
+| `playwright-automator` | `.github/agents/playwright-automator.agent.md` | Generates, scaffolds, and runs Playwright tests |
+| `automation-reviewer` | `.github/agents/automation-reviewer.agent.md` | Reviews code quality, detects conflicts |
+
+### Playwright Project Structure
+
+```
+playwright-tests/
+├── playwright.config.ts          # Multi-project config (e2e, api, mobile, firefox)
+├── src/
+│   ├── pages/                    # Page Object Model
+│   │   ├── base.page.ts          # Abstract base with common helpers
+│   │   └── {feature}/            # One folder per feature
+│   │       └── {page}.page.ts    # One POM per page/view
+│   ├── fixtures/                 # Custom test fixtures (POM injection)
+│   ├── helpers/                  # API helper, data helper, CSV parser
+│   └── types/                    # Shared TypeScript types
+├── tests/
+│   ├── auth.setup.ts             # Auth setup (saves session for E2E)
+│   ├── e2e/{feature}/            # E2E UI tests (per feature)
+│   └── api/{feature}/            # API tests (per feature)
+├── selectors/                    # JSON selector maps (from /auto:inspect)
+├── test-data/                    # JSON test data files
+├── reports/                      # HTML, JSON, JUnit reports (gitignored)
+└── scripts/                      # Utility scripts (conflict checker)
+```
+
+### Sprint Workflow (Automation)
+
+```
+1. /qa:test-plan → generates testcases.csv (manual QA)
+2. /auto:generate → reads CSV → generates Playwright tests
+   └─ Asks: target repo, branch strategy
+3. /auto:inspect [URL] → inspects live page → saves selector map
+4. /auto:run @smoke → runs smoke suite → reports pass/fail
+5. /auto:review → code quality check before merge
+6. /auto:conflicts → cross-sprint conflict detection
+7. /auto:health → full suite health report
+```
+
+### Multi-Repo Strategy
+
+Tests can live in different repos depending on sprint/feature scope:
+- **Default:** `playwright-tests/` in this workspace
+- **External repo:** User provides path → agent follows that repo's conventions
+- **Feature branches:** `auto/{sprint}/{feature}` — isolated until validated
+
+The `/auto:generate` command always asks the user where tests should go.
+
+### Commands (9 total)
+
+| Command | Type | Purpose |
+|---|---|---|
+| `/auto:generate` | Generation | Create tests from CSV |
+| `/auto:inspect` | Discovery | Extract selectors from URL |
+| `/auto:scaffold` | Generation | Create page objects / test skeletons |
+| `/auto:run` | Execution | Run tests by tag/file/project |
+| `/auto:map` | Analysis | Show TestRail → automation mapping |
+| `/auto:update-selectors` | Maintenance | Re-inspect URL, update selectors |
+| `/auto:review` | Review | 8-point code quality check |
+| `/auto:conflicts` | Review | 6-type cross-sprint conflict detection |
+| `/auto:health` | Review | Full suite health check (7 dimensions) |
 
 ---
 
