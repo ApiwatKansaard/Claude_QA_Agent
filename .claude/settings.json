@@ -4,13 +4,18 @@
       "command": "mcp-atlassian",
       "env": {
         "ATLASSIAN_BASE_URL": "https://ekoapp.atlassian.net",
-        "LOG_LEVEL": "error"
+        "ATLASSIAN_EMAIL": "${ATLASSIAN_EMAIL}",
+        "ATLASSIAN_API_TOKEN": "${ATLASSIAN_API_TOKEN}",
+        "LOG_LEVEL": "error",
+        "NODE_ENV": "production"
       }
     },
     "figma": {
       "command": "npx",
       "args": ["-y", "figma-developer-mcp", "--stdio"],
-      "env": {}
+      "env": {
+        "FIGMA_API_KEY": "${FIGMA_API_KEY}"
+      }
     }
   }
 }
