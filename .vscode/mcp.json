@@ -6,12 +6,14 @@
 			"env": {}
 		},
 		"atlassian": {
-			"command": "mcp-atlassian",
-			"args": [],
+			"command": "/bin/zsh",
+			"args": [
+				"-c",
+				"set -a && source \"${WORKSPACE_FOLDER:-.}/.env\" 2>/dev/null; set +a; exec mcp-atlassian"
+			],
 			"env": {
+				"WORKSPACE_FOLDER": "${workspaceFolder}",
 				"ATLASSIAN_BASE_URL": "https://ekoapp.atlassian.net",
-				"ATLASSIAN_EMAIL": "${input:atlassian_email}",
-				"ATLASSIAN_API_TOKEN": "${input:atlassian_token}",
 				"LOG_LEVEL": "error"
 			}
 		}
