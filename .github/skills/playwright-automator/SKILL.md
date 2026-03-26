@@ -54,6 +54,7 @@ Read the corresponding command file from `./commands/` for the exact workflow an
 | `/auto:review` | Review code quality | `[file or folder]` | [review.md](./commands/review.md) |
 | `/auto:conflicts` | Detect cross-sprint conflicts | `[sprint-folder]` | [conflicts.md](./commands/conflicts.md) |
 | `/auto:health` | Full test suite health check | — | [health.md](./commands/health.md) |
+| `/auto:triage` | Analyze failed tests, classify root cause, auto-fix | `[results-path]` | [triage.md](./commands/triage.md) |
 
 ---
 
@@ -285,6 +286,7 @@ When `/auto:generate` runs, the workflow is:
 | "how's the test suite health?" | `/auto:health` |
 | "map test cases to automation" | `/auto:map` |
 | "update selectors for..." | `/auto:update-selectors` |
+| "analyze failures" / "triage test results" / "why did the test fail" | `/auto:triage` |
 
 ---
 
@@ -301,6 +303,9 @@ playwright-automator picks up:
                         ↓
 automation-reviewer validates:
   /auto:review → checks quality + conflicts → outputs report
+                        ↓
+test-result-analyzer triages:
+  /auto:triage → analyzes failures → bug reports or auto-fixes
 ```
 
 **Shared artifacts:**
