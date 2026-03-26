@@ -1,0 +1,796 @@
+"Section","Role","Channel","Title","Test Data","Preconditions","Steps","Expected Result","Platform","TestMethod","Type","P","References","Release version","QA Responsibility"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check scheduled jobs list should be displayed on Dashboard page","","User is logged in to EkoAI Console with admin access","1. Navigate to EkoAI Console
+2. Click Scheduled Jobs menu
+3. Observe the dashboard page","1. Dashboard page loads successfully
+2. Job list displays with columns: name / status / schedule / last run / next run
+3. Each job shows enable/disable toggle","Web","Manual","Smoke Test","P1","Dashboard UI","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check job details page should open when clicking on a job row","","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard
+2. Click on any scheduled job row in the list","1. Page navigates to Job Configuration page
+2. Full job details are displayed including name / schedule / endpoint","Web","Manual","Smoke Test","P1","Dashboard UI","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check job list should be filtered correctly when selecting status from dropdown","","User is logged in to EkoAI Console with admin access","1. Open Dashboard with multiple jobs (enabled and disabled)
+2. Click on the Menu List dropdown
+3. Select a filter option","1. Dropdown shows available filter options
+2. Job list updates to show only matching jobs
+3. Non-matching jobs are hidden","Web","Manual","Sanity Test","P2","Dashboard Filter","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check empty state should be shown when no scheduled jobs exist","","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard when no jobs have been created
+2. Observe the page content","1. Empty state illustration or message is displayed
+2. Guidance text suggests creating a new job
+3. Create button is accessible","Web","Manual","Regression Test","P1","Dashboard UI","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check error state should be displayed when Dashboard data fails to load","","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard while backend is unavailable
+2. Observe the page content","1. Error message is displayed indicating data load failure
+2. Retry option or guidance is shown
+3. Page does not crash or show blank content","Web","Manual","Regression Test","P2","Dashboard Error","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check Dashboard should handle 20+ jobs with pagination or scrolling","21+ scheduled jobs exist","User is logged in to EkoAI Console with admin access","1. Create more than 20 scheduled jobs
+2. Navigate to Dashboard
+3. Scroll or paginate through the list","1. Menu List component shows up to 20 items per view
+2. Pagination or scroll is available for overflow
+3. All jobs are accessible","Web","Manual","Regression Test","P2","Dashboard Overflow","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check collapsed navbar should render correctly on Dashboard page","","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard
+2. Observe the left navigation bar","1. Left navbar renders in Collapse variant per Figma design
+2. Menu items are accessible via expand/collapse
+3. Dashboard content area adjusts properly","Web","Manual","Regression Test","P2","Dashboard Layout","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check hover failure tooltip should display failure details when hovering over failure count on Dashboard","Job with recent failures","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard with jobs that have failures
+2. Hover mouse over the failure count indicator on a job row
+3. Observe the tooltip content","1. Tooltip appears on hover with failure details
+2. Tooltip shows failure count and last failure reason
+3. Tooltip disappears when mouse moves away","Web","Manual","Smoke Test","P1","Dashboard Tooltip","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Dashboard","Admin","Web","Check sort-by column should reorder job list when clicking on a sortable column header","","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard with multiple jobs
+2. Click on the Sort By dropdown or column header
+3. Select a sort option (e.g. name / last run / next run)","1. Job list reorders according to selected sort criteria
+2. Sort direction indicator is visible
+3. Sort persists during the session","Web","Manual","Smoke Test","P1","Dashboard Sort","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check create wizard should open when clicking Create button on Dashboard","","User is logged in to EkoAI Console with admin access","1. Navigate to Dashboard
+2. Click the Create button","1. Step 1 of create wizard is displayed
+2. Main container with form fields is visible
+3. Job name field is focused or ready for input","Web","Manual","Smoke Test","P1","Create Wizard","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check job should be created successfully when all required fields are filled","Valid job name / HTTPS endpoint / cron expression / audience","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Enter job name and description
+3. Configure cron trigger expression
+4. Enter HTTPS process endpoint and API key
+5. Select MORNING_BRIEF action type
+6. Add audience user IDs
+7. Click Create/Save button","1. Job is created and persisted as ScheduleJob entity
+2. Toast notification with Status=Success appears
+3. User is redirected to job detail or dashboard","Web","Manual","Smoke Test","P1","Create Wizard","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check cron expression should be accepted when entering valid schedule format","Cron expression: 0 8 * * 1-5","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to trigger configuration step
+3. Enter cron expression '0 8 * * 1-5'","1. Cron expression is accepted without error
+2. System interprets as 'weekdays at 08:00'
+3. Schedule preview displays correctly","Web","Manual","Smoke Test","P1","Cron Config","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check repeat options should be displayed when clicking repeat dropdown","","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to trigger config step
+3. Click the repeat dropdown","1. Dropdown Menu List opens
+2. Repeat options are shown (daily / weekly / custom cron)
+3. User can select an option","Web","Manual","Sanity Test","P2","Create Wizard","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check audience should be saved when adding user IDs and directory IDs","Valid Eko user IDs and directory IDs","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to audience step
+3. Add user IDs to audience
+4. Add directory IDs to audience
+5. Save configuration","1. Audience configuration saved with type='Eko'
+2. userIds array contains added users
+3. directoriesIds array contains added directories","Web","Manual","Smoke Test","P1","Audience Config","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check action type should be saved when selecting MORNING_BRIEF","","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to action configuration step
+3. Select action type = MORNING_BRIEF
+4. Configure schedule (immediate or time-triggered)","1. Action type MORNING_BRIEF is selected
+2. Schedule configuration options appear
+3. Action step is saved with type and schedule","Web","Manual","Smoke Test","P1","Action Config","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check validation error should appear when submitting without required fields","","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Leave name field empty
+3. Skip endpoint configuration
+4. Click Create/Save button","1. Form submission is blocked
+2. Validation errors shown for missing required fields (name / endpoint / audience)
+3. Error indicators appear on relevant fields","Web","Manual","Regression Test","P1","Create Validation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check HTTPS validation should reject when entering HTTP endpoint URL","HTTP endpoint: http://api.example.com/process","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to process endpoint step
+3. Enter HTTP (non-HTTPS) endpoint URL
+4. Try to proceed","1. Validation error message appears
+2. Error states endpoint must use HTTPS
+3. User cannot proceed until corrected","Web","Manual","Regression Test","P1","Endpoint Validation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check validation error should appear when entering invalid cron expression","Invalid cron: * * * * * *","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to trigger config step
+3. Enter invalid cron expression
+4. Try to save","1. Validation error is displayed
+2. Error indicates invalid cron format
+3. Job cannot be created with bad cron","Web","Manual","Regression Test","P2","Cron Validation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check default timeout should be 100 seconds when user does not modify timeout field","","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Configure all required fields
+3. Do NOT modify the timeout field
+4. Create the job","1. Job is created successfully
+2. Process step timeoutSeconds is set to 100 (default)
+3. Default value is visible in job configuration","Web","Manual","Regression Test","P2","Default Config","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check end date picker should accept a single date selection","","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to trigger config step
+3. Open Date picker component
+4. Select a future end date","1. Date picker opens with Type=One Date / Preset=False
+2. Single end date can be selected
+3. Selected date is saved to job configuration","Web","Manual","Regression Test","P2","Date Picker","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Create Job","Admin","Web","Check runUntilTimes should accept only positive integers","Test values: -1 / 0 / 3 / abc","User is logged in to EkoAI Console with admin access","1. Open create wizard
+2. Navigate to trigger config step
+3. Enter various values in runUntilTimes field
+4. Observe validation","1. Negative numbers and zero are rejected
+2. Non-numeric values are rejected
+3. Positive integer (e.g. 3) is accepted
+4. Job will auto-stop after specified number of runs","Web","Manual","Regression Test","P2","Input Validation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check job configuration should display all fields in Default state","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to an existing scheduled job
+2. Observe the Job Configuration page","1. Page displays in Default state
+2. All config fields shown: name / schedule / endpoint / action / audience
+3. Fields are read-only in default view","Web","Manual","Smoke Test","P1","Job Config UI","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check fields should become editable when entering editing mode","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration
+2. Click the Edit button","1. Page transitions to Updating state
+2. All editable fields become active
+3. Save and Cancel buttons appear","Web","Manual","Smoke Test","P1","Job Config Edit","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check changes should be saved when clicking Save in edit mode","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration in edit mode
+2. Modify job name
+3. Update cron expression
+4. Click Save button","1. Page transitions to Updated state
+2. Toast notification with Status=Success appears
+3. Changes are persisted to database
+4. Page returns to Default state with updated values","Web","Manual","Smoke Test","P1","Job Config Save","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check job status should toggle when clicking enable/disable switch","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration
+2. Toggle the isEnabled switch on/off","1. Job enable/disable status is updated immediately
+2. Visual indicator reflects new state
+3. Disabled jobs will not be picked by scheduler","Web","Manual","Smoke Test","P1","Job Status Toggle","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check process endpoint should update when changing URL in edit mode","New endpoint: https://api.example.com/v2/process","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration in edit mode
+2. Change the process endpoint URL
+3. Click Save","1. New endpoint URL is persisted
+2. Toast notification confirms save
+3. Next runs will use the updated endpoint","Web","Manual","Sanity Test","P2","Endpoint Update","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check confirmation modal should appear before deleting a job","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration
+2. Click the Delete button
+3. Observe the modal","1. Confirmation modal (Type=Basic modal) appears
+2. Modal warns about delete consequences
+3. Cancel and Confirm options are available","Web","Manual","Regression Test","P1","Delete Confirmation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check job should be soft-deleted when confirming delete in modal","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration
+2. Click Delete button
+3. Click Confirm in the modal","1. Job is marked isDeleted=true
+2. Job no longer appears in active list on Dashboard
+3. Job data is retained for history purposes","Web","Manual","Regression Test","P1","Soft Delete","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check nextRun field should be read-only and not editable by user","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration
+2. Look at the nextRun field
+3. Attempt to click or modify it","1. nextRun field is displayed but not editable
+2. No text cursor or edit option appears
+3. Value is maintained by scheduler system only","Web","Manual","Regression Test","P2","Read-only Field","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check nextRun should be recalculated when cron expression is updated","New cron: 0 9 * * 1-5 (weekdays at 09:00)","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration in edit mode
+2. Change cron expression to '0 9 * * 1-5'
+3. Click Save","1. Changes are saved successfully
+2. nextRun is recalculated based on new cron definition
+3. Updated nextRun reflects next weekday at 09:00","Web","Manual","Regression Test","P1","Cron Recalculation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check action schedule should update when changing from immediate to time-triggered","","User is logged in to EkoAI Console / A scheduled job exists","1. Open job configuration in edit mode
+2. Change action schedule from immediate to time-triggered
+3. Set trigger time
+4. Save changes","1. Action schedule type is updated
+2. Time-trigger configuration is saved
+3. Next runs will respect new delivery timing","Web","Manual","Regression Test","P2","Schedule Change","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check confirmation modal should appear when clicking Save after modifying job configuration","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Job Configuration page
+2. Click Edit and modify any field
+3. Click Save Changes button
+4. Observe the modal dialog","1. 'Save Changes?' confirmation modal appears
+2. Modal shows Cancel and Confirm buttons
+3. Changes are NOT applied until user confirms
+4. After confirming / page shows Updated state with success toast","Web","Manual","Smoke Test","P1","Save Confirmation Modal","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Job Configuration","Admin","Web","Check warning should be displayed when attempting to edit a currently running job configuration","Job with status=RUNNING","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Job Configuration of a job that is currently running
+2. Click the Edit button
+3. Observe the system behavior","1. Warning message or banner indicates job is currently running
+2. Edit mode shows 'Edit Running' state per Figma design
+3. User is informed changes will affect next run only","Web","Manual","Regression Test","P1","Edit Running Job","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check audience group should display users and directories in Default state","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Recipients tab of a scheduled job
+2. Observe the Audience Group section","1. Audience Group displays in Default state
+2. Added user IDs are listed
+3. Added directory IDs are listed
+4. Audience type shows 'Eko'","Web","Manual","Smoke Test","P1","Recipients UI","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check users should be added when entering Eko user IDs in edit mode","Valid Eko user IDs","User is logged in to EkoAI Console / A scheduled job exists","1. Enter Updating state on Recipients tab
+2. Add Eko user IDs to the audience
+3. Click Save","1. User IDs are added to audience.userIds array
+2. Transitions to Updated state
+3. Toast notification with Success appears","Web","Manual","Smoke Test","P1","Add Users","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check directories should be added when entering Eko directory IDs","Valid Eko directory/group IDs","User is logged in to EkoAI Console / A scheduled job exists","1. Enter Updating state on Recipients tab
+2. Add Eko directory/group IDs
+3. Click Save","1. Directory IDs are added to audience.directoriesIds array
+2. Changes are persisted
+3. Toast notification confirms save","Web","Manual","Smoke Test","P1","Add Directories","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check audience should be resolved to individual users at trigger time","Audience with userIds + directoryIds configured","User is logged in to EkoAI Console / A scheduled job exists","1. Configure audience with both user IDs and directory IDs
+2. Wait for scheduled job to trigger","1. System calls Eko APIs to resolve directories into individual users
+2. Deleted/disabled users are filtered out
+3. Final audience list contains only active users","Web","Manual","Smoke Test","P1","Audience Resolution","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check Eko API should be called for user resolution when job triggers","","User is logged in to EkoAI Console / A scheduled job exists","1. Configure job with userIds
+2. Trigger the job","1. EkoAI calls Eko APIs (Query Users / Get Users by IDs)
+2. Uses Network.ekoConfig for authentication
+3. User details are fetched and stored in run snapshot","Web","Manual","Smoke Test","P1","Eko API Call","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check Eko API should be called for directory resolution when job triggers with directoryIds","Audience with directoryIds configured","User is logged in to EkoAI Console / A scheduled job exists","1. Configure job with directoryIds
+2. Trigger the job","1. EkoAI calls Eko APIs (Query Directories / Query Users from Directory)
+2. Directory groups are resolved into individual user IDs
+3. Resolved users are added to the audience snapshot","Web","Manual","Smoke Test","P1","Directory Resolution","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check deleted Eko users should be excluded from audience at trigger time","Audience includes a user that was deleted on Eko","User is logged in to EkoAI Console / A scheduled job exists","1. Configure audience with a user ID
+2. Delete that user on Eko platform
+3. Trigger the scheduled job","1. Deleted user is excluded from ScheduleJobRun.scheduleJobAudience
+2. Job processes only active users
+3. No error is thrown for the excluded user","Web","Manual","Regression Test","P1","User Exclusion","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check job should fail gracefully when Eko API is unavailable during audience resolution","","User is logged in to EkoAI Console / A scheduled job exists","1. Configure job with audience
+2. Make Eko API unavailable
+3. Trigger the job","1. Audience resolution fails with API error
+2. Run is marked as failed or retries gracefully
+3. Error details are logged for troubleshooting","Web","Manual","Regression Test","P1","API Failure","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check audience snapshot should remain static during an active job run","","User is logged in to EkoAI Console / A scheduled job exists","1. Trigger a job run with configured audience
+2. After run starts / modify the audience on Eko (add/remove users)
+3. Observe the running job","1. Running job uses the snapshot taken at trigger time
+2. New/removed users do not affect the current run
+3. Changes only apply to next trigger","Web","Manual","Regression Test","P2","Static Snapshot","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check audience type should always show Eko in Phase 1","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Recipients tab
+2. Observe the audience type field","1. Audience type displays 'Eko'
+2. No other audience type options are available
+3. Field is read-only or pre-selected","Web","Manual","Regression Test","P2","Audience Type","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check bulk operations modal should open when managing audience","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Recipients tab
+2. Click manage audience button
+3. Observe the modal","1. Modal (Desktop variant) opens
+2. Bulk add/remove options are available for users and directories
+3. Modal allows batch operations","Web","Manual","Regression Test","P2","Bulk Operations","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check confirmation modal should appear when navigating away with unsaved audience changes","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Recipients page
+2. Add or remove audience members
+3. Attempt to navigate away without saving
+4. Observe the confirmation modal","1. Confirmation modal appears warning about unsaved changes
+2. Modal shows Cancel and Discard options
+3. Selecting Cancel returns to Recipients with changes intact
+4. Selecting Discard navigates away and discards changes","Web","Manual","Smoke Test","P1","Unsaved Changes Modal","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Recipients","Admin","Web","Check warning should be displayed when editing recipients of a currently running job","Job with status=RUNNING","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to Recipients of a job that is currently running
+2. Attempt to modify the audience group
+3. Observe the system behavior","1. Warning banner shows 'Edit Running' state per Figma design
+2. User is informed that changes will affect next run only
+3. Confirmation modal appears on save with additional warning about running state","Web","Manual","Regression Test","P1","Edit Running Recipients","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check history logs should display past runs with status and timestamps","","User is logged in to EkoAI Console / A scheduled job with past runs exists","1. Navigate to History Logs tab of a job
+2. Observe the table content","1. Table shows past job runs
+2. Each run shows status (RUNNING/SUCCESS/FAILED)
+3. StartedAt and finishedAt timestamps are displayed","Web","Manual","Smoke Test","P1","History Logs UI","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check per-user execution details should be visible when clicking on a run entry","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs
+2. Click on a ScheduleJobRunUser entry","1. Detail view opens showing process status and action status
+2. Fail reasons are displayed if applicable
+3. Timestamps for each step are shown","Web","Manual","Smoke Test","P1","Run Details","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check failed executions should be re-enqueued when clicking Retry","","User is logged in / Job has failed ScheduleJobRunUser entries","1. Navigate to History Logs
+2. Select failed ScheduleJobRunUser entries
+3. Click Retry button","1. Retrying state is shown
+2. Selected entries are re-enqueued for processing
+3. Status updates reflect retry progress","Web","Manual","Smoke Test","P1","Retry Failed","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check ScheduleJobRun aggregated status should display after run completes","","User is logged in to EkoAI Console / A scheduled job exists","1. Wait for a job run to complete
+2. Navigate to History Logs
+3. Observe the run status","1. ScheduleJobRun shows aggregated status: SUCCESS or FAILED
+2. Status reflects all per-user executions
+3. Timestamp shows completion time","Web","Manual","Smoke Test","P1","Run Status","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check per-user status transitions should be tracked in history","","User is logged in to EkoAI Console / A scheduled job exists","1. Trigger a job run
+2. Navigate to History Logs
+3. Expand a run to see per-user details","1. Each user shows status progression
+2. Transitions visible: PENDING > PROCESSING > EXECUTING > SUCCESS/FAILED
+3. Timestamps for each transition are recorded","Web","Manual","Sanity Test","P2","Status Tracking","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check empty state should be shown when job has no past runs","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs for a newly created job with no runs
+2. Observe the page content","1. Empty state frame is displayed
+2. Appropriate message indicates no runs yet
+3. No table rows are shown","Web","Manual","Regression Test","P2","Empty History","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check run detail modal should handle missing data gracefully","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs
+2. Click on a run entry with incomplete data","1. Modal (Type=Basic modal) opens
+2. Available data is displayed
+3. Missing fields show placeholder or N/A without errors","Web","Manual","Regression Test","P2","Incomplete Data","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check select all should work for entries on current page","","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs with multiple entries
+2. Click 'Select all' > 'This page'","1. All visible entries on current page are selected
+2. Selection checkboxes are checked
+3. Bulk action buttons become available","Web","Manual","Regression Test","P2","Select All Page","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check select all should handle 400 audience entries across pages","Job run with 400 audience members","User is logged in to EkoAI Console / A scheduled job exists","1. View job run with 400 audience members
+2. Click 'Select all'
+3. Confirm all entries selection","1. All 400 audience entries are selected across pages
+2. UI handles large selection without freezing
+3. Bulk actions apply to all selected entries","Web","Manual","Regression Test","P2","Large Selection","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check retrying state should be displayed when a failed audience run is being retried","Job run with failed audiences being retried","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs
+2. Find a job run with failed audiences
+3. Click Retry on a failed audience
+4. Observe the status indicator","1. Status changes to 'Retrying' state per Figma design
+2. Retrying indicator is visually distinct from other states
+3. Status updates to success or failure after retry completes","Web","Manual","Smoke Test","P1","Retrying State","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check select all should select all 400 audiences when clicking Select All on bulk selection","Job run with 400 audience members","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs for a job run with 400 audiences
+2. Click the Select All checkbox
+3. Observe the selection count","1. All 400 audience rows are selected
+2. Selection count shows '400 selected'
+3. Bulk action buttons (Retry / Export) become available
+4. Performance remains acceptable with 400 selections","Web","Manual","Smoke Test","P1","Bulk Select All","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > History Logs","Admin","Web","Check select all this page should select only current page items when using page-level selection","Job run with multiple pages of audiences","User is logged in to EkoAI Console / A scheduled job exists","1. Navigate to History Logs with paginated audiences
+2. Click the 'Select All (This Page)' checkbox
+3. Observe which items are selected","1. Only items on the current page are selected
+2. Selection count reflects current page items only
+3. Items on other pages remain unselected
+4. User can navigate to other pages and select independently","Web","Manual","Sanity Test","P2","Select This Page","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check scheduler should pick up jobs when nextRun time is due","Enabled job with nextRun <= now","EkoAI scheduler is running / At least one enabled job exists","1. Create an enabled scheduled job with nextRun in the past or now
+2. Wait for the scheduler tick to execute","1. Scheduler identifies the due job
+2. ScheduleJobRun is created with config + audience snapshot
+3. Job processing begins","API","Manual","Smoke Test","P1","Scheduler Trigger","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check nextRun should be updated after each successful trigger","Job with cron '0 8 * * 1-5'","EkoAI scheduler is running / At least one enabled job exists","1. Trigger a job with cron '0 8 * * 1-5'
+2. Check the nextRun value after trigger","1. nextRun is recalculated based on iCalendar definition
+2. New nextRun points to next weekday at 08:00
+3. lastRun is updated to current trigger time","API","Manual","Smoke Test","P1","Next Run Update","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check job run snapshot should contain frozen config at trigger time","","EkoAI scheduler is running / At least one enabled job exists","1. Trigger a job run
+2. Inspect the created ScheduleJobRun record","1. ScheduleJobRun.scheduleJobStep contains frozen snapshot
+2. Trigger / process / action config are all captured
+3. Snapshot does not change even if job config is modified later","API","Manual","Smoke Test","P1","Config Snapshot","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check internal trigger endpoint should process eligible jobs","","EkoAI scheduler is running / At least one enabled job exists","1. POST to /_internal/scheduled-job-action-orchestrator/trigger
+2. Observe response","1. Endpoint processes eligible jobs within the tick interval (~1 minute)
+2. Returns success response
+3. Due jobs are picked up and run creation begins","API","Manual","Smoke Test","P1","Trigger Endpoint","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check scheduler should skip jobs when isEnabled is false","Job with isEnabled=false","EkoAI scheduler is running / At least one enabled job exists","1. Create a scheduled job with isEnabled=false
+2. Set nextRun to past time
+3. Wait for scheduler tick","1. Disabled job is NOT picked up by scheduler
+2. No ScheduleJobRun is created
+3. nextRun remains unchanged","API","Manual","Regression Test","P1","Skip Disabled","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check scheduler should stop triggering after endDate has passed","Job with endDate in the past","EkoAI scheduler is running / At least one enabled job exists","1. Create a job with endDate set to yesterday
+2. Wait for scheduler tick","1. Job is not triggered after endDate
+2. No new ScheduleJobRun is created
+3. Job remains in list but is no longer scheduled","API","Manual","Regression Test","P1","End Date Check","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check scheduler should stop triggering after runUntilTimes limit is reached","Job with runUntilTimes=3 / already run 3 times","EkoAI scheduler is running / At least one enabled job exists","1. Create a job with runUntilTimes=3
+2. Run the job 3 times
+3. Wait for scheduler tick after 3rd run","1. After 3rd run / job is no longer triggered
+2. runTimes matches runUntilTimes (3)
+3. No additional ScheduleJobRun is created","API","Manual","Regression Test","P1","Run Limit","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check runTimes should increment by 1 after each trigger","","EkoAI scheduler is running / At least one enabled job exists","1. Trigger a job multiple times
+2. Check runTimes value after each trigger","1. ScheduleJob.step.trigger.runTimes increments by 1
+2. Count accurately reflects total number of runs
+3. Value persists across scheduler restarts","API","Manual","Regression Test","P2","Run Counter","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Trigger Step","Admin","API","Check lastRun should be updated to trigger datetime after each trigger","","EkoAI scheduler is running / At least one enabled job exists","1. Trigger a job
+2. Check ScheduleJob.step.trigger.lastRun value","1. lastRun is updated to the exact trigger datetime
+2. Timestamp is accurate and persisted
+3. Value is visible in job configuration page","API","Manual","Regression Test","P2","Last Run Update","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check individual request should be dispatched for each audience user to external endpoint","Job with 5 audience users","Job has been triggered / External endpoint is configured","1. Trigger a job with 5 audience users configured
+2. Monitor requests sent to external endpoint","1. Five separate requests are sent to the process endpoint
+2. Each request contains unique scheduleJobRunUserId
+3. Each request includes user context data","API","Manual","Smoke Test","P1","Per-User Dispatch","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check API key header should be included in outbound request to external endpoint","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. Inspect the outbound request to external endpoint","1. Request contains X-API-KEY header
+2. Header value matches the configured apiKey
+3. Key is sent securely in the header","API","Manual","Smoke Test","P1","API Key Header","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check HMAC signature should be included in outbound request header","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. Inspect the outbound request headers","1. EkoAI-Signature header is present
+2. Signature is HMAC-SHA256 computed over the JSON payload
+3. External server can verify the signature with shared key","API","Manual","Smoke Test","P1","HMAC Signature","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check user status should advance to EXECUTING when endpoint returns 200/202","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. External endpoint returns HTTP 200 OK","1. ScheduleJobRunUser.status advances to EXECUTING
+2. System awaits callback from external service
+3. Processing timestamp is recorded","API","Manual","Smoke Test","P1","200 Acknowledgement","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check request payload should contain guaranteed user fields","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. Inspect the outbound request payload","1. Payload contains: id (scheduleJobRunUserId)
+2. data.userId is present
+3. data.username is present
+4. Guaranteed fields are always included","API","Manual","Smoke Test","P1","Payload Format","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check ScheduleJobRunUser record should be created per user when job triggers","Job with N audience users","Job has been triggered / External endpoint is configured","1. Trigger a job with N audience users
+2. Inspect the created records","1. N ScheduleJobRunUser records are created
+2. Each record has initial status PENDING
+3. Records are linked to the parent ScheduleJobRun","API","Manual","Smoke Test","P1","Record Creation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check user status should be FAILED immediately when endpoint returns 4xx","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. External endpoint returns HTTP 400 or 403","1. ScheduleJobRunUser.status is set to FAILED
+2. failReasonCode = VALIDATION_ERROR
+3. No automatic retry is attempted for 4xx errors","API","Manual","Regression Test","P1","4xx Failure","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check request should retry with backoff when endpoint returns 5xx","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. External endpoint returns HTTP 500","1. EkoAI retries up to configured retry times (default 3)
+2. Backoff delay increases between retries
+3. If all retries exhausted / status is set to FAILED","API","Manual","Regression Test","P1","5xx Retry","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check request should be treated as failure when endpoint does not respond within 10 seconds","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. External endpoint does not respond within 10 seconds","1. Timeout is treated as transient failure
+2. Request is retried up to retry times
+3. If retries exhausted / user status is FAILED","API","Manual","Regression Test","P1","Webhook Timeout","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check slow-start throttling should increase concurrency on success for large audience","Job with 100+ audience users","Job has been triggered / External endpoint is configured","1. Trigger a job with 100+ audience users
+2. Monitor request dispatch pattern","1. System starts with low concurrency (slow-start)
+2. Concurrency increases as successful responses are received
+3. Concurrency decreases on failures
+4. Large audience is processed without overwhelming the endpoint","API","Manual","Regression Test","P1","Throttling","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check default timeout should be 100 seconds when not configured","","Job has been triggered / External endpoint is configured","1. Create a job with default timeout
+2. Trigger the job
+3. External callback does not arrive within 100 seconds","1. After 100 seconds / ScheduleJobRunUser is marked FAILED
+2. Default timeout value is applied
+3. Timeout is configurable per job","API","Manual","Regression Test","P2","Default Timeout","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check custom timeout should be respected when set to 300 seconds","timeoutSeconds=300","Job has been triggered / External endpoint is configured","1. Create a job with timeoutSeconds=300
+2. Trigger the job
+3. Wait for callback","1. System waits up to 300 seconds for callback
+2. Timeout is extended from default
+3. No failure is triggered before 300 seconds","API","Manual","Regression Test","P2","Custom Timeout","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check optional user fields should be included when available in payload","User with email / firstname / lastname / position","Job has been triggered / External endpoint is configured","1. Trigger a job with audience user that has full profile
+2. Inspect outbound request payload","1. Optional fields included: email / firstname / lastname
+2. Additional fields: position / ad_domain / extras
+3. Missing optional fields are omitted (not null)","API","Manual","Regression Test","P2","Optional Fields","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Process Step","Admin","API","Check stuck PROCESSING users should be marked FAILED after 24-hour backstop","","Job has been triggered / External endpoint is configured","1. Trigger a job
+2. User remains in PROCESSING state for more than 24 hours","1. Background scheduler identifies stuck record
+2. ScheduleJobRunUser is automatically marked FAILED
+3. Failure reason indicates timeout backstop","API","Manual","Regression Test","P1","24h Backstop","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check user status should update to FINISHED when callback returns success with result","","Process step has dispatched requests / External service is processing","1. External service sends POST callback
+2. Payload contains status='success' and result.homePage","1. ScheduleJobRunUser.run.process.status set to FINISHED
+2. result.homePage content is stored
+3. User is ready for action step","API","Manual","Smoke Test","P1","Success Callback","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check correct user record should be updated when callback echoes matching ID","","Process step has dispatched requests / External service is processing","1. External service sends callback
+2. Payload contains id matching scheduleJobRunUserId","1. System matches callback to correct ScheduleJobRunUser
+2. Only the matching record is updated
+3. Other records remain unchanged","API","Manual","Smoke Test","P1","ID Matching","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check callback should be accepted when X-API-KEY header is valid","","Process step has dispatched requests / External service is processing","1. External service sends callback request
+2. Request includes correct X-API-KEY header","1. Request is accepted and processed
+2. ScheduleJobRunUser record is updated
+3. HTTP 200 response is returned","API","Manual","Smoke Test","P1","API Key Auth","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check result.homePage should be stored when callback includes homepage content","","Process step has dispatched requests / External service is processing","1. External service sends callback with result.homePage content
+2. Observe ScheduleJobRunUser record","1. run.process.result.homePage is populated
+2. Content is stored accurately
+3. Data is available for action step delivery","API","Manual","Smoke Test","P1","HomePage Result","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check user status should be FAILED when callback returns failure","","Process step has dispatched requests / External service is processing","1. External service sends callback with status='fail'
+2. Payload includes failReason","1. ScheduleJobRunUser.run.process.status set to FAILED
+2. failReason is stored in the record
+3. No further processing for this user","API","Manual","Regression Test","P1","Failed Callback","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check callback should be rejected with 400 when ID is invalid or missing","","Process step has dispatched requests / External service is processing","1. External service sends callback
+2. Payload contains unrecognized or missing id","1. HTTP 400 response is returned
+2. No ScheduleJobRunUser record is updated
+3. Error is logged for monitoring","API","Manual","Regression Test","P1","Invalid ID","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check callback should be rejected with 401 when API key is wrong","Incorrect X-API-KEY value","Process step has dispatched requests / External service is processing","1. External service sends callback
+2. Request has incorrect X-API-KEY header","1. HTTP 401 response is returned
+2. No record is updated
+3. No retry is triggered by EkoAI","API","Manual","Regression Test","P1","Wrong API Key","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check user should be marked FAILED when no callback arrives within timeout","","Process step has dispatched requests / External service is processing","1. External service never sends callback
+2. Configured timeout period elapses","1. EkoAI treats as failure
+2. Retries up to retry times
+3. If retries exhausted / user status is set to FAILED","API","Manual","Regression Test","P1","Callback Timeout","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check duplicate callback should be handled idempotently for already finished user","","Process step has dispatched requests / External service is processing","1. External service sends callback for user already in SUCCESS/FAILED
+2. Observe response","1. HTTP 200 is returned (idempotent)
+2. Existing data is not overwritten
+3. No duplicate processing occurs","API","Manual","Regression Test","P2","Idempotent Callback","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Callback","Admin","API","Check quotaConsumed should be charged when callback includes quota data","Callback with quotaConsumed=5","Process step has dispatched requests / External service is processing","1. External service sends callback with quotaConsumed=5
+2. Observe the quota tracking in EkoAI","1. EkoAI charges the network accordingly
+2. Quota value is recorded
+3. Billing reflects the consumed amount","API","Manual","Regression Test","P2","Quota Tracking","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check orchestrator should pick up candidates for immediate delivery when schedule is null","","Process step completed / Callback received with result","1. Configure job with action schedule = null (immediate)
+2. Process step completes for a user
+3. Wait for orchestrator scan","1. Orchestrator identifies user with PENDING action + populated result
+2. User is picked up on next scan
+3. Delivery begins immediately","API","Manual","Smoke Test","P1","Immediate Delivery","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check action queue message should be published when orchestrator identifies candidate","","Process step completed / Callback received with result","1. Orchestrator identifies a delivery candidate
+2. Observe queue activity","1. Message is published to action queue
+2. Message contains scheduleJobRunUserId and actionType
+3. Worker can consume the message","API","Manual","Smoke Test","P1","Queue Message","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check action worker should complete delivery and update user status to SUCCESS","","Process step completed / Callback received with result","1. Worker consumes queue message
+2. Worker executes delivery (create HomePage via Eko API)","1. Delivery is completed successfully
+2. ScheduleJobRunUser.run.actions.homePage.status = SUCCESS
+3. Worker claims using optimistic concurrency","API","Manual","Smoke Test","P1","Worker Delivery","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check run status should be aggregated when all users complete their actions","Job run with multiple users","Process step completed / Callback received with result","1. Wait for all users in a run to complete their actions
+2. Observe ScheduleJobRun status","1. ScheduleJobRun.status is updated based on aggregation
+2. If all succeed / status = SUCCESS
+3. Aggregation considers all per-user results","API","Manual","Smoke Test","P1","Status Aggregation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check delivery should wait until nextRun time for time-triggered schedule","Action schedule.nextRun = tomorrow 09:00","Process step completed / Callback received with result","1. Configure time-triggered action with nextRun = tomorrow 09:00
+2. Process completes today
+3. Observe user status","1. User waits in PENDING action state
+2. Orchestrator does not pick up until 09:00
+3. Delivery begins at or after scheduled time","API","Manual","Regression Test","P1","Time Trigger Wait","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check failReasonCode should be stored when delivery fails","","Process step completed / Callback received with result","1. Trigger delivery
+2. Eko API is unavailable / delivery fails","1. run.actions.homePage.status = FAILED
+2. failReasonCode is stored
+3. failReasonMessage contains error details","API","Manual","Regression Test","P1","Delivery Failure","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check dead-letter queue should receive messages after all retry attempts fail","","Process step completed / Callback received with result","1. Action queue message fails all retry attempts
+2. Observe dead-letter queue","1. Message is moved to dead-letter queue
+2. Alerting is triggered for monitoring
+3. Message can be inspected for troubleshooting","API","Manual","Regression Test","P2","Dead Letter Queue","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check delivery should happen immediately when process data arrives after scheduled nextRun","Action schedule.nextRun = 09:00 / process completes at 10:00","Process step completed / Callback received with result","1. Configure time-triggered action with nextRun = 09:00
+2. Process completes at 10:00 (after scheduled time)","1. nextRun is already past
+2. Orchestrator picks up immediately on next scan
+3. No additional waiting period","API","Manual","Regression Test","P1","Late Process Data","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check duplicate queue messages should be handled safely by worker","","Process step completed / Callback received with result","1. Orchestrator publishes same candidate twice to queue
+2. Two workers attempt to process","1. Worker uses optimistic concurrency (_etag)
+2. Only one worker succeeds in claiming
+3. Other worker retries and sees terminal status
+4. No duplicate deliveries occur","API","Manual","Regression Test","P1","Duplicate Messages","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Action Step","Admin","API","Check partial success should be reflected when some users succeed and some fail","Run with 10 users","Process step completed / Callback received with result","1. Trigger run with 10 users
+2. 7 users succeed / 3 users fail","1. Per-user statuses correctly reflect SUCCESS or FAILED
+2. Run status shows partial result
+3. Failed users can be retried via History Logs","API","Manual","Regression Test","P1","Partial Success","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check cutoff orchestrator should identify timed-out runs after 24 hours","ScheduleJobRun.startedAt > 24h ago / status still PROCESSING","A ScheduleJobRun is in PROCESSING state","1. Wait for a ScheduleJobRun to remain in PROCESSING for more than 24 hours
+2. Observe cutoff orchestrator behavior","1. Cutoff orchestrator identifies the timed-out run
+2. Run is enqueued to cutoff queue
+3. Processing begins to mark stuck users","API","Manual","Smoke Test","P1","Cutoff Detection","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check cutoff worker should mark stuck users as FAILED with timeout reason","","A ScheduleJobRun is in PROCESSING state","1. Cutoff worker processes a timed-out run
+2. Run has non-terminal ScheduleJobRunUser records","1. All non-terminal users are marked FAILED
+2. failReasonCode = CUTOFF_TIMEOUT
+3. Terminal state users (already SUCCESS/FAILED) are unchanged","API","Manual","Smoke Test","P1","Cutoff Marking","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check already terminal users should not be affected by cutoff","Run has mix of SUCCESS and PROCESSING users","A ScheduleJobRun is in PROCESSING state","1. Run has some SUCCESS users and some PROCESSING users
+2. Cutoff fires after 24 hours","1. Only PROCESSING users are marked FAILED
+2. SUCCESS users remain unchanged
+3. No data corruption on terminal records","API","Manual","Regression Test","P1","Terminal Protection","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check cutoff vs action worker race should be resolved safely","","A ScheduleJobRun is in PROCESSING state","1. Action worker completes at exact moment cutoff fires for same user
+2. Both attempt to write","1. _etag optimistic concurrency resolves the race
+2. Whoever writes first wins
+3. Loser retries and sees terminal state
+4. No inconsistent data","API","Manual","Regression Test","P1","Race Resolution","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check cutoff threshold should be configurable via environment variable","SCHEDULED_JOB_RUN_CUTOFF_TIMEOUT_MINUTES=60","A ScheduleJobRun is in PROCESSING state","1. Set SCHEDULED_JOB_RUN_CUTOFF_TIMEOUT_MINUTES=60
+2. Wait for a run to remain in PROCESSING for 60+ minutes","1. Cutoff fires after 60 minutes instead of default 24 hours
+2. Configuration is respected
+3. Users stuck beyond threshold are marked FAILED","API","Manual","Regression Test","P2","Configurable Threshold","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check cutoff worker should be idempotent on retry after crash","","A ScheduleJobRun is in PROCESSING state","1. Cutoff worker crashes mid-way through processing
+2. BullMQ retries the job","1. Worker skips already-terminal users on retry
+2. No duplicate failures are created
+3. Processing completes successfully on retry","API","Manual","Regression Test","P2","Idempotent Worker","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Cutoff Timeout","Admin","API","Check duplicate cutoff jobs should be deduplicated via scheduledJobRunId","","A ScheduleJobRun is in PROCESSING state","1. Cutoff orchestrator runs twice for the same run
+2. Observe BullMQ behavior","1. BullMQ silently ignores duplicate job IDs
+2. Only one cutoff worker processes the run
+3. No duplicate processing or race conditions","API","Manual","Regression Test","P2","Job Deduplication","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check new HomePage record should be created when Morning Brief is delivered","","Action step is delivering Morning Brief to user","1. Action worker delivers Morning Brief for a user
+2. Observe the HomePage record","1. New HomePage record created via POST /api/v1/home-page
+2. Record contains content.blocks / refId / expiresAt
+3. Record is associated with the correct user","API","Manual","Smoke Test","P1","HomePage Create","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check push notification should be sent when HomePage is created","","Action step is delivering Morning Brief to user","1. Create a new HomePage record for a user
+2. Observe notification delivery","1. PushNotificationService dispatches HOME_PAGE_DELIVERED notification
+2. User receives push notification
+3. Notification links to the HomePage content","API","Manual","Smoke Test","P1","Push Notification","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check getLatest should return most recent non-expired HomePage for user","User has multiple HomePage records / some expired","Action step is delivering Morning Brief to user","1. User has multiple HomePage records with different timestamps
+2. Some records have expired
+3. Call v0/homePage.getLatest","1. Returns the latest non-expired record
+2. Sorted by createdAt descending
+3. Expired records are excluded","API","Manual","Smoke Test","P1","Get Latest","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check real-time event should be dispatched when HomePage is delivered","","Action step is delivering Morning Brief to user","1. HomePage is created for a connected user
+2. Observe real-time events","1. DeviceQueueService.scheduleEnqueue dispatches real-time event
+2. Connected user receives event immediately
+3. Client can update UI based on event","API","Manual","Smoke Test","P1","Real-time Event","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check API key authentication should use EkoApiKey strategy with scope check","","Action step is delivering Morning Brief to user","1. Send request to HomePage API with valid x-api-key header
+2. Key has 'home-page' scope","1. Request authenticated via EkoApiKey PassportJS strategy
+2. Scope checked for 'home-page' permission
+3. Request processed successfully","API","Manual","Smoke Test","P1","EkoApiKey Auth","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check push notification should be sent on update when retrying delivery","","Action step is delivering Morning Brief to user","1. HomePage record is updated (retry delivery)
+2. Observe notification","1. PushNotificationService dispatches HOME_PAGE_UPDATED notification
+2. User receives update notification
+3. Content reflects updated delivery","API","Manual","Sanity Test","P2","Update Notification","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check request should be rejected with 401 when API key is invalid","Wrong or missing x-api-key header","Action step is delivering Morning Brief to user","1. Send HomePage create request with invalid x-api-key
+2. Observe response","1. HTTP 401/403 is returned
+2. Request is rejected
+3. No HomePage record is created","API","Manual","Regression Test","P1","Invalid API Key","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check retry should use PUT update instead of creating duplicate when re-delivering","","Action step is delivering Morning Brief to user","1. Same job run re-delivers to a user
+2. homePageId exists from first delivery","1. Uses PUT /api/v1/home-page/:id with existing homePageId
+2. Record updated instead of creating duplicate
+3. Content reflects latest delivery","API","Manual","Regression Test","P1","Retry Uses Update","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check multiple HomePage records should be allowed per user per day","Two different job runs deliver to same user same day","Action step is delivering Morning Brief to user","1. Two different scheduled jobs deliver Morning Brief to same user same day
+2. Observe HomePage records","1. Two separate HomePage records exist for the user
+2. getLatest returns the newest by createdAt
+3. Both records accessible until expiry","API","Manual","Regression Test","P2","Multiple Per Day","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check expiresAt should be set to createdAt + 24 hours","","Action step is delivering Morning Brief to user","1. Create a HomePage record
+2. Check the expiresAt field","1. expiresAt = createdAt + 24 hours
+2. After expiry / widget not shown on home screen
+3. getLatest excludes expired records","API","Manual","Regression Test","P1","Expiry Time","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check HomePage content should be stored as-is without server validation","Arbitrary JSON in content.blocks","Action step is delivering Morning Brief to user","1. Send HomePage create request with arbitrary content.blocks JSON
+2. Observe stored record","1. EkoNode stores content as-is without validation
+2. Any JSON structure in content.blocks is accepted
+3. Rendering handled by the client","API","Manual","Regression Test","P2","Opaque Content","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check readAt should be null initially until user views the content","","Action step is delivering Morning Brief to user","1. Create a new HomePage record
+2. Check the readAt field before user views it","1. readAt = null (unread state)
+2. Value updates when user first views the content
+3. Read state can be queried","API","Manual","Regression Test","P2","Initial Read State","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Home Page Delivery","Admin","API","Check refId format should contain run IDs for traceability","","Action step is delivering Morning Brief to user","1. Create a HomePage record via job delivery
+2. Check the refId field","1. refId follows format: <run_id>:<run_user_id>
+2. Both IDs are valid references
+3. Can trace delivery back to job run","API","Manual","Regression Test","P2","RefId Format","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check recognized widgets should render on home screen in correct order","HomePage with valid widget JSON array","HomePage record with content.blocks exists for the user","1. Create HomePage with multiple valid widgets
+2. Open the app home screen","1. All recognized widgets render successfully
+2. Widgets display in exact order as listed in JSON array
+3. Each widget shows its configured content","Mobile","Manual","Smoke Test","P1","Widget Rendering","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check Text Block widget should display configured content","Widget type: text block","HomePage record with content.blocks exists for the user","1. Include a text block widget in HomePage content
+2. Open the home screen","1. Text block is displayed
+2. Content matches the configured text
+3. Formatting is applied correctly","Mobile","Manual","Smoke Test","P1","Text Block","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check Progress Bar widget should display correct percentage","Widget type: progress bar","HomePage record with content.blocks exists for the user","1. Include a progress bar widget in HomePage
+2. Open the home screen","1. Progress bar is displayed
+2. Percentage matches configured value
+3. Visual indicator reflects progress correctly","Mobile","Manual","Sanity Test","P2","Progress Bar","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check Horizontal Cards widget should render with configured content","Widget type: horizontal cards","HomePage record with content.blocks exists for the user","1. Include horizontal cards widget in HomePage
+2. Open the home screen","1. Cards render horizontally
+2. Content matches configured data
+3. Scrolling works if cards exceed screen width","Mobile","Manual","Sanity Test","P2","Horizontal Cards","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check unrecognized widget type should be silently skipped without errors","Widget with unknown type: future_widget_v3","HomePage record with content.blocks exists for the user","1. Include an unknown widget type in HomePage JSON
+2. Open the home screen","1. Unknown widget is silently skipped
+2. No errors displayed to user
+3. Other recognized widgets render normally","Mobile","Manual","Regression Test","P2","Unknown Widget","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check corrupted widget configuration should be handled gracefully","Widget with partial/invalid config","HomePage record with content.blocks exists for the user","1. Include a widget with partial or invalid configuration
+2. Open the home screen","1. Widget renders with available config
+2. Corrupted parts are gracefully ignored
+3. No crash or error screen is shown","Mobile","Manual","Regression Test","P2","Corrupted Config","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check empty content.blocks array should display no widgets without errors","HomePage with empty blocks: []","HomePage record with content.blocks exists for the user","1. Create HomePage with empty content.blocks array
+2. Open the home screen","1. Home screen shows no widgets
+2. No crash / error / or blank screen
+3. App functions normally with other features","Mobile","Manual","Regression Test","P2","Empty Blocks","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check more drill-down should navigate to next page level","Widget with more object configured","HomePage record with content.blocks exists for the user","1. Widget has more object with label / pageTitle / widgets or tabs
+2. Open the home screen
+3. Click the more button on the widget","1. More button is visible on the widget
+2. Clicking navigates to next Page Level
+3. Extended content is displayed on the drill-down page","Mobile","Manual","Regression Test","P2","More Drill-down","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Widget Rendering","User","Web","Check nested widget levels should render correctly with transition UI","Widget with nested items hierarchy","HomePage record with content.blocks exists for the user","1. Configure widget with items containing nested items
+2. Open the home screen
+3. Navigate through widget levels","1. Nested levels render correctly
+2. Transition UI between levels works smoothly
+3. Back navigation returns to previous level","Mobile","Manual","Regression Test","P2","Nested Widgets","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Verify HMAC signature should be valid when external server receives EkoAI request","","EkoAI system is running / API keys are configured","1. External server receives a request from EkoAI
+2. Verify EkoAI-Signature header
+3. Compute HMAC-SHA256 over payload with shared key","1. Signature matches the computed HMAC-SHA256
+2. Payload integrity is confirmed
+3. Request is accepted by external server","API","Manual","Smoke Test","P1","HMAC Verification","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check API key hash should be stored as SHA-256 when creating new key","","EkoAI system is running / API keys are configured","1. Create a new API key for Eko integration
+2. Observe storage","1. keyHash = SHA-256 of the raw key
+2. Raw key shown only once at creation
+3. Stored hash used for all future verifications","API","Manual","Smoke Test","P1","Key Hash Storage","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check API key prefix should show first 8 characters for identification","","EkoAI system is running / API keys are configured","1. Create an API key
+2. View the key in admin UI","1. keyPrefix shows first 8 characters (e.g. sak_a1b2)
+2. Prefix is visible for identification
+3. Full key is not exposed after creation","API","Manual","Sanity Test","P2","Key Prefix","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check request should be rejected when HMAC signature is missing","","EkoAI system is running / API keys are configured","1. External server receives request without EkoAI-Signature header
+2. Attempt to process","1. Returns HTTP 401/403
+2. Request is rejected
+3. No data is processed","API","Manual","Regression Test","P1","Missing Signature","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check request should be rejected when payload is tampered after signing","Modified request body","EkoAI system is running / API keys are configured","1. Intercept request from EkoAI
+2. Modify the request body after signing
+3. Send to external server","1. Signature mismatch is detected
+2. External server rejects with 401/403
+3. Tampered data is not processed","API","Manual","Regression Test","P1","Tampered Payload","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check request should be rejected when using revoked API key","API key with status=revoked","EkoAI system is running / API keys are configured","1. Revoke an API key (set status=revoked)
+2. Use the revoked key in a request","1. verify() function fails for revoked key
+2. Request is rejected
+3. HTTP 401/403 is returned","API","Manual","Regression Test","P1","Revoked Key","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check request should be rejected when API key scope does not match","API key with scope=home-page used for different scope","EkoAI system is running / API keys are configured","1. Use an API key with scope=home-page
+2. Attempt to access a different scope endpoint","1. Scope check fails
+2. Request rejected with 403
+3. Error indicates scope mismatch","API","Manual","Regression Test","P1","Scope Mismatch","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check API key should be stored encrypted and not exposed in plaintext via APIs","","EkoAI system is running / API keys are configured","1. Create an API key
+2. Check process step config storage
+3. Query via API","1. apiKey is stored encrypted in database
+2. Not exposed in plaintext via any API endpoint
+3. Only key hash and prefix are accessible","API","Manual","Regression Test","P1","Encrypted Storage","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Security","Admin","API","Check network-scoped API key listing should return only keys for that network","Multiple networks with different API keys","EkoAI system is running / API keys are configured","1. Create API keys for different networks
+2. List API keys for a specific networkId","1. Only keys belonging to queried network are returned
+2. Keys from other networks are not visible
+3. Network isolation is maintained","API","Manual","Regression Test","P2","Network Scoping","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check job run should proceed when status check endpoint returns 200","","Job has been triggered / Status check endpoint is configured","1. EkoAI calls /status-check on external endpoint
+2. Endpoint returns HTTP 200","1. ScheduledJobRun proceeds with audience resolution
+2. Processing pipeline continues normally
+3. Status check is logged as passed","API","Manual","Smoke Test","P1","Status Check Pass","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check status check should be called before audience resolution starts","","Job has been triggered / Status check endpoint is configured","1. Trigger a job with status check configured
+2. Monitor the execution order","1. Status check is called first
+2. Processing does not start until status check passes
+3. Execution order: status check > audience resolution > processing","API","Manual","Sanity Test","P2","Execution Order","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check job run should be immediately FAILED when status check returns 4xx","","Job has been triggered / Status check endpoint is configured","1. Status check endpoint returns HTTP 400 or 404
+2. Observe ScheduledJobRun status","1. ScheduledJobRun immediately marked FAILED
+2. No audience processing started
+3. Error logged with status code details","API","Manual","Regression Test","P1","4xx Status Check","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check job run should be immediately FAILED when status check returns 5xx","","Job has been triggered / Status check endpoint is configured","1. Status check endpoint returns HTTP 500 or 503
+2. Observe ScheduledJobRun status","1. ScheduledJobRun immediately marked FAILED
+2. No processing begins
+3. Server error is logged","API","Manual","Regression Test","P1","5xx Status Check","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check job run should be FAILED when status check does not respond within 10 seconds","","Job has been triggered / Status check endpoint is configured","1. Status check endpoint does not respond within 10 seconds
+2. Observe ScheduledJobRun status","1. ScheduledJobRun immediately marked FAILED
+2. Timeout treated as failure
+3. No processing begins after timeout","API","Manual","Regression Test","P1","Status Check Timeout","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check status check should handle unexpected response format gracefully","Endpoint returns 200 with empty body","Job has been triggered / Status check endpoint is configured","1. Status check endpoint returns HTTP 200
+2. Response body is empty or non-JSON","1. System handles based on HTTP status code
+2. 200 status accepted regardless of body content
+3. Processing proceeds normally","API","Manual","Regression Test","P2","Unexpected Format","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Status Check","Admin","API","Check status check should not be cached between consecutive runs","","Job has been triggered / Status check endpoint is configured","1. Trigger a job run - status check passes
+2. Take status check endpoint offline
+3. Trigger next job run","1. Each run performs a fresh status check
+2. Second run fails because endpoint is offline
+3. No cached result from previous run","API","Manual","Regression Test","P2","No Caching","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check ScheduleJob CRUD operations should work correctly","","EkoAI system is running / Database is connected","1. Create a new ScheduleJob
+2. Read the created job
+3. Update job fields
+4. Soft-delete the job","1. Create: job is persisted with all fields
+2. Read: returns full job configuration
+3. Update: changes reflected immediately
+4. Delete: soft-delete sets isDeleted=true / record preserved","API","Manual","Smoke Test","P1","CRUD Operations","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check ScheduleJobRun should be created with config and audience snapshots","","EkoAI system is running / Database is connected","1. Trigger a job run
+2. Inspect the ScheduleJobRun record","1. scheduleJobStep snapshot contains frozen config
+2. scheduleJobAudience contains resolved users
+3. Snapshots are immutable after creation","API","Manual","Smoke Test","P1","Run Snapshots","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check ScheduleJobRunUser should track per-user execution state","","EkoAI system is running / Database is connected","1. Trigger a job run
+2. Inspect ScheduleJobRunUser records","1. Records contain: run.process.status
+2. run.process.result populated after callback
+3. run.actions.homePage.status tracks delivery state","API","Manual","Smoke Test","P1","User Tracking","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check optimistic concurrency should prevent data corruption on simultaneous writes","","EkoAI system is running / Database is connected","1. Two workers attempt to update same ScheduleJobRunUser simultaneously
+2. Both use CosmosDB _etag","1. One worker succeeds in writing
+2. Other gets conflict error (412)
+3. Conflicted worker retries and sees updated state
+4. No data corruption occurs","API","Manual","Regression Test","P1","Optimistic Concurrency","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check system should handle database connection failures gracefully","","EkoAI system is running / Database is connected","1. Database connection is temporarily lost
+2. Observe system behavior","1. Error is caught and logged
+2. Affected operations retried or marked as failed
+3. System recovers when connection is restored","API","Manual","Regression Test","P2","DB Connection Loss","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check dynamic BullMQ queue should be created per run and cleaned up after completion","","EkoAI system is running / Database is connected","1. Trigger a job run
+2. Observe queue creation
+3. Wait for run to complete","1. Dynamic queue created for this specific run
+2. Queue handles action messages for the run
+3. Queue cleaned up (obliterate) after completion","API","Manual","Regression Test","P2","Dynamic Queue","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check Redis keys should be cleaned up after run completes","","EkoAI system is running / Database is connected","1. Trigger multiple job runs
+2. Observe Redis key count after each run completes","1. Orphaned Redis keys cleaned up via queue.obliterate
+2. No key accumulation over time
+3. Redis memory usage remains stable","API","Manual","Regression Test","P2","Redis Cleanup","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check HomePage indexes should support fast lookups by user and network","","EkoAI system is running / Database is connected","1. Create multiple HomePage records
+2. Call homePage.getLatest for a specific user","1. Index on { userId / networkId / expiresAt / createdAt } is used
+2. Query executes efficiently
+3. Results returned without full collection scan","API","Manual","Regression Test","P2","Index Performance","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check Network ekoConfig should store Eko connection details securely","","EkoAI system is running / Database is connected","1. Configure network with ekoConfig.baseUrl and ekoConfig.apiKey
+2. Inspect storage","1. ekoConfig stored with network record
+2. apiKey not exposed in plaintext
+3. Connection details used for Eko API calls","API","Manual","Regression Test","P2","Network Config","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Database and Infra","Admin","API","Check ApiKey indexes should enable efficient verification lookups","","EkoAI system is running / Database is connected","1. Create multiple API keys
+2. Verify one API key via request","1. Index on { keyHash / status } used for lookup
+2. Verification completes in O(1) time
+3. No full table scan needed","API","Manual","Regression Test","P2","Key Index","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Race Conditions","Admin","API","Check _etag concurrency should resolve multi-action race between two workers","","Multiple workers are running concurrently","1. Two action workers complete last two actions for same user concurrently
+2. Both attempt to write final status","1. _etag concurrency ensures only one write succeeds
+2. Other worker retries and sees updated state
+3. Final aggregated status is correct","API","Manual","Smoke Test","P1","Multi-Action Race","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Race Conditions","Admin","API","Check optimistic concurrency should resolve cutoff vs action completion race","","Multiple workers are running concurrently","1. Action completes at exact moment cutoff processes same user
+2. Both attempt to update status","1. Whoever writes _etag first wins
+2. Terminal states are not overwritable
+3. Data remains consistent regardless of race outcome","API","Manual","Smoke Test","P1","Cutoff vs Action","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Race Conditions","Admin","API","Check duplicate orchestrator invocations should not cause duplicate processing","","Multiple workers are running concurrently","1. Two orchestrator scans overlap processing same candidates
+2. Both attempt to claim same user","1. Workers use _etag on ScheduleJobRunUser
+2. Only one worker claims and processes
+3. Other worker retries and skips already-claimed records","API","Manual","Regression Test","P1","Duplicate Orchestrator","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Race Conditions","Admin","API","Check concurrent writes by cutoff and action workers should not corrupt data","","Multiple workers are running concurrently","1. Cutoff worker and action worker write to same record simultaneously
+2. Observe data consistency","1. Optimistic concurrency resolves conflict
+2. Loser retries and reads latest state
+3. No partial or inconsistent writes","API","Manual","Regression Test","P1","Concurrent Writes","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Race Conditions","Admin","API","Check system should handle burst of concurrent triggers without data loss","Multiple jobs with same nextRun time","Multiple workers are running concurrently","1. Configure multiple jobs with identical nextRun time
+2. Scheduler tick fires for all simultaneously","1. Each job gets its own ScheduleJobRun
+2. No job is skipped or processed twice
+3. All runs complete independently","API","Manual","Regression Test","P1","Burst Triggers","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > Race Conditions","Admin","API","Check worker recovery should handle mid-process failures without duplicate actions","Worker crashes during delivery","Multiple workers are running concurrently","1. Action worker crashes mid-delivery
+2. BullMQ retries the message
+3. New worker picks up the message","1. New worker checks current state via _etag
+2. If delivery completed / skips duplicate action
+3. If delivery incomplete / resumes processing","API","Manual","Regression Test","P1","Worker Recovery","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check job should be created when POSTing valid payload to create endpoint","Valid ScheduleJob payload","User has API access / EkoAI backend is running","1. POST to create ScheduleJob endpoint with valid payload
+2. Observe response","1. Job is created successfully
+2. HTTP 201 response with job ID
+3. Job is visible in dashboard","API","Manual","Smoke Test","P1","Create API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check full job configuration should be returned when getting job by ID","","User has API access / EkoAI backend is running","1. GET ScheduleJob by job ID
+2. Observe response","1. Returns full job configuration
+2. All fields populated: name / schedule / endpoint / audience
+3. HTTP 200 response","API","Manual","Smoke Test","P1","Get API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check job should be updated and nextRun recalculated when PATCHing trigger config","Updated trigger fields","User has API access / EkoAI backend is running","1. PUT/PATCH ScheduleJob with updated fields
+2. Include trigger config changes","1. Job is updated successfully
+2. nextRun recalculated if trigger changed
+3. HTTP 200 response with updated data","API","Manual","Smoke Test","P1","Update API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check job should be soft-deleted when calling DELETE endpoint","","User has API access / EkoAI backend is running","1. DELETE ScheduleJob by job ID
+2. Observe response and database","1. Soft-delete: isDeleted=true
+2. HTTP 200/204 response
+3. Job no longer appears in active list","API","Manual","Smoke Test","P1","Delete API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check scheduler tick should process due jobs when calling trigger endpoint","","User has API access / EkoAI backend is running","1. POST to /_internal/scheduled-job-action-orchestrator/trigger
+2. Due jobs exist","1. Scheduler tick is triggered
+2. Due jobs picked up and processed
+3. Returns success response","API","Manual","Smoke Test","P1","Trigger API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check HomePage should be created when POSTing valid payload with valid API key","Valid HomePage payload with x-api-key","User has API access / EkoAI backend is running","1. POST /api/v1/home-page with valid payload
+2. Include valid x-api-key header","1. HomePage record is created
+2. HTTP 201 response with record ID
+3. Record accessible via getLatest","API","Manual","Smoke Test","P1","HomePage Create API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check HomePage should be updated when PUTting with valid homePageId","Updated content","User has API access / EkoAI backend is running","1. PUT /api/v1/home-page/:id with updated content
+2. Include valid x-api-key header","1. HomePage record is updated
+2. HTTP 200 response
+3. Updated content reflected in getLatest","API","Manual","Smoke Test","P1","HomePage Update API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check latest HomePage should be returned when calling getLatest RPC","","User has API access / EkoAI backend is running","1. Call v0/homePage.getLatest with authenticated user session
+2. User has active HomePage records","1. Returns latest non-expired HomePage
+2. Authenticated session verified
+3. Content is complete and up-to-date","API","Manual","Smoke Test","P1","GetLatest RPC","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check 400 error should be returned when creating job with missing required fields","Payload missing name / endpoint / audience","User has API access / EkoAI backend is running","1. POST to create ScheduleJob with incomplete payload
+2. Observe response","1. HTTP 400 response
+2. Error details indicate missing required fields
+3. No job is created","API","Manual","Regression Test","P1","Create Validation","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check 404 error should be returned when getting non-existent job ID","Non-existent job ID","User has API access / EkoAI backend is running","1. GET ScheduleJob with a non-existent ID
+2. Observe response","1. HTTP 404 response
+2. Error message indicates job not found
+3. No data is returned","API","Manual","Regression Test","P1","Not Found","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check callback endpoint should reject requests with invalid payload format","Malformed callback payload","User has API access / EkoAI backend is running","1. POST callback with malformed or invalid payload
+2. Observe response","1. HTTP 400 response
+2. Error indicates invalid payload format
+3. No ScheduleJobRunUser modified","API","Manual","Regression Test","P2","Invalid Callback","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check paginated list should return correct results for ScheduleJobs","Multiple jobs exist","User has API access / EkoAI backend is running","1. GET all ScheduleJobs for a network
+2. Check pagination parameters","1. Returns paginated list of jobs
+2. Pagination metadata included (page / limit / total)
+3. All active jobs accessible through pagination","API","Manual","Regression Test","P2","Pagination","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check job run history should be paginated when many runs exist","Job with many past runs","User has API access / EkoAI backend is running","1. GET ScheduleJobRuns for a job with many past runs
+2. Check pagination","1. Returns paginated list of past runs
+2. Each run includes status and timestamps
+3. Pagination allows browsing all history","API","Manual","Regression Test","P2","Run History API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check enable/disable toggle should work when PATCHing isEnabled field","","User has API access / EkoAI backend is running","1. PATCH job with isEnabled=true
+2. Then PATCH with isEnabled=false","1. Job enable status toggles correctly
+2. Enabled job included in scheduler
+3. Disabled job excluded from scheduler","API","Manual","Regression Test","P1","Toggle API","Eko 18.0","Sharp"
+"Agentic > Scheduled Jobs > API Endpoints","Admin","API","Check run statistics should be returned correctly from stats endpoint","","User has API access / EkoAI backend is running","1. GET stats endpoint for a job with past runs
+2. Observe response","1. Returns run statistics: total runs / success rate
+2. Stats reflect actual run history
+3. Data is aggregated correctly","API","Manual","Regression Test","P2","Stats API","Eko 18.0","Sharp"

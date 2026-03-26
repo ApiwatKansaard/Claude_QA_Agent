@@ -27,8 +27,12 @@ If neither URL is provided: ask for at least one before proceeding.
 
 | Tool | Purpose | Call |
 |---|---|---|
-| Figma MCP | UI flows, component states, interaction details | `get_design_context`, `get_screenshot`, `get_metadata` |
+| Figma MCP (local) | UI structure, component states, layout | `mcp_figma_get_figma_data(fileKey, nodeId, depth=2)` |
+| Figma MCP (remote) | Visual screenshot only (use sparingly) | `mcp_figma-remote-_get_screenshot(fileKey, nodeId)` |
 | Confluence (Atlassian MCP) | PRD, acceptance criteria, API contracts | `mcp_atlassian_read_confluence_page`, `mcp_atlassian_search_confluence_pages` |
+
+> ⚠️ **Figma strategy:** See `references/figma-strategy.md` for tool selection rules.
+> NEVER use `mcp_figma-remote-_get_design_context` — it hangs on complex nodes.
 
 ## Execution Steps
 
@@ -121,12 +125,13 @@ This step is **read-only** and **non-blocking** — if no match is found, procee
 
 1. **Fetch specs in parallel:**
 
-   **Figma URL:**
+   **Figma URL** (see `references/figma-strategy.md`):
    ```
-   mcp_figma-remote-_get_design_context(fileKey, nodeId)   → UI hierarchy, annotations, interaction flows
-   mcp_figma-remote-_get_screenshot(fileKey, nodeId)       → Visual — identify loading/empty/error/success states
-   get_metadata(node_url)         → Component variants and named states
+   mcp_figma_get_figma_data(fileKey, nodeId, depth=2)      → Component structure, layout, variants (FAST — use this)
+   mcp_figma-remote-_get_screenshot(fileKey, nodeId)        → Visual reference only (use sparingly, can be slow)
    ```
+   ⚠️ NEVER use `mcp_figma-remote-_get_design_context` — hangs indefinitely on complex nodes.
+   Fetch nodes ONE AT A TIME (sequential, not parallel) to avoid MCP overload.
 
    **Confluence URL** — extract **numeric page ID** from URL path (`/pages/XXXXXXXX/`):
    ```
