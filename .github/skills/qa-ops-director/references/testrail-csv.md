@@ -5,7 +5,7 @@
 TestRail imports by column position. The header row must match exactly:
 
 ```
-Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platform,TestMethod,Type,P,References,Release version,QA Responsibility
+Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platform,TestMethod,Type,P,References,Release version,QA Responsibility,TestRailID
 ```
 
 | # | Column | Required | Accepted Values / Notes |
@@ -25,6 +25,9 @@ Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platfor
 | 13 | References | No | Short component/feature tag, e.g. `Mode Enforcement`, `File Preview`, `Permission Filtering` |
 | 14 | Release version | No | e.g. `Eko 18.0`, `EGT 18.1` — sprint or release this test targets |
 | 15 | QA Responsibility | No | Assignee name, e.g. `Peam`, `Sharp` |
+| 16 | TestRailID | No | TestRail case ID written back after import, e.g. `C1548642`. Empty until `/qa:import-testrail` runs. **Never send this column to TestRail import** — it is for internal traceability only. |
+
+> **Col 16 is append-only.** TestRail import config maps cols 0–14 only — col 15 (index) is silently ignored on re-import. This keeps backward compatibility with the import config.
 
 ---
 
@@ -152,6 +155,10 @@ import csv
 STEPS_COL = 6      # Steps (0-indexed)
 EXPECTED_COL = 7   # Expected Result (0-indexed)
 
+# Col 16 = TestRailID (index 15) — optional, written back after /qa:import-testrail
+# Accepted values: empty string OR "C{digits}" e.g. "C1548642"
+TESTRAIL_ID_COL = 15
+
 # Step 1: Write via csv.writer with QUOTE_ALL
 with open('output.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.writer(f, quoting=csv.QUOTE_ALL)
@@ -161,11 +168,14 @@ with open('output.csv', 'w', newline='', encoding='utf-8') as f:
 with open('output.csv', 'r', encoding='utf-8') as f:
     rows = list(csv.reader(f))
 
-bad_cols = [(i+1, len(r)) for i, r in enumerate(rows) if len(r) != 15]
+# Accept 15 cols (before import) or 16 cols (after write-back)
+bad_cols = [(i+1, len(r)) for i, r in enumerate(rows) if len(r) not in (15, 16)]
 comma_cells = []
 newline_wrong_col = []
 for i, r in enumerate(rows[1:], 2):
     for j, cell in enumerate(r):
+        if j == TESTRAIL_ID_COL:
+            continue  # TestRailID: skip comma/newline checks
         if ',' in cell:
             comma_cells.append((i, j))
         if ('\n' in cell or '\r' in cell) and j not in (STEPS_COL, EXPECTED_COL):
@@ -174,7 +184,8 @@ for i, r in enumerate(rows[1:], 2):
 assert not bad_cols, f"Column count errors: {bad_cols}"
 assert not comma_cells, f"Embedded commas found: {comma_cells}"
 assert not newline_wrong_col, f"Newlines in wrong columns: {newline_wrong_col}"
-print(f"PASS: {len(rows)-1} rows / all 15 cols / no commas / newlines only in Steps+Expected")
+col_count = len(rows[0]) if rows else 0
+print(f"PASS: {len(rows)-1} rows / {col_count} cols / no commas / newlines only in Steps+Expected")
 ```
 
 Do NOT ship the CSV without running this check. If any assertion fails, fix the offending cells before outputting.

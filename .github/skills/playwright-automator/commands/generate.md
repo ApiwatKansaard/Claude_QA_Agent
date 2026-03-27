@@ -24,8 +24,10 @@
    - Parse CSV with these columns:
      ```
      Section, Role, Channel, Title, Test Data, Preconditions, Steps, Expected Result,
-     Platform, TestMethod, Type, P, References, Release version, QA Responsibility
+     Platform, TestMethod, Type, P, References, Release version, QA Responsibility, TestRailID
      ```
+   - Col 16 (`TestRailID`) is optional — present only after `/qa:import-testrail` has run
+   - If `TestRailID` is empty for a row, generate the test but leave annotation blank with a TODO comment
    - If `section-filter` provided, only include matching sections
 
 4. **Ask user about target repo:**
@@ -99,6 +101,9 @@ export class DashboardPage extends BasePage {
 ```
 
 **B. Test file:**
+
+Map `TestRailID` (col 16) → Playwright `annotation` on every test. Use `annotation` (not tag) so C-IDs are queryable at runtime without polluting the test name or grep filters.
+
 ```typescript
 import { test, expect } from '../../src/fixtures/test-fixtures';
 import { DashboardPage } from '../../src/pages/scheduled-jobs/dashboard.page';
@@ -111,15 +116,38 @@ test.describe('Scheduled Jobs — Dashboard', { tag: ['@smoke', '@scheduled-jobs
     await dashboard.goto();
   });
 
-  test('should display job list on Dashboard page @smoke @P1', async ({ page }) => {
-    // From CSV: Steps 1-3, Expected Results 1-3
-    await expect(dashboard.jobList).toBeVisible();
-    // Verify columns exist
-    const headers = page.locator('th');
-    await expect(headers).toContainText(['name', 'status', 'schedule']);
-  });
+  // TestRailID present → add annotation
+  test('should display job list on Dashboard page',
+    {
+      annotation: { type: 'TestRail', description: 'C1548642' },
+      tag: ['@smoke', '@P1'],
+    },
+    async ({ page }) => {
+      // From CSV: Steps 1-3, Expected Results 1-3
+      await expect(dashboard.jobList).toBeVisible();
+      const headers = page.locator('th');
+      await expect(headers).toContainText(['name', 'status', 'schedule']);
+    }
+  );
+
+  // TestRailID missing → placeholder annotation with TODO
+  test('should show empty state when no jobs exist',
+    {
+      annotation: { type: 'TestRail', description: '' }, // TODO: run /qa:import-testrail to get C-ID
+      tag: ['@regression', '@P2'],
+    },
+    async ({ page }) => {
+      // ...
+    }
+  );
 });
 ```
+
+**Rules for annotation:**
+- If `TestRailID` column exists and has value → `annotation: { type: 'TestRail', description: 'C{id}' }`
+- If `TestRailID` is empty → `annotation: { type: 'TestRail', description: '' }` + comment `// TODO: run /qa:import-testrail to populate`
+- **Never** use tag `@C1548642` — tags pollute grep filters and test names
+- The annotation is read by `/auto:send-results` to map test outcome → TestRail case ID
 
 **C. Update fixtures** if new page objects were created.
 

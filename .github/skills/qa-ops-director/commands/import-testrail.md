@@ -328,7 +328,97 @@ If any cases failed, also report:
 
 ---
 
-### Phase 5 — Update Cache (MANDATORY)
+### Phase 5 — Write-Back Case IDs to Sprint CSV (MANDATORY)
+
+**After every import, write TestRail case IDs back into the sprint CSV as col 16 (`TestRailID`).**
+
+This links each test case row to its canonical TestRail ID for automation code generation and result reporting.
+
+#### Logic
+
+Build a lookup from the import results:
+```python
+# From Phase 4 import results — every ADD and UPDATE has a case_id
+id_map = {}
+for result in import_results:  # [{title, section, case_id, action}, ...]
+    key = f"{result['section']}|{result['title']}"
+    id_map[key] = f"C{result['case_id']}"
+```
+
+For SKIP cases (exact match — already in suite), look up case_id from the cached suite:
+```python
+# cases in suite cache already have IDs
+for row in suite_cache_cases:
+    key = f"{row['section']}|{row['title']}"
+    if key not in id_map:
+        id_map[key] = f"C{row['case_id']}"
+```
+
+#### Update Script
+
+```python
+import csv, re
+
+def write_back_testrail_ids(csv_path: str, id_map: dict) -> dict:
+    """
+    Adds or updates col 16 (TestRailID) in the sprint CSV.
+    id_map: {"Section|Title" -> "C1548642"}
+    Returns: {"matched": n, "unmatched": n}
+    """
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        rows = list(csv.reader(f))
+
+    header = rows[0]
+    if len(header) == 15:
+        header.append('TestRailID')
+    elif len(header) == 16:
+        header[15] = 'TestRailID'  # normalize header
+
+    matched = 0
+    unmatched = []
+
+    for i, row in enumerate(rows[1:], 1):
+        # Pad row to 16 cols if needed
+        while len(row) < 16:
+            row.append('')
+
+        section = row[0].strip()
+        title = row[3].strip()
+        key = f"{section}|{title}"
+        case_id = id_map.get(key, '')
+
+        if case_id:
+            row[15] = case_id
+            matched += 1
+        else:
+            unmatched.append(title)
+
+        rows[i] = row
+
+    rows[0] = header
+
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+        writer.writerows(rows)
+
+    return {"matched": matched, "unmatched": unmatched}
+```
+
+Run this script as part of the import script (same background process, after all cases are created/updated).
+
+#### Report write-back results
+
+```markdown
+### CSV Write-Back
+✅ {n} rows updated with TestRail case IDs in `{sprint-folder}/{feature}-testcases.csv`
+⚠️ {n} rows unmatched (no case ID written) — titles may differ between CSV and suite
+```
+
+If `unmatched > 0`, list the unmatched titles so the user can investigate.
+
+---
+
+### Phase 6 — Update Cache (MANDATORY)
 
 **ALWAYS update cache after any write operation.**
 

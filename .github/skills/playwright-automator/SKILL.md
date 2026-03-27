@@ -55,7 +55,8 @@ Read the corresponding command file from `./commands/` for the exact workflow an
 | `/auto:conflicts` | Detect cross-sprint conflicts | `[sprint-folder]` | [conflicts.md](./commands/conflicts.md) |
 | `/auto:health` | Full test suite health check | — | [health.md](./commands/health.md) |
 | `/auto:triage` | Analyze failed tests, classify root cause, auto-fix | `[results-path]` | [triage.md](./commands/triage.md) |
-| `/auto:pipeline` | **Full pipeline:** run → triage → fix/report → verify | `[tag or file]` `[project]` | [pipeline.md](./commands/pipeline.md) |
+| `/auto:send-results` | Send Playwright results to TestRail via API | `[run_id]` `[results-file]` | [send-results.md](./commands/send-results.md) |
+| `/auto:pipeline` | **Full pipeline:** run → triage → fix/report → verify → sync TestRail | `[tag or file]` `[project]` | [pipeline.md](./commands/pipeline.md) |
 
 ---
 
@@ -72,6 +73,7 @@ Stage 3: DISPATCH   →  Route by classification:
    └─ ENVIRONMENT     →  Log only
 Stage 4: VERIFY     →  Re-run tests after fixes
 Stage 5: REPORT     →  Final pipeline summary
+Stage 6: SYNC       →  /auto:send-results (push pass/fail to TestRail — runs if TESTRAIL_RUN_ID is set)
 ```
 
 See [pipeline.md](./commands/pipeline.md) for the full workflow.
@@ -307,6 +309,7 @@ When `/auto:generate` runs, the workflow is:
 | "map test cases to automation" | `/auto:map` |
 | "update selectors for..." | `/auto:update-selectors` |
 | "analyze failures" / "triage test results" / "why did the test fail" | `/auto:triage` |
+| "send results to testrail" / "sync results" / "อัปเดตผลไป testrail" | `/auto:send-results` |
 | "run and fix" / "full pipeline" / "run tests and analyze" / "รันแล้วแก้" | `/auto:pipeline` |
 
 ---
@@ -317,19 +320,28 @@ This skill is **complementary** to `qa-ops-director`:
 
 ```
 qa-ops-director pipeline:
-  /qa:test-plan → generates test-plan.md + testcases.csv
-                        ↓
+  /qa:test-plan        → generates test-plan.md + testcases.csv (15 cols)
+                               ↓
+  /qa:import-testrail  → imports to TestRail → writes back C-IDs to CSV (col 16: TestRailID)
+                               ↓
 playwright-automator picks up:
-  /auto:generate → reads testcases.csv → generates Playwright code
-                        ↓
+  /auto:generate       → reads testcases.csv (with TestRailIDs) → generates Playwright code
+                         each test gets annotation: { type: 'TestRail', description: 'C{id}' }
+                               ↓
 automation-reviewer validates:
-  /auto:review → checks quality + conflicts → outputs report
-                        ↓
-test-result-analyzer triages:
-  /auto:triage → analyzes failures → bug reports or auto-fixes
+  /auto:review         → checks quality + conflicts → outputs report
+                               ↓
+qa-ops-director creates run:
+  /qa:create-regression → creates TestRail Test Run → returns run_id
+                               ↓
+playwright-automator executes:
+  /auto:run            → runs tests → results.json
+                               ↓
+  /auto:send-results [run_id] → reads annotations → pushes pass/fail to TestRail
 
 OR run everything at once:
-  /auto:pipeline → run → triage → fix/report → verify → summary
+  /auto:pipeline       → run → triage → fix/report → verify → sync TestRail (Stage 6)
+  (set TESTRAIL_RUN_ID in .env to enable auto-sync)
 ```
 
 **Shared artifacts:**
