@@ -15,14 +15,14 @@ When a skill needs product context, it reads `.sprint.json` first. If not found,
 | Field | Value |
 |---|---|
 | **Jira project** | `AE` |
-| **TestRail suite** | `S5137` |
-| **Jira board ID** | `32` |
+| **TestRail suite** | `S3924` (`[Main] Agentic`, Eko app project ID: 1) |
+| **Jira board ID** | `530` (Broccoli board) |
 | **Archive path** | `archive/agentic/` |
 | **E2E test path** | `tests/e2e/agentic/` |
 | **API test path** | `tests/api/agentic/` |
 | **Pages path** | `src/pages/agentic/` |
 | **Selectors path** | `selectors/agentic/` |
-| **Features** | scheduled-jobs, chat-export, ai-tasks |
+| **Features** | scheduled-jobs, sharepoint-km, chat-export, ai-tasks |
 
 ---
 
