@@ -162,9 +162,12 @@ POST /add_run/{project_id}
   "name": "[Feature Name] — Smoke Run",
   "description": "Smoke test run — {n} cases. Source: {csv}. Sprint: {sprint-folder}.",
   "milestone_id": {milestone_id},
+  "include_all": false,
   "case_ids": [smoke_ids]
 }
 ```
+
+> ⚠️ `"include_all": false` is **required** — without it TestRail ignores `case_ids` and includes all suite cases.
 
 Save `smoke_run_id`.
 
@@ -179,6 +182,7 @@ POST /add_run/{project_id}
   "name": "[Feature Name] — Regression Run",
   "description": "Regression + Sanity test run — {n} cases. Source: {csv}. Sprint: {sprint-folder}.",
   "milestone_id": {milestone_id},
+  "include_all": false,
   "case_ids": [regression_ids]
 }
 ```
