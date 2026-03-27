@@ -1,144 +1,236 @@
-# /qa:create-regression [feature or sprint name] [suite_id] [impact description]
+# /qa:create-regression [feature or sprint name] [suite_id]
 
 **Triggers:** testrail-manager agent
 **References:** [agent-testrail-manager.md](../references/agent-testrail-manager.md), [testrail-api.md](../references/testrail-api.md), [ai-llm-testing.md](../references/ai-llm-testing.md)
 
 ## What This Command Does
 
-Create a TestRail milestone and regression test run for a sprint or feature release.
-Analyzes which sections are impacted by the new feature, proposes a scoped regression plan,
-shows it for user review, then creates the milestone and test run via API with the correct case IDs.
+Create a TestRail **milestone** + **2 test runs** (Smoke + Regression) for a sprint or feature release.
+
+Sources case IDs from the active sprint CSV (col 16 `TestRailID`) — no manual impact analysis needed.
+Groups cases by `Type` column:
+- `Smoke Test` → Smoke run
+- `Regression Test` + `Sanity Test` → Regression run
+
+Shows a plan for review, then creates everything via API in one shot.
 
 ## Parameters
 
 | Parameter | Required | Notes |
 |---|---|---|
-| `[feature or sprint name]` | Yes | e.g., "AI Scheduled Jobs", "Sprint Broccoli-F", "EGT 18.0" |
-| `[suite_id]` | No | TestRail suite to scope the run to — defaults to `3924` ([Main] Agentic) |
-| `[impact description]` | No | What areas this feature touches — used to select regression sections |
+| `[feature or sprint name]` | Yes | e.g., "AI Scheduled Jobs", "sharp-test-001" |
+| `[suite_id]` | No | TestRail suite ID — defaults to `5277` (Scheduled Jobs sprint suite) |
 
 **Team defaults:** project `1`, host `ekoapp20.testrail.io`
 
-If `[impact description]` is not provided, ask:
-> "Which feature areas does [feature name] impact? (e.g., 'Base Skill, Internal Library, Chat UI') — or should I include all P0/P1 cases?"
+---
 
 ## Execution Steps
 
-### 1. Gather Context
+### Phase 1 — Detect Sprint CSV
 
-- If Jira sprint is available, fetch sprint issues via Atlassian MCP:
-  ```
-  mcp_atlassian_search_jira_issues(jql="project = AE AND sprint = '[sprint name]' AND issuetype in (Story, Task)")
-  ```
-  Use issue summaries to infer which feature areas are affected.
+Use standard sprint folder detection:
+1. Scan QA_Agent workspace root for `agentic-*/` or `sprint-*/` (not in `archive/`)
+2. One found → use it. Multiple → highest version. None → ask user.
 
-- If impact description is provided, use it directly to identify affected sections.
+Read `{sprint-folder}/*-testcases.csv` — parse with Python csv.DictReader.
 
-### 2. Fetch Suite Structure
+**Required columns:**
+- `TestRailID` (col 16) — C-IDs written back by `/qa:import-testrail`
+- `Type` — `Smoke Test` / `Sanity Test` / `Regression Test`
+- `P` — `P0` / `P1` / `P2`
+- `Section` — for grouping summary
+- `Channel` — `Web` / `API` (for breakdown)
+
+If any row has empty `TestRailID`:
+> ⚠️ Warning: {n} rows have no TestRailID — run `/qa:import-testrail` first to populate C-IDs.
+> Proceed with {available} cases? (yes / cancel)
+
+---
+
+### Phase 2 — Build Case Sets from CSV
+
+Parse and group C-IDs:
+
+```python
+import csv, re
+
+smoke_ids = []
+regression_ids = []
+missing_ids = []
+
+with open(csv_path) as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        tid = row.get('TestRailID', '').strip()
+        type_ = row.get('Type', '').strip()
+        if not tid:
+            missing_ids.append(row['Title'])
+            continue
+        case_id = int(re.sub(r'[^0-9]', '', tid))
+        if type_ == 'Smoke Test':
+            smoke_ids.append(case_id)
+        else:  # Regression Test, Sanity Test
+            regression_ids.append(case_id)
+```
+
+**Rules:**
+- `Smoke Test` → smoke run only
+- `Regression Test` → regression run only
+- `Sanity Test` → regression run (grouped with regression)
+- A case goes into exactly one run based on its Type
+
+---
+
+### Phase 3 — Check Google Calendar for Release Date
 
 ```
-GET /get_sections/{project_id}&suite_id={suite_id}&limit=250
-GET /get_cases/{project_id}&suite_id={suite_id}&limit=250  (+ paginate)
+mcp_gcal_list_events(timeMin=today, timeMax=+30days)
 ```
 
-Build section tree and case list with priorities.
+Look for events containing "release", "RC", sprint name, or "cut". Suggest as milestone due date.
+If nothing found → suggest +14 days from today and ask user to confirm.
 
-### 3. Build Regression Scope
+---
 
-Select cases based on impact analysis:
-
-**Priority rules:**
-1. All P0 cases in impacted sections → always include
-2. All P1 cases in impacted sections → always include
-3. P0/P1 cases in adjacent sections (may be affected indirectly) → include with note
-4. P2 cases in directly impacted sections → optional (ask user)
-5. AI Mandatory scenarios (M1–M5 from [ai-llm-testing.md](../references/ai-llm-testing.md)) → always include if feature is AI/LLM
-
-**Exclusion rules:**
-- Platform-specific cases (iOS/Android) unless platform is explicitly in scope
-- Cases marked as blocked or obsolete (if detectable)
-
-### 4. Show Regression Plan for Review (REQUIRED)
+### Phase 4 — Show Plan for Review (REQUIRED — do not skip)
 
 ```markdown
-## Regression Plan — [Feature/Sprint Name]
+## Sprint Regression Plan — [Feature/Sprint Name]
 
-**Milestone:** [feature name] Release — [auto-suggested due date from calendar or ask]
-**Suite:** [suite name] (S[suite_id])
-**Total cases proposed:** N
+**Source:** {sprint-folder}/{csv-filename} ({total} cases total)
+**Suite:** S{suite_id}
 
-### Scope by Section
+---
 
-| Section | P0 | P1 | P2 | Total | Included? |
-|---|---|---|---|---|---|
-| Agentic > Base Skill > Internal Library | 3 | 5 | 4 | 12 | ✅ Direct impact |
-| Agentic > Functional | 2 | 3 | 6 | 11 | ✅ Direct impact |
-| Agentic > UI | 1 | 2 | 3 | 6 | ⚠️ Adjacent |
-| Agentic > iOS > Chat | 2 | 4 | 5 | 11 | ❌ Not in scope (mobile) |
+### Milestone
+**Name:** [Feature Name] — Sprint Release
+**Due date:** [suggested date from calendar or +14d]
 
-**P0 cases included:** N
-**P1 cases included:** N
-**P2 cases included:** N (optional)
+---
 
-### Proposed Milestone
-**Name:** [name]
-**Due date:** [date from calendar or suggested]
+### Test Run 1 — Smoke
+**Name:** [Feature Name] — Smoke Run
+**Cases:** {n} (from Smoke Test type)
 
-### Proposed Test Run
-**Name:** [feature/sprint] Regression — P0+P1
-**Scope:** N cases from X sections
+| Channel | Count |
+|---|---|
+| Web | {n} |
+| API | {n} |
 
-Confirm? (yes / adjust scope / cancel)
+### Test Run 2 — Regression
+**Name:** [Feature Name] — Regression Run
+**Cases:** {n} (Regression Test + Sanity Test)
+
+| Channel | Count | P1 | P2 |
+|---|---|---|---|
+| Web | {n} | {n} | {n} |
+| API | {n} | {n} | {n} |
+
+---
+
+⚠️ Missing TestRailID: {n} cases skipped
+
+Confirm? (yes / adjust / cancel)
 ```
 
-### 5. Check Google Calendar for Release Date
+Wait for user confirmation before proceeding to Phase 5.
 
-```
-mcp_google-calend_list-calendars()
-mcp_google-calend_list-events(calendarId, timeMin=today, timeMax=+30d)
-```
-Look for events with "release", "RC", or sprint name. Use as milestone due date suggestion.
+---
 
-### 6. Create Milestone (after confirmation)
+### Phase 5 — Create Milestone
 
 ```
 POST /add_milestone/{project_id}
 {
-  "name": "[feature] Release",
-  "description": "Regression coverage for [feature name]. Sprint: [sprint]. Sections: [list].",
-  "due_on": [unix_timestamp_of_due_date]
+  "name": "[Feature Name] — Sprint Release",
+  "description": "Sprint: [sprint-folder]. Source: [csv filename]. Smoke: {n} cases. Regression: {n} cases.",
+  "due_on": [unix_timestamp]
 }
 ```
 
-### 7. Create Test Run (after milestone created)
+Save `milestone_id` from response.
+
+---
+
+### Phase 6 — Create Smoke Run
 
 ```
 POST /add_run/{project_id}
 {
-  "suite_id": [suite_id],
-  "name": "[feature/sprint] Regression — P0+P1",
-  "description": "Auto-generated regression run. Impact: [description].",
-  "milestone_id": [created_milestone_id],
-  "case_ids": [array_of_selected_case_ids]
+  "suite_id": {suite_id},
+  "name": "[Feature Name] — Smoke Run",
+  "description": "Smoke test run — {n} cases. Source: {csv}. Sprint: {sprint-folder}.",
+  "milestone_id": {milestone_id},
+  "case_ids": [smoke_ids]
 }
 ```
 
-### 8. Report Results
+Save `smoke_run_id`.
+
+---
+
+### Phase 7 — Create Regression Run
+
+```
+POST /add_run/{project_id}
+{
+  "suite_id": {suite_id},
+  "name": "[Feature Name] — Regression Run",
+  "description": "Regression + Sanity test run — {n} cases. Source: {csv}. Sprint: {sprint-folder}.",
+  "milestone_id": {milestone_id},
+  "case_ids": [regression_ids]
+}
+```
+
+Save `regression_run_id`.
+
+---
+
+### Phase 8 — Report
 
 ```markdown
-## Regression Created ✅
+## ✅ TestRail Milestone + Runs Created
 
-**Milestone:** [name]
+**Milestone:** [Feature Name] — Sprint Release
 🔗 https://ekoapp20.testrail.io/index.php?/milestones/view/{milestone_id}
+📅 Due: {due_date}
 
-**Test Run:** [name]
-🔗 https://ekoapp20.testrail.io/index.php?/runs/view/{run_id}
+---
 
-**Cases in run:** N (P0: X | P1: Y | P2: Z)
-**Sections covered:** [list]
+### 🔵 Smoke Run — R{smoke_run_id}
+🔗 https://ekoapp20.testrail.io/index.php?/runs/view/{smoke_run_id}
+**Cases:** {n} (Web: {n} | API: {n})
 
-Next step: assign the run to your QA engineers and start execution.
+### 🟡 Regression Run — R{regression_run_id}
+🔗 https://ekoapp20.testrail.io/index.php?/runs/view/{regression_run_id}
+**Cases:** {n} (Regression: {n} | Sanity: {n})
+
+---
+
+### Next Steps
+1. Run smoke: `/auto:run @smoke --project=e2e`  then `/auto:run @smoke --project=api`
+2. Send smoke results: `/auto:send-results {smoke_run_id}`
+3. Run regression: `/auto:run @regression`
+4. Send regression results: `/auto:send-results {regression_run_id}`
+
+Or run everything at once: `/auto:pipeline`
 ```
+
+---
+
+## Error Handling
+
+| Error | Action |
+|---|---|
+| No sprint CSV found | Ask user to specify path |
+| All TestRailIDs empty | Abort — run `/qa:import-testrail` first |
+| Some TestRailIDs empty | Warn + proceed with available cases |
+| 400 case not in suite | Log skipped case IDs, continue |
+| Milestone name conflict | Append timestamp suffix to name |
+| 401 Unauthorized | "Check TESTRAIL_EMAIL / TESTRAIL_TOKEN in .env" |
+
+---
 
 ## AI Feature Regression Rules
 

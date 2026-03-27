@@ -40,7 +40,7 @@ Parameters shown in `[brackets]` are positional — parse them from the message 
 | `/qa:fetch-testrail` | testrail-manager | `[suite_id]` `[section_filter]` | [fetch-testrail.md](./commands/fetch-testrail.md) |
 | `/qa:import-testrail` | testrail-manager | `[suite link]` | [import-testrail.md](./commands/import-testrail.md) |
 | `/qa:edit-testrail` | testrail-manager | `[suite_id]` `[section or case filter]` `[change description]` | [edit-testrail.md](./commands/edit-testrail.md) |
-| `/qa:create-regression` | testrail-manager | `[feature or sprint name]` `[suite_id]` `[impact description]` | [create-regression.md](./commands/create-regression.md) |
+| `/qa:create-regression` | testrail-manager | `[feature or sprint name]` `[suite_id]` | [create-regression.md](./commands/create-regression.md) |
 | `/qa:bug-report` | bug-reporter | `[bug description or screenshot]` | [bug-report.md](./commands/bug-report.md) |
 | `/qa:bug-triage` | bug-analyzer | `[Jira bug list or filter URL]` | [bug-triage.md](./commands/bug-triage.md) |
 | `/qa:regression-check` | test-planner + test-case-reviewer | `[release scope or changelog]` | [regression-check.md](./commands/regression-check.md) |
