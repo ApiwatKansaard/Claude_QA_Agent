@@ -267,16 +267,39 @@ If the script crashes mid-import (timeout, network error, etc.):
 
 #### Field Value Rules
 
-| Field | Type | MUST be | Example | Error if wrong |
-|---|---|---|---|---|
-| `custom_supportversion` | **array of int** | `[160]` | `[160]` = Eko 18.0 | `"not a valid array"` if int |
-| `custom_qa_responsibility` | **array of int** | `[26]` | `[26]` = Sharp | `"not a valid array"` if int |
-| `priority_id` | int | `4` or `3` | P1→4, P2→3 | 400 if invalid |
-| `type_id` | int | `19`, `9`, `11` | Smoke→19 | 400 if invalid |
+> ⚠️ **REQUIRED FIELDS — missing any of these returns `400 Bad Request` and the case is NOT created.**
+> Always include all required fields in every `add_case` payload, even if the value is a default.
 
-> **LESSON LEARNED:** Both `custom_supportversion` and `custom_qa_responsibility` are
-> multi-select dropdown fields — the API requires **array format `[id]`** even for single values.
-> Using bare int (e.g., `160` instead of `[160]`) returns: `"Field :custom_supportversion is not a valid array."`
+| Field | Required? | Type | Format | Default / Example | Error if wrong |
+|---|---|---|---|---|---|
+| `title` | ✅ required | string | plain text | — | 400 if missing |
+| `type_id` | ✅ required | int | bare int | Smoke→19, Regression→9 | 400 if invalid |
+| `priority_id` | ✅ required | int | bare int | P1→4, P2→3 | 400 if invalid |
+| `custom_qa_responsibility` | ✅ **required** | **array of int** | `[id]` | `[26]` = Sharp | `"Field :custom_qa_responsibility is a required field."` if missing; `"not a valid array"` if bare int |
+| `custom_platform` | ✅ **required** | **array of int** | `[id]` | `[3]` = Web, `[9]` = API | `"Field :custom_platform is not a valid array."` if bare int; 400 if missing |
+| `custom_supportversion` | optional | array of int | `[id]` | `[160]` = Eko 18.0 | `"not a valid array"` if bare int |
+| `custom_preconds` | optional | string | multi-line | — | — |
+| `custom_steps` | optional | string | multi-line | — | — |
+| `custom_expected` | optional | string | multi-line | — | — |
+| `custom_test_data` | optional | string | multi-line | — | — |
+
+> **LESSON LEARNED (2026-03-27):** Three fields caused batch 400 failures during SharePoint KM import:
+> 1. `custom_qa_responsibility` — **required** field; omitting it returns `"Field :custom_qa_responsibility is a required field."` Always send `[qa_id]` (default `[26]` = Sharp if unset).
+> 2. `custom_platform` — must be **array** `[id]` even for a single value; bare int `3` returns `"Field :custom_platform is not a valid array."`.
+> 3. `custom_supportversion` — must also be **array** `[id]`; same error pattern.
+>
+> **Safe default payload template (always include):**
+> ```python
+> payload = {
+>     "title": title,
+>     "type_id": TYPE_MAP.get(typ, 9),          # default Regression
+>     "priority_id": PRIORITY_MAP.get(p, 3),    # default High
+>     "custom_qa_responsibility": [qa_id or 26], # REQUIRED — default Sharp
+>     "custom_platform": [plat_id or 3],         # REQUIRED — default Web
+>     "custom_steps": steps,
+>     "custom_expected": expected,
+> }
+> ```
 
 #### Version/QA ID Discovery
 
@@ -293,7 +316,7 @@ for field in case_fields:
 **For ADD cases** — create via API:
 1. Create missing sections first: `POST /add_section/{project_id}`
 2. Create cases: `POST /add_case/{section_id}` with full field mapping
-3. Include ALL required fields: `title`, `type_id`, `priority_id`, `custom_supportversion`, `custom_qa_responsibility`
+3. Include ALL required fields: `title`, `type_id`, `priority_id`, `custom_qa_responsibility` (array), `custom_platform` (array) — see Field Value Rules above
 4. Include optional fields: `custom_preconds`, `custom_steps`, `custom_expected`, `custom_test_data`
 
 **For UPDATE cases** — update via API:
