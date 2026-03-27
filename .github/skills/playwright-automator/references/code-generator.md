@@ -14,8 +14,8 @@ CSV: "Agentic > Scheduled Jobs > Dashboard"
      ↓
 test.describe('Scheduled Jobs — Dashboard', ...)
      ↓
-File: tests/e2e/scheduled-jobs/dashboard.spec.ts
-Page: src/pages/scheduled-jobs/dashboard.page.ts
+File: tests/e2e/agentic/scheduled-jobs/dashboard.spec.ts
+Page: src/pages/agentic/scheduled-jobs/dashboard.page.ts
 ```
 
 Nested sections map to folder structure:

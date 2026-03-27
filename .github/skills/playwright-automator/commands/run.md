@@ -29,7 +29,7 @@ cd QA_Automation   # (workspace root of QA_Automation repo)
 npx playwright test --grep @smoke
 
 # By file
-npx playwright test tests/e2e/scheduled-jobs/dashboard.spec.ts
+npx playwright test tests/e2e/agentic/scheduled-jobs/dashboard.spec.ts
 
 # By project
 npx playwright test --project=api

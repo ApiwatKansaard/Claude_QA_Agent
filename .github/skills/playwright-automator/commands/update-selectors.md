@@ -50,8 +50,8 @@ Compare old vs new:
 
 ### Files Updated
 - `selectors/scheduled-jobs-dashboard.json` ✅
-- `src/pages/scheduled-jobs/dashboard.page.ts` ✅ (1 locator updated)
+- `src/pages/agentic/scheduled-jobs/dashboard.page.ts` ✅ (1 locator updated)
 
 ### ⚠️ Tests to Verify
-- `tests/e2e/scheduled-jobs/dashboard.spec.ts` — uses changed createButton
+- `tests/e2e/agentic/scheduled-jobs/dashboard.spec.ts` — uses changed createButton
 ```

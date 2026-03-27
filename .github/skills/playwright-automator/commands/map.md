@@ -34,7 +34,7 @@ For each CSV test case:
     "title": "Check scheduled jobs list should be displayed",
     "type": "Smoke Test",
     "priority": "P1",
-    "automationFile": "tests/e2e/scheduled-jobs/dashboard.spec.ts",
+    "automationFile": "tests/e2e/agentic/scheduled-jobs/dashboard.spec.ts",
     "automationTest": "should display job list on Dashboard page",
     "status": "automated",
     "tags": ["@smoke", "@P1", "@scheduled-jobs"]

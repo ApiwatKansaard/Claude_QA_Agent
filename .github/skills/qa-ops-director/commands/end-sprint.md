@@ -96,14 +96,14 @@ Show the user what will be moved before executing:
    Target: archive/agentic/agentic-18.2/
 
    Sprint folder (move entire folder):
-   └── agentic-18.2/                           → archive/agentic-18.2/
+   └── agentic-18.2/                           → archive/agentic/agentic-18.2/
        ├── ekoai-scheduled-jobs-test-plan.md
        ├── ekoai-scheduled-jobs-testcases.csv
        ├── generate-csv.py
        └── release-notes-broccoli-f.md
 
    Root stray files (move into archive):
-   ├── ekoai-scheduled-jobs-test-plan.md       → archive/agentic-18.2/  (stray)
+   ├── ekoai-scheduled-jobs-test-plan.md       → archive/agentic/agentic-18.2/  (stray)
    └── (none found)
 
    ⚠️ Files NOT touched:

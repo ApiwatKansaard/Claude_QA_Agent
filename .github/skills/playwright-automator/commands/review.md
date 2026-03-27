@@ -45,7 +45,7 @@ Read all files in scope. For each file, apply the **8-point review checklist**.
 ```markdown
 ## 📝 Code Review Report
 
-**Scope:** tests/e2e/scheduled-jobs/ (QA_Automation)
+**Scope:** tests/e2e/agentic/scheduled-jobs/ (QA_Automation)
 **Files reviewed:** 5
 **Time:** 2026-03-25
 

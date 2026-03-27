@@ -137,8 +137,8 @@ When merging automation from multiple sprints:
 main
 ├── auto/agentic-18.1/scheduled-jobs    (merged, archived)
 ├── auto/agentic-18.2/scheduled-jobs    (in progress)
-│   ├── tests/e2e/scheduled-jobs/
-│   └── src/pages/scheduled-jobs/
+│   ├── tests/e2e/agentic/scheduled-jobs/
+│   └── src/pages/agentic/scheduled-jobs/
 └── auto/agentic-18.2/chat-export       (in progress)
     ├── tests/e2e/chat-export/
     └── src/pages/chat-export/

@@ -117,7 +117,7 @@ Generate a **Triage Report** with this structure per failed test:
 
 ```markdown
 ## [TEST_ID]: [Test Name]
-**File:** `tests/e2e/scheduled-jobs/scheduler-list.spec.ts:68`
+**File:** `tests/e2e/agentic/scheduled-jobs/scheduler-list.spec.ts:68`
 **Tags:** @scheduled-jobs @sanity @P2
 **Error:** [one-line error summary]
 **Classification:** 🐛 PRODUCT_BUG | 🔧 AUTOMATION_BUG | ⚡ ENVIRONMENT_ISSUE

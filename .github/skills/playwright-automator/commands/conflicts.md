@@ -97,7 +97,7 @@ Sprint 18.2: needs @playwright/test 1.52 for new API
 - **Fix:** Update to use data-testid consistently. Re-run `/auto:inspect`.
 
 **2. Global State — afterAll Cleanup**
-- File: tests/e2e/scheduled-jobs/crud.spec.ts:89
+- File: tests/e2e/agentic/scheduled-jobs/crud.spec.ts:89
 - `afterAll` deletes all jobs → breaks other sprint's tests
 - **Fix:** Delete only test-created jobs (use unique prefix: `[auto-18.2]`)
 
