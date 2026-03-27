@@ -72,6 +72,34 @@ These are verified patterns from the EkoAI staging app (discovered in this proje
 | Error in page object shared by multiple tests | MEDIUM | Present fix; warn about impact |
 | Root cause unclear from evidence | LOW | Report as "needs manual investigation" |
 
+## Blocked / Skipped → Prerequisite Data Pattern
+
+When TestRail shows **Blocked** status or Playwright shows `skipped` for tests, check whether the root cause is a missing prerequisite.
+
+### Recognition
+
+A test is blocked-by-prerequisite when:
+- Playwright result status = `skipped`
+- Test body contains `test.skip(true, 'No ... available to test')`
+- Test body pattern: `getJobCount() === 0 → skip` or `navigated === false → skip`
+
+These are **not true blocks** — they are automation gaps solvable with a `beforeAll` fixture.
+
+### Auto-fix rule (HIGH confidence)
+
+When triage detects this pattern, apply the following fix automatically:
+
+1. **Import** `createJob` / `deleteJob` from `src/helpers/job-factory`
+2. **Add** `let resourceId: string` at module scope
+3. **Add** `test.beforeAll(async () => { resourceId = await createJob('...'); })`
+4. **Add** `test.afterAll(async () => { if (resourceId) await deleteJob(resourceId); })`
+5. **Replace** each test's skip guard + `clickJob(0)` navigation with direct navigation via `gotoJob(resourceId)` / `gotoAudienceTab(resourceId)` / `gotoHistoryTab(resourceId)`
+6. **Remove** `schedulerPage` from fixture params if it was only used for `getJobCount()` / `clickJob()`
+
+Full reference: [best-practices.md § 9 — Prerequisite Data](./best-practices.md)
+
+---
+
 ## Anti-Patterns to Flag
 
 When triaging, also flag these test quality issues even in passing tests:

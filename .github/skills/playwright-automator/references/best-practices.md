@@ -257,7 +257,67 @@ test.describe('API — Scheduled Jobs', { tag: ['@api', '@scheduled-jobs'] }, ()
 
 ---
 
-## 9. Error Handling in Tests
+## 9. Prerequisite Data — beforeAll Fixture Pattern
+
+Use this pattern whenever a test **requires existing data** (e.g., a job must exist before the test can navigate to it).
+
+### When to use
+
+- Test body contains `test.skip(true, 'No scheduled jobs available to test')` or similar
+- Test navigates to an existing resource (`schedulerPage.clickJob(0)`, etc.)
+- Playwright status = **Blocked** in TestRail because prerequisite was missing
+
+### Pattern
+
+```typescript
+import { createJob, deleteJob } from '../../../src/helpers/job-factory';
+
+let jobId: string;
+
+test.beforeAll(async () => {
+  jobId = await createJob('SuiteName');   // creates via API, returns ID
+});
+
+test.afterAll(async () => {
+  if (jobId) await deleteJob(jobId);     // cleanup after suite
+});
+
+test.describe('Feature — Page', { tag: ['@scheduled-jobs'] }, () => {
+  test('should display config', async ({ jobConfigPage, page }) => {
+    await jobConfigPage.gotoJob(jobId);  // navigate directly — no clickJob(0)
+    await page.waitForLoadState('networkidle');
+    // ... assertions
+  });
+});
+```
+
+### Rules
+
+1. **Never use `test.skip(true, 'No ... available')` for prerequisite data** — create the data instead
+2. **Navigate by ID, not by list position** — `gotoJob(jobId)` not `clickJob(0)` (fragile if list changes)
+3. **One `createJob` per describe block** — not per test (expensive); tests share the fixture job
+4. **Cancel, don't confirm** in tests that open delete/edit modals — preserve the fixture job for subsequent tests
+5. **`afterAll` always cleans up** — even if `beforeAll` threw; use `if (jobId)` guard
+
+### Available factories (`src/helpers/job-factory.ts`)
+
+| Function | What it creates | Cleanup |
+|---|---|---|
+| `createJob(suffix)` | Scheduled job via `POST /v1/scheduled-jobs` | `deleteJob(jobId)` |
+
+Add new factories to `job-factory.ts` when other resource types are needed (e.g., `createUser`, `createTeam`).
+
+### Available navigation methods (already in page objects)
+
+| Page object | Direct navigation method |
+|---|---|
+| `jobConfigPage` | `gotoJob(jobId)` |
+| `recipientsPage` | `gotoAudienceTab(jobId)` |
+| `historyLogsPage` | `gotoHistoryTab(jobId)` |
+
+---
+
+## 10. Error Handling in Tests
 
 ```typescript
 // Known bug — skip until fixed
