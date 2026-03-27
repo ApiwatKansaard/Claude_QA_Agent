@@ -1,0 +1,886 @@
+{
+  "EXACT_SKIP": [
+    {
+      "title": "Check job details page should open when clicking on a job row",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548490
+    },
+    {
+      "title": "Check job list should be filtered correctly when selecting status from dropdown",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548491
+    },
+    {
+      "title": "Check empty state should be shown when no scheduled jobs exist",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548492
+    },
+    {
+      "title": "Check error state should be displayed when Dashboard data fails to load",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548493
+    },
+    {
+      "title": "Check Dashboard should handle 20+ jobs with pagination or scrolling",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548494
+    },
+    {
+      "title": "Check collapsed navbar should render correctly on Dashboard page",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548495
+    },
+    {
+      "title": "Check job should be created successfully when all required fields are filled",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548497
+    },
+    {
+      "title": "Check cron expression should be accepted when entering valid schedule format",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548498
+    },
+    {
+      "title": "Check repeat options should be displayed when clicking repeat dropdown",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548499
+    },
+    {
+      "title": "Check audience should be saved when adding user IDs and directory IDs",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548500
+    },
+    {
+      "title": "Check action type should be saved when selecting MORNING_BRIEF",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548501
+    },
+    {
+      "title": "Check validation error should appear when submitting without required fields",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548502
+    },
+    {
+      "title": "Check HTTPS validation should reject when entering HTTP endpoint URL",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548503
+    },
+    {
+      "title": "Check validation error should appear when entering invalid cron expression",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548504
+    },
+    {
+      "title": "Check default timeout should be 100 seconds when user does not modify timeout field",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548505
+    },
+    {
+      "title": "Check end date picker should accept a single date selection",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548506
+    },
+    {
+      "title": "Check runUntilTimes should accept only positive integers",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548507
+    },
+    {
+      "title": "Check fields should become editable when entering editing mode",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548509
+    },
+    {
+      "title": "Check changes should be saved when clicking Save in edit mode",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548510
+    },
+    {
+      "title": "Check job status should toggle when clicking enable/disable switch",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548511
+    },
+    {
+      "title": "Check process endpoint should update when changing URL in edit mode",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548512
+    },
+    {
+      "title": "Check confirmation modal should appear before deleting a job",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548513
+    },
+    {
+      "title": "Check job should be soft-deleted when confirming delete in modal",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548514
+    },
+    {
+      "title": "Check nextRun field should be read-only and not editable by user",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548515
+    },
+    {
+      "title": "Check nextRun should be recalculated when cron expression is updated",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548516
+    },
+    {
+      "title": "Check action schedule should update when changing from immediate to time-triggered",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548517
+    },
+    {
+      "title": "Check audience group should display users and directories in Default state",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548518
+    },
+    {
+      "title": "Check users should be added when entering Eko user IDs in edit mode",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548519
+    },
+    {
+      "title": "Check directories should be added when entering Eko directory IDs",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548520
+    },
+    {
+      "title": "Check audience should be resolved to individual users at trigger time",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548521
+    },
+    {
+      "title": "Check Eko API should be called for user resolution when job triggers",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548522
+    },
+    {
+      "title": "Check Eko API should be called for directory resolution when job triggers with directoryIds",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548523
+    },
+    {
+      "title": "Check deleted Eko users should be excluded from audience at trigger time",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548524
+    },
+    {
+      "title": "Check job should fail gracefully when Eko API is unavailable during audience resolution",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548525
+    },
+    {
+      "title": "Check audience snapshot should remain static during an active job run",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548526
+    },
+    {
+      "title": "Check audience type should always show Eko in Phase 1",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548527
+    },
+    {
+      "title": "Check bulk operations modal should open when managing audience",
+      "section": "Agentic > Scheduled Jobs > Recipients",
+      "case_id": 1548528
+    },
+    {
+      "title": "Check per-user execution details should be visible when clicking on a run entry",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548530
+    },
+    {
+      "title": "Check failed executions should be re-enqueued when clicking Retry",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548531
+    },
+    {
+      "title": "Check ScheduleJobRun aggregated status should display after run completes",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548532
+    },
+    {
+      "title": "Check per-user status transitions should be tracked in history",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548533
+    },
+    {
+      "title": "Check empty state should be shown when job has no past runs",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548534
+    },
+    {
+      "title": "Check run detail modal should handle missing data gracefully",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548535
+    },
+    {
+      "title": "Check select all should work for entries on current page",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548536
+    },
+    {
+      "title": "Check select all should handle 400 audience entries across pages",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548537
+    },
+    {
+      "title": "Check scheduler should pick up jobs when nextRun time is due",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548538
+    },
+    {
+      "title": "Check nextRun should be updated after each successful trigger",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548539
+    },
+    {
+      "title": "Check job run snapshot should contain frozen config at trigger time",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548540
+    },
+    {
+      "title": "Check internal trigger endpoint should process eligible jobs",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548541
+    },
+    {
+      "title": "Check scheduler should skip jobs when isEnabled is false",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548542
+    },
+    {
+      "title": "Check scheduler should stop triggering after endDate has passed",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548543
+    },
+    {
+      "title": "Check scheduler should stop triggering after runUntilTimes limit is reached",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548544
+    },
+    {
+      "title": "Check runTimes should increment by 1 after each trigger",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548545
+    },
+    {
+      "title": "Check lastRun should be updated to trigger datetime after each trigger",
+      "section": "Agentic > Scheduled Jobs > Trigger Step",
+      "case_id": 1548546
+    },
+    {
+      "title": "Check individual request should be dispatched for each audience user to external endpoint",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548547
+    },
+    {
+      "title": "Check API key header should be included in outbound request to external endpoint",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548548
+    },
+    {
+      "title": "Check HMAC signature should be included in outbound request header",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548549
+    },
+    {
+      "title": "Check user status should advance to EXECUTING when endpoint returns 200/202",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548550
+    },
+    {
+      "title": "Check request payload should contain guaranteed user fields",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548551
+    },
+    {
+      "title": "Check ScheduleJobRunUser record should be created per user when job triggers",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548552
+    },
+    {
+      "title": "Check user status should be FAILED immediately when endpoint returns 4xx",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548553
+    },
+    {
+      "title": "Check request should retry with backoff when endpoint returns 5xx",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548554
+    },
+    {
+      "title": "Check request should be treated as failure when endpoint does not respond within 10 seconds",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548555
+    },
+    {
+      "title": "Check slow-start throttling should increase concurrency on success for large audience",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548556
+    },
+    {
+      "title": "Check default timeout should be 100 seconds when not configured",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548557
+    },
+    {
+      "title": "Check custom timeout should be respected when set to 300 seconds",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548558
+    },
+    {
+      "title": "Check optional user fields should be included when available in payload",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548559
+    },
+    {
+      "title": "Check stuck PROCESSING users should be marked FAILED after 24-hour backstop",
+      "section": "Agentic > Scheduled Jobs > Process Step",
+      "case_id": 1548560
+    },
+    {
+      "title": "Check user status should update to FINISHED when callback returns success with result",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548561
+    },
+    {
+      "title": "Check correct user record should be updated when callback echoes matching ID",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548562
+    },
+    {
+      "title": "Check callback should be accepted when X-API-KEY header is valid",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548563
+    },
+    {
+      "title": "Check result.homePage should be stored when callback includes homepage content",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548564
+    },
+    {
+      "title": "Check user status should be FAILED when callback returns failure",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548565
+    },
+    {
+      "title": "Check callback should be rejected with 400 when ID is invalid or missing",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548566
+    },
+    {
+      "title": "Check callback should be rejected with 401 when API key is wrong",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548567
+    },
+    {
+      "title": "Check user should be marked FAILED when no callback arrives within timeout",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548568
+    },
+    {
+      "title": "Check duplicate callback should be handled idempotently for already finished user",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548569
+    },
+    {
+      "title": "Check quotaConsumed should be charged when callback includes quota data",
+      "section": "Agentic > Scheduled Jobs > Callback",
+      "case_id": 1548570
+    },
+    {
+      "title": "Check action queue message should be published when orchestrator identifies candidate",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548572
+    },
+    {
+      "title": "Check action worker should complete delivery and update user status to SUCCESS",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548573
+    },
+    {
+      "title": "Check run status should be aggregated when all users complete their actions",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548574
+    },
+    {
+      "title": "Check delivery should wait until nextRun time for time-triggered schedule",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548575
+    },
+    {
+      "title": "Check failReasonCode should be stored when delivery fails",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548576
+    },
+    {
+      "title": "Check dead-letter queue should receive messages after all retry attempts fail",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548577
+    },
+    {
+      "title": "Check delivery should happen immediately when process data arrives after scheduled nextRun",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548578
+    },
+    {
+      "title": "Check duplicate queue messages should be handled safely by worker",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548579
+    },
+    {
+      "title": "Check partial success should be reflected when some users succeed and some fail",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548580
+    },
+    {
+      "title": "Check cutoff worker should mark stuck users as FAILED with timeout reason",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548582
+    },
+    {
+      "title": "Check already terminal users should not be affected by cutoff",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548583
+    },
+    {
+      "title": "Check cutoff vs action worker race should be resolved safely",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548584
+    },
+    {
+      "title": "Check cutoff threshold should be configurable via environment variable",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548585
+    },
+    {
+      "title": "Check cutoff worker should be idempotent on retry after crash",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548586
+    },
+    {
+      "title": "Check duplicate cutoff jobs should be deduplicated via scheduledJobRunId",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548587
+    },
+    {
+      "title": "Check new HomePage record should be created when Morning Brief is delivered",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548588
+    },
+    {
+      "title": "Check push notification should be sent when HomePage is created",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548589
+    },
+    {
+      "title": "Check getLatest should return most recent non-expired HomePage for user",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548590
+    },
+    {
+      "title": "Check real-time event should be dispatched when HomePage is delivered",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548591
+    },
+    {
+      "title": "Check API key authentication should use EkoApiKey strategy with scope check",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548592
+    },
+    {
+      "title": "Check push notification should be sent on update when retrying delivery",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548593
+    },
+    {
+      "title": "Check request should be rejected with 401 when API key is invalid",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548594
+    },
+    {
+      "title": "Check retry should use PUT update instead of creating duplicate when re-delivering",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548595
+    },
+    {
+      "title": "Check multiple HomePage records should be allowed per user per day",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548596
+    },
+    {
+      "title": "Check expiresAt should be set to createdAt + 24 hours",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548597
+    },
+    {
+      "title": "Check HomePage content should be stored as-is without server validation",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548598
+    },
+    {
+      "title": "Check readAt should be null initially until user views the content",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548599
+    },
+    {
+      "title": "Check refId format should contain run IDs for traceability",
+      "section": "Agentic > Scheduled Jobs > Home Page Delivery",
+      "case_id": 1548600
+    },
+    {
+      "title": "Check recognized widgets should render on home screen in correct order",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548601
+    },
+    {
+      "title": "Check Text Block widget should display configured content",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548602
+    },
+    {
+      "title": "Check Progress Bar widget should display correct percentage",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548603
+    },
+    {
+      "title": "Check Horizontal Cards widget should render with configured content",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548604
+    },
+    {
+      "title": "Check unrecognized widget type should be silently skipped without errors",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548605
+    },
+    {
+      "title": "Check corrupted widget configuration should be handled gracefully",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548606
+    },
+    {
+      "title": "Check empty content.blocks array should display no widgets without errors",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548607
+    },
+    {
+      "title": "Check more drill-down should navigate to next page level",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548608
+    },
+    {
+      "title": "Check nested widget levels should render correctly with transition UI",
+      "section": "Agentic > Scheduled Jobs > Widget Rendering",
+      "case_id": 1548609
+    },
+    {
+      "title": "Verify HMAC signature should be valid when external server receives EkoAI request",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548610
+    },
+    {
+      "title": "Check API key hash should be stored as SHA-256 when creating new key",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548611
+    },
+    {
+      "title": "Check API key prefix should show first 8 characters for identification",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548612
+    },
+    {
+      "title": "Check request should be rejected when HMAC signature is missing",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548613
+    },
+    {
+      "title": "Check request should be rejected when payload is tampered after signing",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548614
+    },
+    {
+      "title": "Check request should be rejected when using revoked API key",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548615
+    },
+    {
+      "title": "Check request should be rejected when API key scope does not match",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548616
+    },
+    {
+      "title": "Check API key should be stored encrypted and not exposed in plaintext via APIs",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548617
+    },
+    {
+      "title": "Check network-scoped API key listing should return only keys for that network",
+      "section": "Agentic > Scheduled Jobs > Security",
+      "case_id": 1548618
+    },
+    {
+      "title": "Check job run should proceed when status check endpoint returns 200",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548619
+    },
+    {
+      "title": "Check status check should be called before audience resolution starts",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548620
+    },
+    {
+      "title": "Check job run should be immediately FAILED when status check returns 4xx",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548621
+    },
+    {
+      "title": "Check job run should be immediately FAILED when status check returns 5xx",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548622
+    },
+    {
+      "title": "Check job run should be FAILED when status check does not respond within 10 seconds",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548623
+    },
+    {
+      "title": "Check status check should handle unexpected response format gracefully",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548624
+    },
+    {
+      "title": "Check status check should not be cached between consecutive runs",
+      "section": "Agentic > Scheduled Jobs > Status Check",
+      "case_id": 1548625
+    },
+    {
+      "title": "Check ScheduleJobRun should be created with config and audience snapshots",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548627
+    },
+    {
+      "title": "Check ScheduleJobRunUser should track per-user execution state",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548628
+    },
+    {
+      "title": "Check optimistic concurrency should prevent data corruption on simultaneous writes",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548629
+    },
+    {
+      "title": "Check system should handle database connection failures gracefully",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548630
+    },
+    {
+      "title": "Check dynamic BullMQ queue should be created per run and cleaned up after completion",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548631
+    },
+    {
+      "title": "Check Redis keys should be cleaned up after run completes",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548632
+    },
+    {
+      "title": "Check HomePage indexes should support fast lookups by user and network",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548633
+    },
+    {
+      "title": "Check Network ekoConfig should store Eko connection details securely",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548634
+    },
+    {
+      "title": "Check ApiKey indexes should enable efficient verification lookups",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548635
+    },
+    {
+      "title": "Check _etag concurrency should resolve multi-action race between two workers",
+      "section": "Agentic > Scheduled Jobs > Race Conditions",
+      "case_id": 1548636
+    },
+    {
+      "title": "Check optimistic concurrency should resolve cutoff vs action completion race",
+      "section": "Agentic > Scheduled Jobs > Race Conditions",
+      "case_id": 1548637
+    },
+    {
+      "title": "Check duplicate orchestrator invocations should not cause duplicate processing",
+      "section": "Agentic > Scheduled Jobs > Race Conditions",
+      "case_id": 1548638
+    },
+    {
+      "title": "Check concurrent writes by cutoff and action workers should not corrupt data",
+      "section": "Agentic > Scheduled Jobs > Race Conditions",
+      "case_id": 1548639
+    },
+    {
+      "title": "Check system should handle burst of concurrent triggers without data loss",
+      "section": "Agentic > Scheduled Jobs > Race Conditions",
+      "case_id": 1548640
+    },
+    {
+      "title": "Check worker recovery should handle mid-process failures without duplicate actions",
+      "section": "Agentic > Scheduled Jobs > Race Conditions",
+      "case_id": 1548641
+    },
+    {
+      "title": "Check job should be updated and nextRun recalculated when PATCHing trigger config",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548644
+    },
+    {
+      "title": "Check job should be soft-deleted when calling DELETE endpoint",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548645
+    },
+    {
+      "title": "Check scheduler tick should process due jobs when calling trigger endpoint",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548646
+    },
+    {
+      "title": "Check HomePage should be created when POSTing valid payload with valid API key",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548647
+    },
+    {
+      "title": "Check HomePage should be updated when PUTting with valid homePageId",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548648
+    },
+    {
+      "title": "Check latest HomePage should be returned when calling getLatest RPC",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548649
+    },
+    {
+      "title": "Check 400 error should be returned when creating job with missing required fields",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548650
+    },
+    {
+      "title": "Check 404 error should be returned when getting non-existent job ID",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548651
+    },
+    {
+      "title": "Check callback endpoint should reject requests with invalid payload format",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548652
+    },
+    {
+      "title": "Check paginated list should return correct results for ScheduleJobs",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548653
+    },
+    {
+      "title": "Check job run history should be paginated when many runs exist",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548654
+    },
+    {
+      "title": "Check enable/disable toggle should work when PATCHing isEnabled field",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548655
+    },
+    {
+      "title": "Check run statistics should be returned correctly from stats endpoint",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548656
+    }
+  ],
+  "EXACT_UPDATE": [
+    {
+      "title": "Check scheduled jobs list should be displayed on Dashboard page",
+      "section": "Agentic > Scheduled Jobs > Dashboard",
+      "case_id": 1548489
+    },
+    {
+      "title": "Check create wizard should open when clicking Create button on Dashboard",
+      "section": "Agentic > Scheduled Jobs > Create Job",
+      "case_id": 1548496
+    },
+    {
+      "title": "Check job configuration should display all fields in Default state",
+      "section": "Agentic > Scheduled Jobs > Job Configuration",
+      "case_id": 1548508
+    },
+    {
+      "title": "Check history logs should display past runs with status and timestamps",
+      "section": "Agentic > Scheduled Jobs > History Logs",
+      "case_id": 1548529
+    },
+    {
+      "title": "Check orchestrator should pick up candidates for immediate delivery when schedule is null",
+      "section": "Agentic > Scheduled Jobs > Action Step",
+      "case_id": 1548571
+    },
+    {
+      "title": "Check cutoff orchestrator should identify timed-out runs after 24 hours",
+      "section": "Agentic > Scheduled Jobs > Cutoff Timeout",
+      "case_id": 1548581
+    },
+    {
+      "title": "Check ScheduleJob CRUD operations should work correctly",
+      "section": "Agentic > Scheduled Jobs > Database and Infra",
+      "case_id": 1548626
+    },
+    {
+      "title": "Check job should be created when POSTing valid payload to create endpoint",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548642
+    },
+    {
+      "title": "Check full job configuration should be returned when getting job by ID",
+      "section": "Agentic > Scheduled Jobs > API Endpoints",
+      "case_id": 1548643
+    }
+  ],
+  "ADD": [
+    {
+      "title": "Check hover failure tooltip should display failure details when hovering over failure count on Dashboard",
+      "section": "Agentic > Scheduled Jobs > Dashboard"
+    },
+    {
+      "title": "Check sort-by column should reorder job list when clicking on a sortable column header",
+      "section": "Agentic > Scheduled Jobs > Dashboard"
+    },
+    {
+      "title": "Check confirmation modal should appear when clicking Save after modifying job configuration",
+      "section": "Agentic > Scheduled Jobs > Job Configuration"
+    },
+    {
+      "title": "Check warning should be displayed when attempting to edit a currently running job configuration",
+      "section": "Agentic > Scheduled Jobs > Job Configuration"
+    },
+    {
+      "title": "Check confirmation modal should appear when navigating away with unsaved audience changes",
+      "section": "Agentic > Scheduled Jobs > Recipients"
+    },
+    {
+      "title": "Check warning should be displayed when editing recipients of a currently running job",
+      "section": "Agentic > Scheduled Jobs > Recipients"
+    },
+    {
+      "title": "Check retrying state should be displayed when a failed audience run is being retried",
+      "section": "Agentic > Scheduled Jobs > History Logs"
+    },
+    {
+      "title": "Check select all should select all 400 audiences when clicking Select All on bulk selection",
+      "section": "Agentic > Scheduled Jobs > History Logs"
+    },
+    {
+      "title": "Check select all this page should select only current page items when using page-level selection",
+      "section": "Agentic > Scheduled Jobs > History Logs"
+    }
+  ],
+  "POSSIBLE_DUP": [],
+  "AUTO_SKIP_DUP": []
+}
