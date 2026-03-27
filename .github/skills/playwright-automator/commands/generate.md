@@ -12,8 +12,9 @@
 
 ### Phase 1: Discovery
 
-1. **Detect sprint folder** — use standard algorithm:
-   - Scan workspace root for `agentic-*/` or `sprint-*/` (not in `archive/`)
+1. **Detect sprint context** — use `.sprint.json` first:
+   - Read `QA_Automation/.sprint.json` → extract `sprint`, `product`, `feature`, `dirs.*`
+   - If not found: scan QA_Agent workspace root for `{product}-*/` or `sprint-*/` (not in `archive/`)
    - One found → use it. Multiple → highest version. None → ask user.
 
 2. **Read test plan** — `{sprint-folder}/*-test-plan.md`
@@ -69,8 +70,11 @@
 For each section group, generate:
 
 **A. Page Object (if not exists):**
+
+Output path: `{dirs.pages}/{page-name}.page.ts` (from `.sprint.json` `dirs.pages`, e.g., `src/pages/agentic/scheduled-jobs/`)
+
 ```typescript
-import { BasePage } from '../base.page';
+import { BasePage } from '../../base.page';   // depth relative to product subdir
 import type { Page, Locator } from '@playwright/test';
 
 export class DashboardPage extends BasePage {
@@ -102,11 +106,13 @@ export class DashboardPage extends BasePage {
 
 **B. Test file:**
 
+Output path: `{dirs.e2e}/{page-name}.spec.ts` (from `.sprint.json` `dirs.e2e`, e.g., `tests/e2e/agentic/scheduled-jobs/`)
+
 Map `TestRailID` (col 16) → Playwright `annotation` on every test. Use `annotation` (not tag) so C-IDs are queryable at runtime without polluting the test name or grep filters.
 
 ```typescript
-import { test, expect } from '../../src/fixtures/test-fixtures';
-import { DashboardPage } from '../../src/pages/scheduled-jobs/dashboard.page';
+import { test, expect } from '../../../fixtures';   // depth: tests/e2e/agentic/scheduled-jobs/ → tests/fixtures
+import { DashboardPage } from '../../../../src/pages/agentic/scheduled-jobs/dashboard.page';
 
 test.describe('Scheduled Jobs — Dashboard', { tag: ['@smoke', '@scheduled-jobs'] }, () => {
   let dashboard: DashboardPage;
@@ -172,10 +178,10 @@ test.describe('Scheduled Jobs — Dashboard', { tag: ['@smoke', '@scheduled-jobs
 ### Generated Files
 | File | Type | Tests | Tags |
 |------|------|-------|------|
-| tests/e2e/scheduled-jobs/dashboard.spec.ts | E2E | 7 | @smoke(2) @regression(4) @sanity(1) |
-| tests/e2e/scheduled-jobs/create-job.spec.ts | E2E | 12 | @smoke(5) @regression(6) @sanity(1) |
-| tests/api/scheduled-jobs/crud.api.spec.ts | API | 15 | @smoke(8) @regression(7) |
-| src/pages/scheduled-jobs/dashboard.page.ts | POM | — | — |
+| tests/e2e/agentic/scheduled-jobs/dashboard.spec.ts | E2E | 7 | @smoke(2) @regression(4) @sanity(1) |
+| tests/e2e/agentic/scheduled-jobs/create-job.spec.ts | E2E | 12 | @smoke(5) @regression(6) @sanity(1) |
+| tests/api/agentic/scheduled-jobs/crud.api.spec.ts | API | 15 | @smoke(8) @regression(7) |
+| src/pages/agentic/scheduled-jobs/dashboard.page.ts | POM | — | — |
 | ... | | | |
 
 ### Coverage

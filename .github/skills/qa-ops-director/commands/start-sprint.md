@@ -19,20 +19,35 @@ is clean, previous sprint is archived, and required tools are accessible.
 - Run this **once at the start of each sprint** before running `/qa:test-plan`.
 - Quick Filter context: **Broccoli** — only Broccoli-related work is in scope.
 - Sprint version numbers (18.0, 18.1, etc.) change each sprint — do not hardcode them.
+- **Multi-product aware** — reads `.sprint.json` in QA_Automation to detect product context.
 
 ## Execution Steps
+
+### Step 0 — Detect Product Context
+
+Read `.sprint.json` in the QA_Automation repo root (if it exists):
+
+```
+Read QA_Automation/.sprint.json
+```
+
+- If found and `endDate` is null → previous sprint is still active. Ask: "Sprint `{sprint}` appears to be still running. Archive it first with `/qa:end-sprint`?"
+- If found and `endDate` is set → previous sprint is archived. Note the product and feature for context.
+- If not found → ask: "Which product are we starting? (agentic / bots / asap)" then look up defaults in `references/products.md`
+
+Set `$PRODUCT` and `$ARCHIVE_BASE = archive/{product}/` for use in subsequent steps.
 
 ### Step 1 — Check Workspace Cleanliness
 
 Scan the workspace for unarchived sprint artifacts in two locations:
 
 **1a. Unarchived sprint folders** (primary check):
-Look for sprint folders at the workspace root that haven't been moved to `archive/` yet.
-Sprint folders follow the pattern `agentic-*/` or `sprint-*/` and contain test plans/cases.
+Look for sprint folders at the workspace root that haven't been moved to `archive/{product}/` yet.
+Sprint folders follow the pattern `agentic-*/`, `bots-*/`, `asap-*/`, or `sprint-*/` and contain test plans/cases.
 
 | Check | What to look for | Status |
 |---|---|---|
-| Sprint folders | `agentic-*/` or `sprint-*/` at root — should be archived | ✅ Clean / ⚠️ Found |
+| Sprint folders | `{product}-*/` or `sprint-*/` at root — should be in `archive/{product}/` | ✅ Clean / ⚠️ Found |
 
 **1b. Root-level stray files** (secondary check):
 Legacy artifacts or files accidentally created at root instead of inside a sprint folder.
@@ -50,17 +65,18 @@ Legacy artifacts or files accidentally created at root instead of inside a sprin
 
 ### Step 2 — Check Archive History
 
-List existing archives to show sprint history:
+List existing archives to show sprint history for the current product:
 
 ```
-📁 Sprint Archives:
-   ├── archive/agentic-18.1/  (5 files, archived 2026-03-15)
-   └── (no other archives)
+📁 Sprint Archives (agentic):
+   ├── archive/agentic/agentic-18.1/  (5 files, archived 2026-03-15)
+   ├── archive/agentic/agentic-18.2/  (6 files, archived 2026-03-22)
+   └── archive/agentic/sharp-test-001/ (4 files, archived 2026-03-27)
 
-   Previous sprint: Agentic 18.1
+   Previous sprint: sharp-test-001
 ```
 
-If the `archive/` folder doesn't exist, note: "No previous sprint archives found — this appears to be the first sprint."
+If `archive/{product}/` doesn't exist, note: "No previous archives for product `{product}` — this appears to be the first sprint."
 
 ### Step 3 — Verify Tool Accessibility
 
@@ -99,16 +115,41 @@ If a Sprint Board URL is provided:
    - Breakdown by issue type (Story / Task / Bug / Sub-task)
    - Key assignees
 
-### Step 4a — Create Sprint Folder
+### Step 4a — Create Sprint Folder and `.sprint.json`
 
-If the sprint name is known (from URL or user input), create the sprint folder:
+If the sprint name is known (from URL or user input):
 
-```bash
-mkdir -p {sprint-folder}   # e.g., agentic-18.3/
-```
+1. Create the sprint folder:
+   ```bash
+   mkdir -p {sprint-folder}   # e.g., agentic-18.3/
+   ```
 
-This folder will be used by `/qa:test-plan` to output the test plan and test cases.
-If the sprint name is not yet known, skip and note that the folder will be created by `/qa:test-plan`.
+2. Create `.sprint.json` in QA_Automation root (or update if exists):
+   ```json
+   {
+     "sprint": "{sprint-name}",
+     "product": "{product}",
+     "feature": "{feature}",
+     "jiraProject": "{jiraProject}",
+     "jiraBoardId": {jiraBoardId},
+     "testrailSuiteId": {testrailSuiteId},
+     "testrailMilestoneId": null,
+     "dirs": {
+       "e2e": "tests/e2e/{product}/{feature}",
+       "api": "tests/api/{product}/{feature}",
+       "pages": "src/pages/{product}/{feature}",
+       "selectors": "selectors/{product}/{feature}.json",
+       "archive": "archive/{product}/{sprint-name}"
+     },
+     "previousSprint": "archive/{product}/{previous-sprint}",
+     "startDate": "{today}",
+     "endDate": null
+   }
+   ```
+   Defaults are looked up from `references/products.md`. Update `testrailMilestoneId` after creating the milestone.
+
+3. This folder and `.sprint.json` will be used by `/qa:test-plan` and `/auto:generate`.
+If the sprint name is not yet known, skip and note that both will be created by `/qa:test-plan`.
 
 ### Step 4b — TestRail Cache Status
 
@@ -135,8 +176,10 @@ Present the final readiness check:
    Workspace:
    ✅ No unarchived sprint folders
    ✅ No root-level stray files
-   ✅ Previous sprint archived: archive/agentic-18.1/
+   ✅ Previous sprint archived: archive/agentic/sharp-test-001/
+   📦 Product: agentic
    📁 Sprint folder created: {sprint-folder}/
+   📄 .sprint.json created/updated in QA_Automation/
 
    Tools:
    ✅ Jira MCP — connected (ekoapp.atlassian.net)
