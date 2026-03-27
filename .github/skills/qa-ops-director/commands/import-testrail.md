@@ -95,14 +95,67 @@ Skip comparison (Phase 2) — go directly to Phase 3 with all cases marked as **
 
 Read sprint test cases from `{sprint-folder}/*-testcases.csv` (auto-detect from current sprint).
 
-**Comparison logic** — match by **Section path + Title** (case-insensitive, trimmed):
+**Comparison uses two layers — run Layer 1 first, then Layer 2 on remaining cases only.**
+
+---
+
+#### Layer 1 — Exact Match (Section path + Title, case-insensitive, trimmed)
 
 | Match Result | Action | Description |
 |---|---|---|
 | Same section + same title → Steps/Expected differ | **UPDATE** | Existing case needs changes |
 | Same section + same title → identical content | **SKIP** | Already in suite — no action |
-| Title NOT found anywhere in suite | **ADD** | New test case |
+| Title NOT found anywhere in suite | → Layer 2 | Check for near-duplicate before adding |
 | Suite case not in sprint scope | **RETAIN** | Existing case — untouched |
+
+---
+
+#### Layer 2 — Fuzzy Duplicate Detection (for cases not matched in Layer 1)
+
+Apply both signals to every sprint case that passed through as "not found":
+
+**Signal A — Title similarity (token overlap ≥ 75%)**
+
+Normalize both titles: lowercase, strip punctuation, remove stop words (`should`, `be`, `the`, `a`, `is`, `when`, `on`, `to`, `with`, `and`, `or`, `not`).
+Count shared tokens ÷ union of tokens (Jaccard similarity).
+
+```
+sprint:  "Check scheduled job list should be displayed on Dashboard"
+  → tokens: {check, scheduled, job, list, displayed, dashboard}
+
+suite:   "Check job list should display correctly"
+  → tokens: {check, job, list, display, correctly}
+
+shared: {check, job, list} = 3
+union:  {check, scheduled, job, list, displayed, dashboard, display, correctly} = 8
+score:  3/8 = 0.375  → below threshold, not flagged by title alone
+```
+
+**Signal B — Steps + Expected overlap (≥ 60%)**
+
+Normalize steps and expected result text: lowercase, collapse whitespace, remove step numbers (`1.`, `2.` etc.).
+Compute token overlap across the combined steps+expected block.
+
+**Classification:**
+
+| Signal A | Signal B | Result | Action |
+|---|---|---|---|
+| ≥ 75% | ≥ 60% | **High confidence duplicate** | Auto-SKIP — note in preview |
+| ≥ 75% | < 60% | **Possible duplicate (title)** | Flag ⚠️ in preview — user decides |
+| < 75% | ≥ 60% | **Possible duplicate (content)** | Flag ⚠️ in preview — user decides |
+| < 75% | < 60% | No match | **ADD** |
+
+**For ⚠️ Possible Duplicate** — show side-by-side in preview:
+```
+⚠️ Possible Duplicate — user action required
+  Sprint:  "Check job list should filter by status"  (Section: Dashboard)
+  Suite:   "Check filtering by job status on Dashboard"  (C10042)
+  Title similarity: 68% | Steps overlap: 72%
+  → Options: [skip] [add anyway]
+```
+Default if user does not specify per-case: **skip** (safer).
+
+---
 
 **For ADD cases** — suggest target section:
 1. Use the `Section` column from sprint CSV (primary source)
@@ -149,16 +202,28 @@ Read sprint test cases from `{sprint-folder}/*-testcases.csv` (auto-detect from 
 ### Cases UNCHANGED ({count} skipped)
 Already exist in suite with identical content — no action needed.
 
+### ⚠️ Possible Duplicates ({count} — need your decision)
+
+| # | Sprint Title | Suite Title (Case ID) | Title Sim | Steps Overlap | Recommendation |
+|---|---|---|---|---|---|
+| 1 | Check job list should filter by status | Check filtering by job status on Dashboard (C10042) | 68% | 72% | skip |
+
+For each row above, reply with: `skip all` / `add all` / or per-case e.g. `1=skip 2=add`
+Default if skipped: **skip** (conservative).
+
 ### Summary
 
 | Action | Count |
 |---|---|
 | ADD | {n} new cases |
 | UPDATE | {n} existing cases |
-| SKIP | {n} unchanged |
+| SKIP (exact match) | {n} unchanged |
+| SKIP (auto high-confidence duplicate) | {n} cases |
+| PENDING USER DECISION | {n} possible duplicates |
 | RETAIN | {n} existing (out of sprint scope) |
 
 Confirm import? (yes / cancel / adjust)
+> If there are ⚠️ Possible Duplicates above, resolve them first before confirming.
 ```
 
 **Do NOT import until user explicitly confirms.**
