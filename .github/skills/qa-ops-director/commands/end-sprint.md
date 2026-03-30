@@ -23,8 +23,20 @@ and accessible under the `archive/` folder for future reference.
 - Quick Filter context: **Broccoli** — only Broccoli-related artifacts are managed.
 - Sprint version numbers (18.0, 18.1, etc.) change each sprint — the archive folder preserves
   the sprint name as-is for historical record.
+- **Multi-product aware** — reads `.sprint.json` in QA_Automation to resolve product and archive path.
 
 ## Execution Steps
+
+### Step 0 — Detect Product Context
+
+Read `.sprint.json` in the QA_Automation repo root:
+
+```
+Read QA_Automation/.sprint.json
+```
+
+- If found → extract `product`, `sprint`, `dirs.archive`. Set `$ARCHIVE_TARGET = archive/{product}/{sprint}/`.
+- If not found → ask: "Which product/sprint are we archiving? (e.g., agentic / sharp-test-001)" then look up product defaults in `references/products.md`.
 
 ### Step 1 — Identify Current Sprint Artifacts
 
@@ -59,16 +71,18 @@ Check workspace root for any stray artifacts that belong in the sprint folder:
 
 ### Step 2 — Determine Archive Folder Name
 
-Create a folder name based on the sprint:
+Create a folder name based on the product and sprint:
 
-**Format:** `archive/{sprint-name-sanitized}/`
+**Format:** `archive/{product}/{sprint-name-sanitized}/`
 
 **Sanitization rules:**
 - Replace spaces with `-`
 - Lowercase
 - Remove special characters except `-` and `.`
-- Examples: "Agentic 18.1" → `archive/agentic-18.1/`, Sprint ID 4077 → `archive/sprint-4077/`
+- Examples: "Agentic 18.1" (product: agentic) → `archive/agentic/agentic-18.1/`
+- Sprint ID 4077 (product: bots) → `archive/bots/sprint-4077/`
 
+If product is unknown, default to asking rather than guessing.
 If a sprint name is available (from the spec file header or user input), prefer the name.
 If only a sprint ID is available, use `sprint-{id}`.
 
@@ -78,17 +92,18 @@ Show the user what will be moved before executing:
 
 ```
 📦 Sprint Archive Plan: Agentic 18.2
-   Target: archive/agentic-18.2/
+   Product: agentic
+   Target: archive/agentic/agentic-18.2/
 
    Sprint folder (move entire folder):
-   └── agentic-18.2/                           → archive/agentic-18.2/
+   └── agentic-18.2/                           → archive/agentic/agentic-18.2/
        ├── ekoai-scheduled-jobs-test-plan.md
        ├── ekoai-scheduled-jobs-testcases.csv
        ├── generate-csv.py
        └── release-notes-broccoli-f.md
 
    Root stray files (move into archive):
-   ├── ekoai-scheduled-jobs-test-plan.md       → archive/agentic-18.2/  (stray)
+   ├── ekoai-scheduled-jobs-test-plan.md       → archive/agentic/agentic-18.2/  (stray)
    └── (none found)
 
    ⚠️ Files NOT touched:
@@ -105,10 +120,11 @@ Show the user what will be moved before executing:
 
 ### Step 4 — Execute Archive
 
-1. **Move the entire sprint folder** to `archive/`:
+1. **Move the entire sprint folder** to `archive/{product}/`:
    ```bash
-   mv {sprint-folder} archive/{sprint-folder}
-   # Example: mv agentic-18.2 archive/agentic-18.2
+   mkdir -p archive/{product}
+   mv {sprint-folder} archive/{product}/{sprint-folder}
+   # Example: mv agentic-18.2 archive/agentic/agentic-18.2
    ```
 
 2. **Move any root-level stray files** into the same archive:
@@ -119,9 +135,9 @@ Show the user what will be moved before executing:
 
 3. **Verify** the workspace root is clean — no sprint artifacts remaining.
 
-### Step 5 — Generate Archive Summary
+### Step 5 — Generate Archive Summary + Update .sprint.json
 
-Create `archive/{sprint-name}/ARCHIVE-SUMMARY.md` with:
+**5a.** Create `archive/{product}/{sprint-name}/ARCHIVE-SUMMARY.md` with:
 
 ```markdown
 # Sprint Archive: {Sprint Name}
@@ -154,6 +170,13 @@ These files can be read anytime for reference. They are preserved exactly as the
 at the end of the sprint — no modifications after archiving.
 ```
 
+**5b.** Update `.sprint.json` in QA_Automation root — set `endDate` to today:
+```json
+{
+  "endDate": "{today-iso-date}"
+}
+```
+
 ### Step 6 — Verify & Report
 
 1. Verify the sprint folder was moved successfully (check existence in archive)
@@ -162,10 +185,12 @@ at the end of the sprint — no modifications after archiving.
 4. Report:
 
 ```
-✅ Sprint archived: archive/{sprint-folder}/
+✅ Sprint archived: archive/{product}/{sprint-folder}/
+   📦 Product: {product}
    📁 Sprint folder moved ({N} files)
    📄 Root stray files cleaned ({N} files)
    📝 ARCHIVE-SUMMARY.md created
+   📄 .sprint.json endDate set to {today}
    Workspace is now clean for the next sprint.
 
    Next: /qa:start-sprint to begin the new sprint.

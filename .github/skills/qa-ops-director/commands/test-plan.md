@@ -83,7 +83,7 @@ This step is **read-only** and **non-blocking** — if no match is found, procee
    Present to user:
    ```
    📂 Previous Sprint Context Found:
-      Sprint: Agentic 18.1 (archive/agentic-18.1/)
+      Sprint: Agentic 18.1 (archive/agentic/agentic-18.1/)
       Feature: EkoAI Scheduled Jobs
       Match: Same Confluence pages (3488645131, 3518726148, ...)
       Previous coverage: 131 test cases across 13 groups

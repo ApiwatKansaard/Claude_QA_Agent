@@ -80,7 +80,7 @@ failures = [
   {
     "id": 1,
     "testName": "TC-DASH-005: search accepts input...",
-    "file": "tests/e2e/scheduled-jobs/scheduler-list.spec.ts",
+    "file": "tests/e2e/agentic/scheduled-jobs/scheduler-list.spec.ts",
     "line": 68,
     "error": "Expected substring: ...",
     "errorType": "assertion" | "timeout" | "element-not-found" | "strict-mode" | "other",
