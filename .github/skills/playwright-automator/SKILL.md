@@ -441,6 +441,103 @@ When `/auto:generate` runs, the workflow is:
 
 ---
 
+### ⚠️ A8 — Ant Design Select: NEVER assume `.click()` opens dropdown reliably (CRITICAL)
+- **Root cause:** Ant Design `<Select>` attaches events via React synthetic event system, not native DOM. `.click()` on `.ant-select-selector` often fails silently — dropdown doesn't open, or opens then immediately closes.
+- **Also:** Virtual list (`rc-virtual-list`) renders only ~7 items. "Custom..." (8th item) may not exist in DOM.
+- **Fix — ALWAYS use React fiber `onChange()` via `page.evaluate()`:**
+  ```typescript
+  // ❌ Unreliable — dropdown may not open, virtual list may hide items
+  await page.locator('.ant-select-selector').first().click();
+  await page.locator('.ant-select-item-option').filter({ hasText: 'Custom...' }).click();
+
+  // ✅ Direct React state update — always works
+  await page.evaluate((value) => {
+    const sel = document.querySelector('.ant-select');
+    const fiberKey = Object.keys(sel!).find(k => k.startsWith('__reactFiber'));
+    let fiber = (sel as any)[fiberKey!];
+    const visited = new Set();
+    const find = (f: any, d = 0): any => {
+      if (!f || d > 30 || visited.has(f)) return null;
+      visited.add(f);
+      if (f.memoizedProps?.onChange && f.memoizedProps?.options) return f;
+      return find(f.child, d+1) || find(f.sibling, d+1) || find(f.return, d+1);
+    };
+    find(fiber)?.memoizedProps?.onChange?.(value);
+  }, 'custom');
+  ```
+- **Applies to:** All Ant Design `<Select>` — Repeat dropdown, unit dropdown inside modal, etc.
+
+---
+
+### ⚠️ A9 — Day button selected state: CSS class `bg-primary`, NOT `aria-pressed` (CRITICAL)
+- **Root cause:** Custom recurrence day buttons (S M T W T F S) are styled circular `<button>` elements using Tailwind CSS classes. There is **NO `aria-pressed` attribute** — selection is indicated solely by `bg-primary text-white border-primary` CSS classes.
+- **Symptom:** `await btn.getAttribute('aria-pressed')` returns `null` for all states.
+- **Fix — Check CSS class for selection state:**
+  ```typescript
+  // ❌ Does NOT work — attribute doesn't exist
+  const pressed = await btn.getAttribute('aria-pressed');
+
+  // ✅ Selection indicated by CSS class
+  const cls = await btn.getAttribute('class') ?? '';
+  const isSelected = cls.includes('bg-primary');
+  ```
+- **Also applies to:** Any custom styled component that doesn't use ARIA attributes.
+
+---
+
+### ⚠️ A10 — Custom modal buttons are inside `.ant-modal-content`, NOT `.ant-modal-footer`
+- **Root cause:** The Custom recurrence modal renders Cancel and Confirm buttons directly inside `.ant-modal-content` — there is **no separate `.ant-modal-footer` element**.
+- **Fix:**
+  ```typescript
+  // ❌ .ant-modal-footer does NOT exist in this modal
+  page.locator('.ant-modal-footer').getByRole('button', { name: /Confirm/i });
+
+  // ✅ Buttons are inside .ant-modal-content
+  page.locator('.ant-modal-content').getByRole('button', { name: /^Confirm$/i });
+  ```
+
+---
+
+### ⚠️ A11 — NEVER write test assertions from assumptions — inspect platform first (CRITICAL PROCESS)
+- **Root cause:** Writing expected behavior from design specs or assumptions leads to false assertions. Actual UI behavior often differs:
+  - Assumed "Confirm disabled when 0 days" → **Actual: UI prevents deselecting last day entirely**
+  - Assumed occurrences default = empty → **Actual: default = 10**
+  - Assumed `aria-pressed` exists → **Actual: CSS class only**
+  - Assumed Ends radio values differ → **Actual: all have `value="on"`**
+- **Mandatory process:**
+  1. **Open the actual platform** before writing any selector or assertion
+  2. **Inspect DOM** with browser DevTools or `page.evaluate()`
+  3. **Test the behavior manually** — click buttons, fill inputs, observe results
+  4. **Only then** write test code matching confirmed behavior
+- **Never do:** Copy-paste selectors from documentation, Figma, or memory.
+
+---
+
+### ⚠️ A12 — Computer tool coordinate mapping: viewport → screenshot scale factor
+- **Root cause:** Browser viewport (2587×1060) ≠ screenshot resolution (1732×710). Scale factor = 0.6694.
+- **Symptom:** Clicking at visually estimated coordinates misses the target element.
+- **Fix — ALWAYS verify coordinates via JS before clicking:**
+  ```typescript
+  // Get viewport coords from DOM
+  const rect = await page.evaluate(() => {
+    const el = document.querySelector('.target');
+    const r = el!.getBoundingClientRect();
+    return { cx: r.left + r.width/2, cy: r.top + r.height/2 };
+  });
+  // Convert to screenshot coords
+  const ss_x = Math.round(rect.cx * 1732 / 2587);
+  const ss_y = Math.round(rect.cy * 710 / 1060);
+  ```
+
+---
+
+### ⚠️ A13 — TestRail API: array fields must be arrays, not scalars
+- **Root cause:** TestRail custom fields of type "multi-select" (e.g., `custom_qa_responsibility`) require array values `[26]`, not scalar `26`.
+- **Symptom:** `HTTP 400: "Field :custom_qa_responsibility is not a valid array."`
+- **Fix:** Always wrap in array: `'custom_qa_responsibility': [26]`
+
+---
+
 ## Integration with QA Ops Director
 
 This skill is **complementary** to `qa-ops-director`:
