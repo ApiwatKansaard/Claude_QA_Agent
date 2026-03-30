@@ -1,14 +1,14 @@
 # QA Ops Director
 
-> **AI-Powered QA Assistant for Test Planning, Bug Triage, and TestRail Management**
+> **AI-Powered QA Assistant for Test Planning, Bug Triage, TestRail Management, and Automation**
 >
-> Last updated: 2026-03-25 · Maintainer: QA Engineering Team
+> Last updated: 2026-03-30 · Maintainer: QA Engineering Team · Platform: **Claude Code**
 
 ---
 
 ## What Is This?
 
-QA Ops Director is a **VS Code Copilot Agent** that automates the full QA lifecycle for your team.
+QA Ops Director is a **Claude Code** agent that automates the full QA lifecycle for your team.
 Instead of manually writing test plans, syncing TestRail, or compiling standup reports — just type
 a slash command and the agent handles the rest.
 
@@ -16,10 +16,26 @@ a slash command and the agent handles the rest.
 - Generate test plans from Figma designs + Confluence specs
 - Auto-review test cases for coverage gaps and fix them
 - Import/edit test cases in TestRail via API
-- Create Jira bug tickets with proper custom fields
+- Create Jira bug tickets with proper custom fields (AE project, with cURL for API bugs)
 - Post Acceptance Criteria to sprint tickets
 - Generate morning standup and EOD reports
+- Run Playwright automation tests (90+ test cases)
+- Generate 2 HTML reports: Team Report + Risk Story Report
+- Push test results to TestRail milestones/runs
 - Run daily automated AC scans via GitHub Actions
+
+### Current Coverage: Morning Brief 18.0
+
+| Area | Test Cases | Automated |
+|---|---|---|
+| Dashboard (UI) | 12 | 9 |
+| Create Scheduled Job (UI) | 30 | 13 + 24 (custom recurrence) |
+| Job Configuration (UI) | 20 | 11 |
+| Recipients (UI) | 11 | 11 |
+| History Logs (UI) | 11 | 10 |
+| Widget Rendering (UI) | 12 | 12 |
+| API (Trigger/Process/Action/Callback/Security) | 112 | 10 |
+| **Total** | **208** | **90** |
 
 ---
 
@@ -267,9 +283,11 @@ Run these commands **in order** at the start of each sprint:
 │   │   ├── commands/            ← Workflow files (15 commands)
 │   │   └── references/          ← Agent behaviors + shared knowledge
 │   ├── skills/playwright-automator/ ← Test Automation skill (targets QA_Automation repo)
-│   │   ├── SKILL.md             ← ★ Orchestrator (cross-repo workflows)
+│   │   ├── SKILL.md             ← ★ Orchestrator + Pitfalls A1–A13
 │   │   ├── commands/            ← Workflow files (9 commands)
 │   │   └── references/          ← Best practices + code generation rules
+│   ├── skills/qa-html-report/   ← HTML Report Generator skill
+│   │   └── SKILL.md             ← Team report + Risk Story report generation
 │   └── workflows/               ← GitHub Actions (daily-ac-scan)
 │
 ├── .githooks/
@@ -284,6 +302,11 @@ Run these commands **in order** at the start of each sprint:
 │   ├── repost-ac-tables.py      ← Reformat AC as ADF tables
 │   └── delete-old-ac-comments.py← Clean stale AC comments
 │
+├── console-morning-brief-18.0/  ← Morning Brief sprint data
+│   ├── console-morning-brief-testcases.csv  ← 208 test cases (15 cols)
+│   ├── console-morning-brief-test-plan.md   ← Test plan document
+│   ├── generate-csv.py          ← CSV generator script
+│   └── import-new-testrail-cases.py ← TestRail importer
 ├── testrail-cache/              ← Cached TestRail data (gitignored, local only)
 ├── {sprint-folder}/             ← Active sprint artifacts (auto-created)
 └── archive/                     ← Completed sprint archives
@@ -422,7 +445,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details on:
 | Setup process change | `TEAM-SETUP.md`, `README.md` (quick start) |
 | New protected path | `CODEOWNERS`, `CONTRIBUTING.md`, `.githooks/pre-commit` |
 
-**Last verified:** 2026-03-25
+**Last verified:** 2026-03-30
 
 ---
 
