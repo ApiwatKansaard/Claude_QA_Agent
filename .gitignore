@@ -21,6 +21,9 @@ gcp-oauth.keys.json
 # IDE
 .idea/
 
+# Claude Code worktrees (internal — not project files)
+.claude/worktrees/
+
 # ── Regenerable Cache ──────────────────────────────────────
 # TestRail cache is rebuilt on first /qa:fetch-testrail — don't track
 testrail-cache/
