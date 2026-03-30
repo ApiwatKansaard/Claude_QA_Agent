@@ -235,7 +235,25 @@ POST /add_milestone/{project_id}           → Create release milestone
 POST /add_run/{project_id}                 → Create test run with case IDs
 ```
 Auth: `curl -u 'email:api_key'` or `HTTPBasicAuth(email, api_key)`
-Team defaults: host=`ekoapp20.testrail.io`, main project=`1` (S3924=[Main] Agentic), Amity solutions=`6` (S3923=Agentic)
+Team defaults: host=`ekoapp20.testrail.io`, main project=`1` (S3865=EkoAI Connector and Console, S3924=[Main] Agentic), Amity solutions=`6` (S3923=Agentic)
+
+⚠️ **CRITICAL — Suite→Project mapping (always verify before creating runs):**
+- Suite 3865 "EkoAI Connector and Console" → **project_id=1** (NOT 6)
+- Suite 3923 "Agentic" → project_id=6
+- Verify: `GET /get_suite/{suite_id}` → check `project_id` field before `add_run`
+
+⚠️ **CRITICAL — `add_results_for_cases` status IDs:**
+- Active statuses ONLY: 1=Passed, 2=Blocked, 4=Retest, 5=Failed
+- Status 3 (Untested) and 6 (Skipped) are **INACTIVE** — using them causes 400 error
+- **For skipped/unexecuted tests:** Do NOT push a result — leave as default untested
+- **For manual/unautomated tests:** Use status 4 (Retest) so testers know to execute
+
+⚠️ **CRITICAL — Playwright JSON result parsing:**
+- `annotations` live on the **`test`** object, NOT on the `spec` object
+- `spec.annotations` is always empty — always read from `spec.tests[i].annotations`
+- `spec.tags` is on the spec object (correct location for tags)
+- **3 runs always:** Smoke + Regression + Manual (for unautomated cases marked Retest)
+
 All write operations: always show preview/diff → wait for user confirmation → then execute.
 See [testrail-api.md](./references/testrail-api.md) for full patterns including section resolution and import helpers.
 
@@ -347,6 +365,49 @@ Load these when the active agent needs them — not upfront for every request:
 - After creating any Jira ticket (bug, story, task), **ALWAYS** send the full link back to the user immediately.
 - Format: `✅ Created: [AE-XXXXX](https://ekoapp.atlassian.net/browse/AE-XXXXX)`
 - Never just say "ticket created" without the link.
+
+### Bug Filing from Automation Failures — MANDATORY fields (CRITICAL)
+When creating a Jira bug from a failed automated test, **ALL of these fields must be filled**:
+
+```python
+fields = {
+    # Required
+    "summary":            "...",                         # "[Feature] Short description"
+    "issuetype":          {"id": "10004"},               # Bug
+    "project":            {"key": "AE"},
+    "customfield_11536":  {"id": "14379"},               # EKO Squad: Broccoli (Agentic squad)
+
+    # Severity + Environment (MANDATORY for bugs)
+    "priority":           {"id": "2"},                   # 1=Critical, 2=High, 3=Medium, 4=Low
+    "customfield_11390":  {"id": "11006"},               # Severity: S1-S5 (11005-11008,11875)
+    "customfield_11352":  [{"id": "10910"}],             # EkoEnvironment: EKO-Staging
+    "customfield_11389":  {"id": "10995"},               # Platform: All Platforms (or specific)
+
+    # Bug detail fields (ADF format — NOT plain strings)
+    "customfield_11437":  adf("Step 1\nStep 2\n..."),   # Steps to reproduce
+    "customfield_11436":  adf("Expected behavior..."),  # Expected results
+    "customfield_11435":  adf("Actual behavior + TestRail: C1552XXX"),  # Actual results
+
+    # Description (ADF format)
+    "description":        adf("TestRail Case: CXXXXXX | Sprint: ... | Env: EKO-Staging\n\nSUMMARY\n...\n\nIMPACT\n...")
+}
+```
+
+**Screenshot attachment (E2E tests):**
+- After creating the ticket, attach the failure screenshot from: `test-results/**/test-failed-1.png`
+- Use `POST /rest/api/3/issue/{key}/attachments` with multipart form data
+- Add `X-Atlassian-Token: no-check` header (required for file upload)
+
+**Priority mapping from test tags:**
+- `@P1` → High (id=2)
+- `@P2` → Medium (id=3)
+- `@P0` / critical user path → Critical (id=1)
+
+**Severity mapping:**
+- Server 500 on user-facing endpoint → S2
+- Validation bypass / data corruption → S1
+- UI element missing / wrong value → S3
+- Cosmetic / non-blocking → S4-S5
 
 ---
 

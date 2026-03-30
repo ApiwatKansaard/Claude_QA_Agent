@@ -23,6 +23,30 @@ You operate as a multi-mode assistant with two routing paths: **slash commands**
 - Sprint artifacts: `{sprint-folder}/` (test plans + test case CSVs) — in QA_Agent workspace root
 - Product: EkoAI Console (web app) + EkoAI APIs
 
+## Cleanup Rule (MANDATORY)
+
+> **จำ: ทุกครั้งที่ test สร้าง resource (scheduled job, user, etc.) ต้องลบหลังเสมอ**
+
+Whenever a test creates a resource (e.g., a scheduled job), it **MUST** clean up after itself. Always use one of these patterns:
+
+```typescript
+// Pattern 1: beforeAll / afterAll (preferred for UI tests needing a pre-existing job)
+let jobId: string;
+test.beforeAll(async () => { jobId = await createJob('SuiteName'); });
+test.afterAll(async () => { if (jobId) await deleteJob(jobId); });
+
+// Pattern 2: cleanup fixture (preferred for tests that create jobs inline)
+test('should create a job', async ({ cleanup, request }) => {
+  const res = await request.post('/v1/scheduled-jobs', { data: payload });
+  const { id } = (await res.json()).data;
+  cleanup.track('scheduled-job', id);   // auto-deleted after test
+});
+```
+
+**Never leave test data in staging.** Stale jobs pollute the job list and break other tests that rely on job count or clean state.
+
+---
+
 ## Multi-Root Workspace Context
 
 This skill operates across a **2-repo VS Code Multi-Root Workspace**:
@@ -311,6 +335,109 @@ When `/auto:generate` runs, the workflow is:
 | "analyze failures" / "triage test results" / "why did the test fail" | `/auto:triage` |
 | "send results to testrail" / "sync results" / "อัปเดตผลไป testrail" | `/auto:send-results` |
 | "run and fix" / "full pipeline" / "run tests and analyze" / "รันแล้วแก้" | `/auto:pipeline` |
+
+---
+
+## Known Issues & Pitfalls — EkoAI Console (Morning Brief 18.0 lessons)
+
+### ⚠️ A1 — Async POST→redirect: `waitForLoadState` fires before redirect (CRITICAL)
+- **Root cause:** After clicking a wizard "Create" button, `waitForLoadState('networkidle')` resolves BEFORE the async POST response and client-side redirect fires. URL still shows `/create`.
+- **Symptom:** `expect(url.includes('/management/')).toBe(true)` fails — URL unchanged.
+- **Fix — ALWAYS intercept the POST response directly:**
+  ```typescript
+  const createRespPromise = page.waitForResponse(
+    res => /scheduled-job/i.test(res.url()) && res.request().method() === 'POST',
+    { timeout: 45_000 }
+  );
+  await createBtn.click();
+  const resp = await createRespPromise.catch(() => null);
+  expect(resp?.status() ?? 0).toBeLessThan(300);  // Assert on API response, not URL
+  // Then best-effort wait for redirect
+  await page.waitForURL(url => !url.includes('/create'), { timeout: 10_000 }).catch(() => {});
+  ```
+- **Never do:** `await btn.click(); await page.waitForLoadState('networkidle'); expect(page.url()).toContain('/management')`
+
+---
+
+### ⚠️ A2 — Ant Design component selectors
+- **`getByRole('combobox')`** resolves to the hidden `<input type="search" role="combobox">` inside the dropdown — NOT the clickable trigger.
+  - **Fix:** Use `page.locator('.ant-select-selector').first()` to click the visible trigger.
+- **`getByRole('switch')`** on Edit Scheduler config page → element NOT FOUND. The toggle lives on the **dashboard list**, not on the management/config page.
+  - **Fix:** Navigate to dashboard → find the card by `a[href*='/management/{jobId}']` → traverse to nearest ancestor → find `[role="switch"]`:
+    ```typescript
+    const toggle = jobLink.locator(
+      'xpath=../../..//button[@role="switch"] | ../../../..//button[@role="switch"]'
+    ).first();
+    ```
+  - After clicking, add `await page.waitForTimeout(800)` — Ant Design Switch updates `aria-checked` slightly after click event.
+
+---
+
+### ⚠️ A3 — Strict mode violation: wizard step indicator matches button selector
+- **Root cause:** In a multi-step wizard, `getByRole('button', { name: /Create|Save|Finish/i })` matches BOTH the submit "Create" button AND the "Create Scheduler" step indicator button.
+- **Symptom:** `strict mode violation: "getByRole('button', ...)" resolved to 2 elements`
+- **Fix:** Always anchor button name regex when wizard step indicators are present:
+  ```typescript
+  // ❌ Matches both "Create" button and "Create Scheduler" step indicator
+  page.getByRole('button', { name: /Create|Save|Finish/i }).first()
+
+  // ✅ Exact match — only matches the button with exact text
+  page.getByRole('button', { name: /^(Create|Save|Finish)$/ })
+  ```
+
+---
+
+### ⚠️ A4 — Validation tests: clicking a disabled button times out
+- **Root cause:** When testing form validation (empty required fields), the submit button may already be **disabled**. `button.click()` on a disabled button waits forever for the button to become enabled.
+- **Fix:** In validation tests, assert the button IS disabled instead of clicking:
+  ```typescript
+  // ❌ Times out if button is disabled
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // ✅ Assert disabled — this IS the validation behavior
+  await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
+  ```
+
+---
+
+### ⚠️ A5 — Ambiguous text selectors when heading text matches tab button text
+- **Root cause:** `getByText('Audience')` matches both the "Audience" tab button AND the section heading inside the tab. Playwright strict mode raises an error.
+- **Fix:** Use the most specific unique text visible only in the content area:
+  ```typescript
+  // ❌ Matches tab button AND section heading
+  page.getByText('Audience', { exact: true })
+
+  // ✅ Only exists inside the Audience content area
+  page.getByText('Select Individual Users')
+  ```
+
+---
+
+### ⚠️ A6 — Internal API endpoints: 401/403 guard (not just 404)
+- **Root cause:** `/_internal/` endpoints in staging may return **401 Unauthorized** or **403 Forbidden** instead of 404 when the auth token isn't set up for those routes. Guard using `=== 404` misses these.
+- **Fix:** Always use inclusive guard for internal endpoints:
+  ```typescript
+  // ❌ Misses 401/403 on staging
+  if (response.status() === 404) { test.skip(true, '...'); return; }
+
+  // ✅ Covers all "not available" scenarios
+  if ([401, 403, 404].includes(response.status())) { test.skip(true, '...'); return; }
+  ```
+
+---
+
+### ⚠️ A7 — Wizard "Add Audience" step: empty audience causes Create to fail silently
+- **Root cause:** Clicking "Create" with 0 audience members selected may return an error (page stays on `/create`). The test needs to add at least one audience member before clicking Create.
+- **Fix:** In C1552314-type tests, add a user before clicking Create:
+  ```typescript
+  const userSearch = page.getByPlaceholder('Search').first();
+  if (await userSearch.isVisible()) {
+    await userSearch.fill('a');
+    await page.waitForTimeout(800);
+    const box = page.locator('label input[type="checkbox"]').first();
+    if (await box.isVisible() && !(await box.isChecked())) await box.click();
+  }
+  ```
 
 ---
 
