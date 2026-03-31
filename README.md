@@ -29,13 +29,18 @@ a slash command and the agent handles the rest.
 | Area | Test Cases | Automated |
 |---|---|---|
 | Dashboard (UI) | 12 | 9 |
-| Create Scheduled Job (UI) | 30 | 13 + 24 (custom recurrence) |
-| Job Configuration (UI) | 20 | 11 |
+| Create Scheduled Job (UI) | 30 | 30 (incl. 24 custom recurrence) |
+| Job Configuration (UI) | 20 | 18 |
 | Recipients (UI) | 11 | 11 |
 | History Logs (UI) | 11 | 10 |
 | Widget Rendering (UI) | 12 | 12 |
-| API (Trigger/Process/Action/Callback/Security) | 112 | 10 |
-| **Total** | **208** | **90** |
+| Trigger Step (API) | 10 | 10 |
+| Process Step (API) | 12 | 12 |
+| Action Step (API) | 11 | 11 |
+| Callback (API) | 10 | 10 |
+| Security (API) | 10 | 10 |
+| Cutoff / HomePage / Status / DB / Race (API) | 59 | 0 (needs infra mock) |
+| **Total** | **208** | **143** |
 
 ---
 
