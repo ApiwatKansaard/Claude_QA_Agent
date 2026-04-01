@@ -1,0 +1,1176 @@
+Section,Role,Channel,Title,Test Data,Preconditions,Steps,Expected Result,Platform,TestMethod,Type,P,References,Release version,QA Responsibility,TestRailID
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check scheduled jobs list should be displayed on Dashboard page,At least 1 scheduled job exists,Admin is logged in to EkoAI Console,"1. Navigate to EkoAI Console
+2. Click Morning Brief on sidebar
+3. Observe Dashboard page","1. Dashboard page loads
+2. Scheduled jobs list is displayed with job name / status / next run columns
+3. Each job shows correct status badge",Web,Manual,Smoke Test,P1,Dashboard,,,C1552304
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check empty state should be shown when no scheduled jobs exist on Dashboard,No scheduled jobs in the system,Admin is logged in to EkoAI Console,"1. Navigate to Morning Brief Dashboard
+2. Observe the page content","1. Empty state illustration is displayed
+2. Message prompts user to create first job
+3. Create button is visible",Web,Manual,Smoke Test,P1,Dashboard,,,C1552305
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check job list should be filtered correctly when selecting status filter on Dashboard,Multiple jobs with different statuses (Active / Inactive),Admin is on Dashboard with multiple jobs,"1. Click status filter dropdown
+2. Select Active status
+3. Observe filtered results","1. Only Active jobs are displayed
+2. Job count updates to match filter
+3. Inactive jobs are hidden",Web,Manual,Sanity Test,P2,Dashboard,,,C1552306
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check job list should be sorted correctly when changing sort order on Dashboard,Multiple jobs with different creation dates,Admin is on Dashboard with multiple jobs,"1. Click sort dropdown
+2. Select sort by Created Date descending
+3. Observe list order","1. Jobs are reordered by creation date (newest first)
+2. Sort indicator shows active direction",Web,Manual,Sanity Test,P2,Dashboard,,,C1552307
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check sidebar navigation should highlight Morning Brief when Dashboard is active,,Admin is logged in to EkoAI Console,"1. Navigate to Morning Brief Dashboard
+2. Observe sidebar navigation state","1. Morning Brief menu item is highlighted in sidebar
+2. Dashboard sub-item shows active state",Web,Manual,Regression Test,P2,Dashboard,,,C1552308
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check Dashboard should handle gracefully when API returns error loading job list,Backend returns 500 error on GET /scheduled-jobs,Admin is logged in to EkoAI Console,"1. Navigate to Morning Brief Dashboard
+2. Simulate API error response
+3. Observe page behavior","1. Error message is displayed to user
+2. Retry option is available
+3. Page does not crash or show blank content",Web,Manual,Regression Test,P1,Dashboard,,,C1552309
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check Dashboard should display correct status badge colors for each job status,Jobs with statuses: Active / Inactive / Processing,Admin is on Dashboard with jobs in various states,"1. Navigate to Morning Brief Dashboard
+2. Observe status badges on each job row","1. Active jobs show green badge
+2. Inactive jobs show gray badge
+3. Each badge label matches job status",Web,Manual,Regression Test,P2,Dashboard,,,C1552310
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check Dashboard should load correctly when there are 100+ scheduled jobs,100+ scheduled jobs created in the system,Admin is logged in to EkoAI Console,"1. Navigate to Morning Brief Dashboard
+2. Scroll through the job list
+3. Observe pagination or lazy loading","1. Page loads without timeout
+2. Pagination or infinite scroll is functional
+3. All jobs are accessible",Web,Manual,Regression Test,P1,Dashboard,,,C1552311
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check Dashboard should update job list in real-time when a new job is created from another session,Another admin session creates a new job,Admin is on Dashboard page,"1. Keep Dashboard open
+2. From another session / create a new scheduled job
+3. Observe Dashboard list","1. New job appears in the list without manual refresh
+2. Job shows correct initial status",Web,Manual,Regression Test,P2,Dashboard,,,C1552312
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Create wizard should open when clicking Create button on Dashboard,,Admin is on Morning Brief Dashboard,"1. Click Create Scheduled Job button
+2. Observe wizard dialog","1. Multi-step wizard opens
+2. Step 1 (Job Name) is active
+3. Name field is focused and empty",Web,Manual,Smoke Test,P1,Create Wizard,,,C1552313
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check job should be created successfully when all required fields are filled in wizard,Job name: Test Morning Brief / Schedule: Daily at 9 AM / Process endpoint: https://api.example.com/process / Audience: 1 user group,Admin is on Create wizard Step 1,"1. Enter job name
+2. Configure daily schedule
+3. Enter process endpoint URL
+4. Select audience group
+5. Click Create button","1. Job is created successfully
+2. Success message is displayed
+3. User is redirected to Dashboard
+4. New job appears in job list",Web,Manual,Smoke Test,P1,Create Wizard,,,C1552314
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check schedule configuration should support iCalendar RRULE format in Create wizard,RRULE: FREQ=WEEKLY;BYDAY=MO / WE / FR;DTSTART=20260401T090000Z,Admin is on Create wizard schedule step,"1. Select custom recurrence option
+2. Configure weekly schedule for Monday / Wednesday / Friday
+3. Set start date and time
+4. Observe preview","1. RRULE is generated correctly
+2. Schedule preview shows next 3 occurrences
+3. Days of week are highlighted in selector",Web,Manual,Smoke Test,P1,Create Wizard,,,C1552315
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check termination condition should be configurable when setting runUntilTimes in Create wizard,runUntilTimes: 5,Admin is on Create wizard schedule step,"1. Enable termination condition
+2. Select Run Until Times option
+3. Enter value of 5
+4. Observe validation","1. Termination field accepts value 5
+2. Preview shows job will run 5 times
+3. Field validates within 1-10 range",Web,Manual,Sanity Test,P1,Create Wizard,,,C1552316
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check termination condition should be configurable when setting endDate in Create wizard,endDate: 2026-06-30,Admin is on Create wizard schedule step,"1. Enable termination condition
+2. Select End Date option
+3. Pick date 2026-06-30
+4. Observe validation","1. Date picker accepts future date
+2. Preview shows runs until end date
+3. RRULE includes UNTIL parameter",Web,Manual,Sanity Test,P2,Create Wizard,,,C1552317
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check action mode selection should display IMMEDIATE and SCHEDULED options in Create wizard,,Admin is on Create wizard action step,"1. Navigate to action configuration step
+2. Observe action mode options","1. IMMEDIATE option is displayed with description
+2. SCHEDULED option is displayed with description
+3. Default selection is IMMEDIATE",Web,Manual,Smoke Test,P1,Create Wizard,,,C1552318
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check SCHEDULED action mode should require delivery time when selected in Create wizard,,Admin is on Create wizard action step,"1. Select SCHEDULED action mode
+2. Observe additional fields
+3. Attempt to proceed without setting time","1. Delivery time picker appears
+2. Validation error shows when time is not set
+3. Cannot proceed to next step without time",Web,Manual,Smoke Test,P2,Create Wizard,,,C1552319
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check validation error should appear when job name is empty in Create wizard,Empty job name field,Admin is on Create wizard Step 1,"1. Leave job name field empty
+2. Click Next or attempt to proceed
+3. Observe validation","1. Validation error message appears below name field
+2. Field is highlighted in red
+3. User cannot proceed to next step",Web,Manual,Regression Test,P1,Create Wizard,,,C1552320
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check validation error should appear when process endpoint URL is not HTTPS,Process endpoint: http://api.example.com/process,Admin is on Create wizard process step,"1. Enter HTTP (not HTTPS) URL in process endpoint field
+2. Attempt to proceed
+3. Observe validation","1. Validation error shows HTTPS is required
+2. Field is highlighted with error state
+3. User cannot proceed with HTTP URL",Web,Manual,Regression Test,P1,Create Wizard,,,C1552321
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check validation error should appear when audience is empty in Create wizard,No users or groups selected,Admin is on Create wizard audience step,"1. Do not select any users or groups
+2. Attempt to create job
+3. Observe validation","1. Validation error shows audience is required
+2. Create button remains disabled
+3. Error message indicates at least 1 user or group needed",Web,Manual,Regression Test,P1,Create Wizard,,,C1552322
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check validation should reject runUntilTimes when value exceeds maximum of 10,runUntilTimes: 11,Admin is on Create wizard schedule step with termination enabled,"1. Select Run Until Times option
+2. Enter value 11
+3. Observe validation","1. Validation error shows maximum is 10
+2. Field shows error state
+3. Cannot proceed with invalid value",Web,Manual,Regression Test,P2,Create Wizard,,,C1552323
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Create wizard should handle correctly when navigating back and forth between steps,Partially filled form data in each step,Admin is on Create wizard with data entered in steps 1-3,"1. Navigate to step 3
+2. Click Back to step 2
+3. Click Back to step 1
+4. Click Next through all steps","1. All previously entered data is preserved
+2. No data loss when navigating between steps
+3. Validation state is maintained",Web,Manual,Regression Test,P2,Create Wizard,,,C1552324
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Create wizard should prevent duplicate job names when name already exists,Job name: Existing Morning Brief (already in use),Admin is on Create wizard Step 1 / a job with same name exists,"1. Enter a job name that already exists
+2. Attempt to proceed or create
+3. Observe validation","1. Validation error shows name already exists
+2. User is prompted to choose a different name",Web,Manual,Regression Test,P2,Create Wizard,,,C1552325
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check job configuration page should display all fields when opening an existing job,Existing scheduled job with all fields configured,Admin is logged in to EkoAI Console,"1. Navigate to Dashboard
+2. Click on an existing job
+3. Observe configuration page","1. Job name field is populated
+2. Schedule configuration shows current RRULE
+3. Process endpoint URL is displayed
+4. Action mode is shown
+5. Audience section shows current selection",Web,Manual,Smoke Test,P1,Job Configuration,,,C1552326
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check job name should be updated successfully when editing on configuration page,New job name: Updated Morning Brief,Admin is on job configuration page,"1. Clear existing job name
+2. Enter new job name
+3. Click Save
+4. Observe result","1. Job name is updated
+2. Success message is displayed
+3. Dashboard reflects new name",Web,Manual,Smoke Test,P1,Job Configuration,,,C1552327
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check active/inactive toggle should update job status on configuration page,,Admin is on configuration page of an Active job,"1. Click active/inactive toggle
+2. Confirm status change
+3. Observe result","1. Toggle switches to Inactive state
+2. Job status updates immediately
+3. isEnabled field is set to false",Web,Manual,Smoke Test,P1,Job Configuration,,,C1552328
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check schedule change should recalculate nextRun when RRULE is modified on configuration page,Change from daily to weekly schedule,Admin is on configuration page of an existing job,"1. Modify schedule from daily to weekly (Monday)
+2. Save configuration
+3. Observe nextRun display","1. nextRun is recalculated based on new RRULE
+2. Next occurrence shows correct Monday date
+3. Schedule preview updates",Web,Manual,Smoke Test,P1,Job Configuration,,,C1552329
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check delete confirmation dialog should appear when clicking delete button on configuration page,,Admin is on job configuration page,"1. Click Delete button
+2. Observe confirmation dialog","1. Confirmation dialog appears
+2. Dialog shows job name
+3. Cancel and Confirm buttons are present",Web,Manual,Sanity Test,P2,Job Configuration,,,C1552330
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check job should be deleted successfully when confirming deletion on configuration page,,Admin is on job configuration page / delete dialog is open,"1. Click Confirm Delete button
+2. Observe result","1. Job is deleted successfully
+2. User is redirected to Dashboard
+3. Deleted job is no longer in list",Web,Manual,Regression Test,P1,Job Configuration,,,C1552331
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check validation error should appear when saving configuration with empty required fields,Job name cleared to empty,Admin is on job configuration page,"1. Clear the job name field
+2. Click Save
+3. Observe validation","1. Validation error appears for empty name
+2. Save is prevented
+3. Error message is descriptive",Web,Manual,Regression Test,P1,Job Configuration,,,C1552332
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check configuration should reject invalid process endpoint URL format,Process endpoint: not-a-valid-url,Admin is on job configuration page,"1. Enter invalid URL in process endpoint field
+2. Click Save
+3. Observe validation","1. Validation error shows invalid URL format
+2. Save is prevented
+3. Field shows error state",Web,Manual,Regression Test,P2,Job Configuration,,,C1552333
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check configuration should handle concurrent edits when two admins edit the same job,Two admin sessions with same job open,Admin A and Admin B both have same job configuration open,"1. Admin A changes job name and saves
+2. Admin B changes schedule and saves
+3. Observe conflict handling","1. Second save either shows conflict warning or merges changes
+2. No silent data loss occurs
+3. Final state is consistent",Web,Manual,Regression Test,P2,Job Configuration,,,C1552334
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check configuration page should preserve unsaved changes when navigating away accidentally,Unsaved form edits,Admin has made changes on configuration page,"1. Modify job name
+2. Click sidebar navigation to leave page
+3. Observe browser behavior","1. Unsaved changes warning appears
+2. User can choose to stay or leave
+3. Choosing stay preserves edits",Web,Manual,Regression Test,P2,Job Configuration,,,C1552335
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check process timeout field should accept values within valid range on configuration page,Timeout values: 1s / 100s / maximum,Admin is on job configuration page,"1. Set process timeout to 1 second
+2. Save and verify
+3. Set process timeout to 100 seconds (default)
+4. Save and verify","1. Both values are accepted
+2. Default shows 100s
+3. Field validates within allowed range",Web,Manual,Regression Test,P1,Job Configuration,,,C1552336
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check audience table should display selected users when users are added to job,2 individual users selected as audience,Admin is on Recipients page of a job with users assigned,"1. Navigate to Recipients page
+2. Observe audience table","1. Table shows 2 user rows
+2. Each row displays user name and email
+3. Total audience count shows 2",Web,Manual,Smoke Test,P1,Recipients,,,C1552337
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check audience table should display group members when a group is added to job,1 user group with 5 members,Admin is on Recipients page of a job with 1 group assigned,"1. Navigate to Recipients page
+2. Observe audience table and group display","1. Group name is displayed
+2. Member count shows 5
+3. Expandable view shows individual members",Web,Manual,Smoke Test,P1,Recipients,,,C1552338
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check user should be added to audience when selecting from user search on Recipients page,User to add: testuser@example.com,Admin is on Recipients page,"1. Click Add User button
+2. Search for testuser@example.com
+3. Select the user
+4. Observe audience table","1. User search returns matching results
+2. Selected user appears in audience table
+3. Audience count increments by 1",Web,Manual,Smoke Test,P1,Recipients,,,C1552339
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check group should be added to audience when selecting from group search on Recipients page,Group to add: QA Team (10 members),Admin is on Recipients page,"1. Click Add Group button
+2. Search for QA Team
+3. Select the group
+4. Observe audience table","1. Group appears in audience list
+2. Member count shows 10
+3. Audience total updates",Web,Manual,Sanity Test,P1,Recipients,,,C1552340
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check user should be removed from audience when clicking remove button on Recipients page,Existing user in audience list,Admin is on Recipients page with at least 1 user,"1. Click remove button next to a user
+2. Confirm removal
+3. Observe audience table","1. User is removed from audience list
+2. Audience count decrements by 1
+3. Removed user no longer appears",Web,Manual,Sanity Test,P2,Recipients,,,C1552341
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check audience count should display correct total when both users and groups are combined,2 individual users + 1 group with 5 members = 7 total,Admin is on Recipients page with mixed audience,"1. Add 2 individual users
+2. Add 1 group with 5 members
+3. Observe total audience count","1. Total count shows 7
+2. Breakdown shows 2 users + 1 group (5 members)
+3. No duplicate counting for overlapping members",Web,Manual,Regression Test,P1,Recipients,,,C1552342
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check audience resolution should happen at trigger time not at configuration time,Group membership changes between config and trigger,Admin configures job with group of 5 members / then 2 new members are added to group,"1. Configure job with group audience
+2. Add 2 new members to the group via Eko Platform
+3. Trigger the job
+4. Observe audience count at run time","1. Job processes 7 users (5 original + 2 new)
+2. Audience was resolved at trigger time
+3. Run log shows 7 recipients",API,Manual,Regression Test,P1,Recipients,,,C1552343
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check validation error should appear when attempting to save job with empty audience,No users or groups selected,Admin is on Recipients page with empty audience,"1. Remove all users and groups
+2. Attempt to save configuration
+3. Observe validation","1. Validation error shows audience cannot be empty
+2. Save is prevented
+3. Error message is descriptive",Web,Manual,Regression Test,P1,Recipients,,,C1552344
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check Recipients page should handle correctly when a user in audience is deactivated,User in audience list has been deactivated on Eko Platform,Admin is on Recipients page / one audience user is deactivated,"1. Navigate to Recipients page
+2. Observe deactivated user row
+3. Check job trigger behavior","1. Deactivated user is marked or flagged in audience list
+2. System handles deactivated user gracefully at trigger time",Web,Manual,Regression Test,P2,Recipients,,,C1552345
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check audience table should handle correctly when audience contains 500+ users across groups,Multiple groups totaling 500+ unique users,Admin is on Recipients page with large audience,"1. Add multiple groups totaling 500+ members
+2. Observe audience table performance
+3. Check audience count accuracy","1. Table loads without timeout
+2. Pagination or virtual scrolling is functional
+3. Total count is accurate",Web,Manual,Regression Test,P2,Recipients,,,C1552346
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Check duplicate user should not be counted twice when same user exists in multiple groups,User exists in Group A and Group B,Admin adds both Group A and Group B to audience,"1. Add Group A (contains user X)
+2. Add Group B (also contains user X)
+3. Observe total audience count","1. User X is not double-counted
+2. Total audience count reflects unique users only
+3. Deduplication is handled correctly",Web,Manual,Regression Test,P2,Recipients,,,C1552347
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check history logs should display run records when job has been executed at least once,Job with 3 completed runs,Admin is logged in / job has execution history,"1. Navigate to job detail
+2. Click History Logs tab
+3. Observe run history table","1. History table shows 3 run records
+2. Each row shows run date / status / duration
+3. Records are sorted by date descending",Web,Manual,Smoke Test,P1,History Logs,,,C1552348
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check run status should display correct color coding for SUCCESS / FAILED / PARTIAL / PROCESSING states,Runs with each status type,Admin is on History Logs with mixed-status runs,"1. Navigate to History Logs
+2. Observe status badges for each run","1. SUCCESS shows green badge
+2. FAILED shows red badge
+3. PARTIAL shows orange badge
+4. PROCESSING shows blue/spinning badge",Web,Manual,Smoke Test,P1,History Logs,,,C1552349
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check run detail view should open when clicking on a history log entry,Completed run with 10 users processed,Admin is on History Logs tab,"1. Click on a completed run entry
+2. Observe detail view","1. Detail view opens
+2. Shows per-user processing status
+3. Total / success / failed counts are displayed
+4. Timestamps are shown",Web,Manual,Smoke Test,P1,History Logs,,,C1552350
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check failure logs should display error details when viewing a failed run in History Logs,Run with 3 failed user processes,Admin is on History Logs / a failed run exists,"1. Click on a failed run entry
+2. Observe failure details
+3. Check per-user error information","1. Failure log section is visible
+2. Each failed user shows error message
+3. Error details include HTTP status and response body summary",Web,Manual,Sanity Test,P1,History Logs,,,C1552351
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check per-user status should be visible when expanding a run detail in History Logs,Run with 5 SUCCESS and 2 FAILED users,Admin is on History Logs detail view,"1. Open run detail
+2. Observe per-user status list","1. Each user shows individual status (SUCCESS or FAILED)
+2. Success count shows 5
+3. Failed count shows 2
+4. Total matches 7",Web,Manual,Sanity Test,P2,History Logs,,,C1552352
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check History Logs should show empty state when job has never been executed,Newly created job with no runs,Admin is on History Logs of a new job,"1. Navigate to History Logs tab of a new job
+2. Observe page content","1. Empty state message is displayed
+2. Message indicates no runs yet
+3. No table rows are shown",Web,Manual,Regression Test,P2,History Logs,,,C1552353
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check History Logs should handle correctly when a run is currently in PROCESSING state,Active run in progress,Admin is on History Logs / a run is currently processing,"1. Navigate to History Logs during an active run
+2. Observe the processing run entry","1. Processing run shows at top of list
+2. Status shows PROCESSING with loading indicator
+3. Run detail shows real-time per-user progress",Web,Manual,Regression Test,P1,History Logs,,,C1552354
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check History Logs pagination should work correctly when job has 50+ run records,Job with 50+ historical runs,Admin is on History Logs with many records,"1. Navigate to History Logs
+2. Scroll or click to page 2
+3. Observe pagination behavior","1. First page shows default number of records
+2. Pagination controls are visible
+3. Page 2 loads next batch of records correctly",Web,Manual,Regression Test,P2,History Logs,,,C1552355
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check PARTIAL status should be shown correctly when a run has mixed success and failure results,Run with 7 SUCCESS / 3 FAILED out of 10 users,Admin is on History Logs,"1. Locate a run with partial completion
+2. Observe status badge
+3. Open detail view","1. Run status shows PARTIAL (not SUCCESS or FAILED)
+2. Badge shows orange color
+3. Detail shows 7 success / 3 failed breakdown",Web,Manual,Regression Test,P1,History Logs,,,C1552356
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check History Logs should display correct duration for long-running jobs that took over 1 hour,Run that took 1 hour 23 minutes,Admin is on History Logs with a long-running completed job,"1. Locate the long-running job in History Logs
+2. Observe the duration column","1. Duration shows 1h 23m format (not raw milliseconds)
+2. Time format is human-readable",Web,Manual,Regression Test,P2,History Logs,,,C1552357
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check scheduler should trigger job when nextRun time is reached,Job with nextRun set to current time,Active scheduled job exists with upcoming nextRun,"1. Create job with nextRun in 1 minute
+2. Wait for trigger time
+3. Observe job execution","1. Scheduler picks up the job at nextRun time
+2. Job run is created with PROCESSING status
+3. Audience is resolved from users[] and groups[]",API,Manual,Smoke Test,P1,Trigger Step,,,C1552358
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check nextRun should be recalculated based on RRULE after successful job execution,Job with FREQ=DAILY RRULE,Job has just completed a run,"1. Trigger a daily scheduled job
+2. After run completes / check nextRun
+3. Verify RRULE calculation","1. nextRun is updated to next occurrence per RRULE
+2. Date matches expected DTSTART + RRULE calculation
+3. isEnabled remains true",API,Manual,Smoke Test,P1,Trigger Step,,,C1552359
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check job should create frozen config snapshot at trigger time,Job with specific configuration,Active scheduled job exists,"1. Trigger the job
+2. Inspect ScheduledJobRun record
+3. Verify snapshot contains config at trigger time","1. Run record contains frozen copy of job config
+2. Snapshot includes RRULE / audience / process / action settings
+3. Subsequent config changes do not affect running job",API,Manual,Sanity Test,P1,Trigger Step,,,C1552360
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check RRULE with BYSETPOS should calculate correct occurrence dates for complex schedules,RRULE: FREQ=MONTHLY;BYDAY=MO;BYSETPOS=1 (first Monday of each month),Job configured with complex RRULE,"1. Create job with first-Monday-of-month RRULE
+2. Check nextRun calculations for 3 months
+3. Verify accuracy","1. nextRun correctly identifies first Monday of each month
+2. Edge cases (month starting on Monday) are handled
+3. No off-by-one errors",API,Manual,Sanity Test,P2,Trigger Step,,,C1552361
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check scheduler should NOT trigger job when isEnabled is false,Inactive job with past nextRun,Job exists with isEnabled=false and nextRun in the past,"1. Set job to inactive (isEnabled=false)
+2. Wait past the nextRun time
+3. Observe scheduler behavior","1. Scheduler does not pick up the job
+2. No run record is created
+3. nextRun is not recalculated",API,Manual,Regression Test,P1,Trigger Step,,,C1552362
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check job should terminate when runUntilTimes limit is reached,runUntilTimes: 3 / job has completed 3 runs,Job has run exactly 3 times / runUntilTimes is set to 3,"1. Verify job has completed 3 runs
+2. Check job status after 3rd run
+3. Verify no 4th run is triggered","1. Job is automatically disabled after 3rd run
+2. isEnabled is set to false
+3. No further runs are scheduled",API,Manual,Regression Test,P1,Trigger Step,,,C1552363
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check job should terminate when endDate is reached,endDate: yesterday's date / nextRun: today,Job with endDate that has passed,"1. Check job with expired endDate
+2. Verify scheduler behavior
+3. Check job status","1. Scheduler does not trigger job past endDate
+2. Job status shows completed or disabled
+3. No new runs are created",API,Manual,Regression Test,P1,Trigger Step,,,C1552364
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check scheduler should handle correctly when RRULE generates no more occurrences,RRULE with COUNT=1 and job has already run once,Job with finite RRULE that has exhausted all occurrences,"1. Create job with RRULE COUNT=1
+2. Run once
+3. Check nextRun after completion","1. nextRun is null or empty
+2. Job is disabled (no more occurrences)
+3. No error is thrown",API,Manual,Regression Test,P2,Trigger Step,,,C1552365
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check trigger should prevent concurrent execution when same job is triggered while already running,Job already in PROCESSING state,An active run exists for the same job,"1. Trigger job while a run is still PROCESSING
+2. Observe system behavior","1. Second trigger is rejected or queued
+2. No duplicate run is created
+3. Active run continues unaffected",API,Manual,Regression Test,P1,Trigger Step,,,C1552366
+EkoAI Console > Release 18.00 (Morning Brief) > Trigger Step (API),Admin,API,Check trigger should handle timezone correctly when DTSTART uses different timezone offset,DTSTART with UTC+7 offset / server in UTC,Job with timezone-aware RRULE,"1. Create job with DTSTART in UTC+7
+2. Verify nextRun conversion to server timezone
+3. Check trigger accuracy","1. nextRun is correctly converted to server timezone
+2. Job triggers at expected local time
+3. No DST or offset miscalculation",API,Manual,Regression Test,P2,Trigger Step,,,C1552367
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should dispatch individual request for each audience user to external endpoint,10 users in audience / process endpoint configured,Job is triggered / audience resolved to 10 users,"1. Trigger job with 10 audience users
+2. Monitor requests to process endpoint
+3. Verify per-user dispatch","1. External endpoint receives 10 individual requests
+2. Each request contains unique user context
+3. All 10 requests are dispatched",API,Manual,Smoke Test,P1,Process Step,,,C1552368
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should use slow-start adaptive throttling algorithm,50 users in audience,Job is triggered with large audience,"1. Trigger job with 50 users
+2. Monitor request dispatch timing
+3. Observe throttling pattern","1. Initial requests are dispatched slowly
+2. Rate increases gradually (slow-start)
+3. No burst of all 50 requests at once",API,Manual,Smoke Test,P1,Process Step,,,C1552369
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check webhook should be sent to process endpoint with correct payload format,Expected payload: POST {endpoint}/webhook with x-api-key header,Job is triggered / process step is executing,"1. Trigger job
+2. Capture webhook request at process endpoint
+3. Verify payload structure","1. Request method is POST
+2. URL is {endpoint}/webhook
+3. x-api-key header is present
+4. Payload contains user context and job metadata",API,Manual,Smoke Test,P1,Process Step,,,C1552370
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should timeout after configured limit when endpoint does not respond,Process endpoint configured to delay 120s / timeout set to 100s,Job with process timeout of 100s,"1. Configure process endpoint to delay response
+2. Trigger job
+3. Wait for timeout period","1. Process request times out after 100s
+2. User status is marked as FAILED
+3. Timeout error is logged",API,Manual,Sanity Test,P1,Process Step,,,C1552371
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check webhook ack timeout should fail after 10 seconds when endpoint does not acknowledge,Endpoint delays ack beyond 10s,Job is triggered / process step starts,"1. Configure endpoint to delay ack beyond 10s
+2. Trigger job
+3. Observe timeout behavior","1. Webhook ack timeout occurs after 10s
+2. Request is marked for retry
+3. Error is logged with timeout reason",API,Manual,Sanity Test,P2,Process Step,,,C1552372
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should retry 3 times when endpoint returns 5xx error,Endpoint returns 500 Internal Server Error,Job is triggered / process step hits server error,"1. Configure endpoint to return 500 error
+2. Trigger job
+3. Observe retry behavior","1. System retries the request 3 times
+2. Each retry is logged
+3. After 3 failures / user status is FAILED",API,Manual,Regression Test,P1,Process Step,,,C1552373
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should NOT retry when endpoint returns 4xx client error,Endpoint returns 400 Bad Request,Job is triggered / process step hits client error,"1. Configure endpoint to return 400 error
+2. Trigger job
+3. Observe retry behavior","1. System does NOT retry the request
+2. User status is immediately marked FAILED
+3. Error response is logged",API,Manual,Regression Test,P1,Process Step,,,C1552374
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should retry 3 times when endpoint times out,Endpoint does not respond within timeout,Job is triggered with default timeout,"1. Configure endpoint to not respond
+2. Trigger job
+3. Observe timeout retry behavior","1. System retries 3 times after each timeout
+2. Each retry resets the timeout timer
+3. After 3 timeout failures / user status is FAILED",API,Manual,Regression Test,P1,Process Step,,,C1552375
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should mark user as SUCCESS when endpoint returns 200 with valid response,Endpoint returns 200 OK with valid JSON body,Job is triggered / process step executing,"1. Configure endpoint to return 200 OK
+2. Trigger job
+3. Observe user process status","1. User process status is SUCCESS
+2. Response body is stored for callback
+3. Process duration is recorded",API,Manual,Regression Test,P2,Process Step,,,C1552376
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should handle correctly when audience contains 1000 users,Audience with 1000 users,Job is triggered with large audience,"1. Trigger job with 1000 user audience
+2. Monitor system resources and queue
+3. Observe completion","1. All 1000 requests are dispatched via throttling
+2. BullMQ queue handles load without memory issues
+3. Run completes with all users processed",API,Manual,Regression Test,P1,Process Step,,,C1552377
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should create dynamic BullMQ queue for each job run,Job triggered twice in sequence,Two separate job runs,"1. Trigger job run A
+2. After completion / trigger job run B
+3. Inspect queue names","1. Run A creates its own dynamic queue
+2. Run B creates a separate dynamic queue
+3. Queues are isolated per run",API,Manual,Regression Test,P2,Process Step,,,C1552378
+EkoAI Console > Release 18.00 (Morning Brief) > Process Step (API),Admin,API,Check process step should handle correctly when external endpoint returns empty response body,Endpoint returns 200 with empty body,Job is triggered / process step executing,"1. Configure endpoint to return 200 with empty body
+2. Trigger job
+3. Observe handling","1. User process status is SUCCESS (200 is still success)
+2. Empty response is stored without error
+3. Callback can proceed",API,Manual,Regression Test,P2,Process Step,,,C1552379
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should be accepted when valid scheduled_job_api_key is provided,Callback payload: id / status=success / quotaConsumed / result.homePage,Job run is in PROCESSING state / callback key exists,"1. Send POST /v1/scheduled-jobs/runs/callback
+2. Include valid scheduled_job_api_key header
+3. Include correct payload","1. Callback is accepted (200 OK)
+2. Run user status is updated to SUCCESS
+3. HomePage data from result.homePage is stored",API,Manual,Smoke Test,P1,Callback,,,C1552380
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should update user status to FAILED when status is fail in payload,Callback payload: id / status=fail,Job run is in PROCESSING state,"1. Send callback with status=fail
+2. Observe user status update","1. Callback is accepted
+2. User status is updated to FAILED
+3. Failure reason is stored from payload",API,Manual,Smoke Test,P1,Callback,,,C1552381
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback auth key should be generated when creating a new ScheduledJob,,No scheduled job exists yet,"1. Create a new ScheduledJob via API
+2. Inspect the generated callback key","1. Callback key is generated in scbk_<uuid> format
+2. Key is stored with the ScheduledJob record
+3. Key is unique per job",API,Manual,Smoke Test,P1,Callback,,,C1552382
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should be rejected when invalid or missing scheduled_job_api_key is provided,Missing or wrong API key in header,Job run is in PROCESSING state,"1. Send callback without scheduled_job_api_key
+2. Send callback with invalid key
+3. Observe responses","1. Missing key returns 401 Unauthorized
+2. Invalid key returns 401 Unauthorized
+3. No status update occurs",API,Manual,Regression Test,P1,Callback,,,C1552383
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should be rejected when run ID does not match any active run,Callback with non-existent run ID,No matching run exists,"1. Send callback with fabricated run ID
+2. Observe response","1. Callback returns 404 Not Found
+2. No data is modified",API,Manual,Regression Test,P1,Callback,,,C1552384
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should store quotaConsumed value when provided in payload,Callback with quotaConsumed: 5,Job run is in PROCESSING state,"1. Send callback with quotaConsumed=5
+2. Verify stored value","1. quotaConsumed value is stored in run record
+2. Value matches sent payload (5)",API,Manual,Sanity Test,P2,Callback,,,C1552385
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should handle correctly when same user sends callback twice for same run,Duplicate callback for same user and run,First callback already processed successfully,"1. Send callback for user A in run X (success)
+2. Send second callback for same user A in run X
+3. Observe behavior","1. Second callback is handled idempotently
+2. No duplicate status records created
+3. Final status reflects latest callback",API,Manual,Regression Test,P1,Callback,,,C1552386
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should handle correctly when payload contains malformed JSON,Malformed JSON: {id: missing-quote},Job run is in PROCESSING state,"1. Send callback with invalid JSON body
+2. Observe response","1. Server returns 400 Bad Request
+2. Error message indicates JSON parse failure
+3. No partial update occurs",API,Manual,Regression Test,P2,Callback,,,C1552387
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should process result.homePage data when status is success,Callback with result.homePage containing content blocks,Job run is in PROCESSING state,"1. Send success callback with result.homePage data
+2. Verify HomePage record creation","1. HomePage record is created with content from result.homePage
+2. refId is set to run_id:run_user_id format
+3. expiresAt is set to 24h from creation",API,Manual,Regression Test,P1,Callback,,,C1552388
+EkoAI Console > Release 18.00 (Morning Brief) > Callback (API),Admin,API,Check callback should handle correctly when result.homePage is null or missing on success status,Callback with status=success but no result.homePage,Job run is in PROCESSING state,"1. Send success callback without result.homePage
+2. Observe behavior","1. Callback is accepted
+2. User status is SUCCESS
+3. No HomePage record is created
+4. No error is thrown",API,Manual,Regression Test,P2,Callback,,,C1552389
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check IMMEDIATE action should deliver HomePage when process completes successfully,Action mode: IMMEDIATE / user process status: SUCCESS,Job with IMMEDIATE action mode / process completed for user,"1. Configure job with IMMEDIATE action mode
+2. Trigger job
+3. Process completes for a user
+4. Observe delivery","1. HomePage is delivered immediately after process success
+2. No delay between process completion and delivery
+3. Push notification HOME_PAGE_DELIVERED is sent",API,Manual,Smoke Test,P1,Action Step,,,C1552390
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check SCHEDULED action should deliver HomePage at specified time,Action mode: SCHEDULED / delivery time: 09:00 AM,Job with SCHEDULED action mode / all users processed,"1. Configure job with SCHEDULED action at 09:00
+2. Trigger job and complete processing
+3. Wait until 09:00
+4. Observe delivery","1. HomePage is NOT delivered immediately after processing
+2. Delivery occurs at 09:00 AM
+3. All processed users receive HomePage at scheduled time",API,Manual,Smoke Test,P1,Action Step,,,C1552391
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check push notification should be sent with HOME_PAGE_DELIVERED event on first delivery,First-time HomePage delivery for user,User has no existing HomePage for this run,"1. Complete process for a user
+2. Deliver HomePage (first time)
+3. Observe push notification","1. Push notification is sent
+2. Event type is HOME_PAGE_DELIVERED
+3. Notification contains relevant HomePage info",API,Manual,Smoke Test,P1,Action Step,,,C1552392
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check push notification should be sent with HOME_PAGE_UPDATED event on retry/update delivery,Same run retry for existing HomePage,User already has HomePage record for this run,"1. Deliver initial HomePage to user
+2. Retry delivery for same run
+3. Observe push notification","1. Push notification is sent
+2. Event type is HOME_PAGE_UPDATED (not DELIVERED)
+3. Existing HomePage record is updated via PUT",API,Manual,Sanity Test,P1,Action Step,,,C1552393
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check real-time event should be dispatched via DeviceQueueService with home_page event type,HomePage delivery triggered,User has active device connection,"1. Deliver HomePage to user
+2. Monitor DeviceQueueService
+3. Observe real-time event","1. DeviceQueueService dispatches event
+2. Event type is home_page
+3. Event payload contains HomePage reference",API,Manual,Regression Test,P1,Action Step,,,C1552394
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check action step should skip delivery for users with FAILED process status,User process status: FAILED,Job with IMMEDIATE action mode / one user process failed,"1. Trigger job where one user process fails
+2. Observe action step for failed user","1. Action step skips delivery for failed user
+2. No HomePage record created for failed user
+3. No push notification sent for failed user",API,Manual,Regression Test,P1,Action Step,,,C1552395
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check same-run retry should use PUT to update existing HomePage record,Retry callback for same run_id and user_id,User already has HomePage for current run,"1. Deliver initial HomePage
+2. Receive retry callback for same run
+3. Trigger redelivery","1. Existing HomePage record is updated via PUT (not POST)
+2. Content is replaced with retry data
+3. HOME_PAGE_UPDATED notification is sent",API,Manual,Regression Test,P1,Action Step,,,C1552396
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check different-run delivery should use POST to create new HomePage record,New run for same user,User has HomePage from previous run,"1. Complete run 1 with HomePage for user
+2. Trigger run 2 for same user
+3. Deliver new HomePage","1. New HomePage record is created via POST
+2. Both records coexist (append model)
+3. Each has unique refId (run_id:run_user_id)",API,Manual,Regression Test,P1,Action Step,,,C1552397
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check SCHEDULED action should handle correctly when delivery time is in the past at trigger time,SCHEDULED delivery at 08:00 / job triggered at 10:00,Job with SCHEDULED action / delivery time already passed,"1. Configure SCHEDULED action at 08:00
+2. Trigger job at 10:00
+3. Observe delivery behavior","1. System handles past delivery time gracefully
+2. Either delivers immediately or queues for next day
+3. No error or silent failure",API,Manual,Regression Test,P2,Action Step,,,C1552398
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check action step should handle correctly when all users in a run have FAILED process status,All 5 users in audience have FAILED status,Job run with 5 users / all process steps failed,"1. Trigger job where all user processes fail
+2. Observe action step behavior
+3. Check final run status","1. Action step has no users to deliver to
+2. Run status is set to FAILED (not PARTIAL)
+3. No HomePage records created",API,Manual,Regression Test,P2,Action Step,,,C1552399
+EkoAI Console > Release 18.00 (Morning Brief) > Action Step (API),Admin,API,Check action step should handle correctly when HomePage content exceeds maximum allowed size,result.homePage with very large content blocks (>1MB),Job run in PROCESSING state,"1. Send callback with oversized homePage content
+2. Observe action step behavior","1. System rejects or truncates oversized content
+2. Error is logged with size details
+3. User status reflects the failure",API,Manual,Regression Test,P2,Action Step,,,C1552400
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should timeout stuck run after 24 hours default period,Run stuck in PROCESSING for 24+ hours,Job run started 24+ hours ago / still in PROCESSING,"1. Create a run that gets stuck in PROCESSING
+2. Wait for 24h cutoff period
+3. Observe cutoff behavior","1. BullMQ cron job detects the stuck run
+2. Run status is updated to FAILED
+3. Remaining unprocessed users are marked as timed out",API,Manual,Smoke Test,P1,Cutoff Timeout,,,C1552401
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff BullMQ cron should run every 1 minute to detect stuck runs,,System is running with active jobs,"1. Monitor BullMQ cron job execution
+2. Verify interval timing","1. Cutoff cron executes every 1 minute
+2. Each execution checks for runs exceeding timeout
+3. No runs are missed between intervals",API,Manual,Smoke Test,P1,Cutoff Timeout,,,C1552402
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should use scheduledJobRunId for deduplication when processing timeouts,Two cutoff checks for same stuck run,Stuck run detected by consecutive cron executions,"1. Allow cutoff cron to detect stuck run
+2. Observe next cron execution for same run
+3. Verify deduplication","1. Cutoff timeout is applied only once per run
+2. Second detection is deduplicated via scheduledJobRunId
+3. No duplicate status updates",API,Manual,Sanity Test,P1,Cutoff Timeout,,,C1552403
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should NOT timeout a run that completes just before the 24h mark,Run completes at 23h 59m,Job run completing near the cutoff boundary,"1. Create a run that takes 23h 59m to complete
+2. Run completes just before cutoff
+3. Observe status","1. Run status is SUCCESS (not timed out)
+2. Cutoff does not override completed status
+3. Completion timestamp is before cutoff check",API,Manual,Regression Test,P1,Cutoff Timeout,,,C1552404
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should handle correctly when multiple runs are stuck simultaneously,3 different runs all stuck past 24h,Multiple stuck runs from different jobs,"1. Create 3 stuck runs from different jobs
+2. Wait for cutoff period
+3. Observe cutoff processing","1. All 3 runs are detected and timed out
+2. Each run is processed independently
+3. No run is missed or double-processed",API,Manual,Regression Test,P1,Cutoff Timeout,,,C1552405
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should apply etag-based check to prevent race condition with action completion,Action completing simultaneously with cutoff check,Run is completing action while cutoff cron runs,"1. Simulate action completion at same time as cutoff
+2. Observe etag conflict handling","1. Etag check prevents conflicting updates
+2. Either action or cutoff wins based on etag
+3. No data corruption occurs",API,Manual,Regression Test,P1,Cutoff Timeout,,,C1552406
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should only mark unprocessed users as timed out / not override completed users,Run with 7 SUCCESS users and 3 still PROCESSING at cutoff,Partial completion when cutoff triggers,"1. Create run where 7 users succeed but 3 are still processing
+2. Cutoff triggers after 24h
+3. Observe per-user status","1. 7 users retain SUCCESS status
+2. 3 unprocessed users are marked as TIMED_OUT
+3. Run status is PARTIAL (not FAILED)",API,Manual,Regression Test,P2,Cutoff Timeout,,,C1552407
+EkoAI Console > Release 18.00 (Morning Brief) > Cutoff Timeout (API),Admin,API,Check cutoff should handle correctly when Redis is temporarily unavailable during cron execution,Redis connection interrupted during cutoff check,BullMQ cron is running / Redis goes down,"1. Simulate Redis connection failure during cutoff cron
+2. Observe error handling
+3. Check next cron execution","1. Cutoff cron handles Redis failure gracefully
+2. Error is logged
+3. Next cron execution retries successfully when Redis recovers",API,Manual,Regression Test,P2,Cutoff Timeout,,,C1552408
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage record should be created with correct schema after successful delivery,Valid callback with result.homePage containing content blocks,Action step delivers to user,"1. Deliver HomePage to user
+2. Retrieve HomePage record
+3. Verify schema","1. Record contains content.blocks (Mixed/JSON)
+2. refId is set to run_id:run_user_id format
+3. expiresAt is set to 24h from creation
+4. Record is accessible via API",API,Manual,Smoke Test,P1,Home Page Delivery,,,C1552409
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage should use append model creating new record per run,Two runs for same user,User has HomePage from run 1,"1. Deliver HomePage for run 1
+2. Deliver HomePage for run 2
+3. Query all HomePage records for user","1. Two separate HomePage records exist
+2. Each has unique refId
+3. No 1-per-day limit enforced
+4. Both records are accessible",API,Manual,Smoke Test,P1,Home Page Delivery,,,C1552410
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check same-run retry should PUT update existing HomePage record not create new one,Retry callback for same run,User has existing HomePage for current run,"1. Deliver initial HomePage for run X
+2. Receive retry callback for same run X
+3. Verify record count","1. Only 1 HomePage record exists for this run+user
+2. Record was updated via PUT
+3. Content reflects retry data",API,Manual,Smoke Test,P1,Home Page Delivery,,,C1552411
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage expiresAt should default to 24 hours from creation,HomePage record just created,Fresh HomePage delivery,"1. Deliver HomePage
+2. Retrieve record
+3. Check expiresAt timestamp","1. expiresAt is approximately 24h after creation
+2. Calculation uses default from com.ekoapp.homepage config",API,Manual,Sanity Test,P1,Home Page Delivery,,,C1552412
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage expiresAt should respect dynamic config when expiresInMinutes is changed,com.ekoapp.homepage.expiresInMinutes set to 720 (12h),Dynamic config updated before delivery,"1. Set expiresInMinutes to 720
+2. Deliver HomePage
+3. Check expiresAt","1. expiresAt is 12h from creation (not 24h)
+2. Dynamic config override is applied
+3. Other HomePage records are unaffected",API,Manual,Sanity Test,P2,Home Page Delivery,,,C1552413
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check push notification HOME_PAGE_DELIVERED should be sent on new HomePage creation,First HomePage delivery for user,User has no existing HomePage for this run,"1. Deliver HomePage to user (first time)
+2. Monitor push notifications","1. HOME_PAGE_DELIVERED notification is sent
+2. Notification payload references the new HomePage
+3. User receives notification on device",API,Manual,Regression Test,P1,Home Page Delivery,,,C1552414
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check push notification HOME_PAGE_UPDATED should be sent on existing HomePage update,Retry delivery for existing HomePage,User already has HomePage for this run,"1. Update existing HomePage via retry
+2. Monitor push notifications","1. HOME_PAGE_UPDATED notification is sent (not DELIVERED)
+2. Notification references the updated record",API,Manual,Regression Test,P1,Home Page Delivery,,,C1552415
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check DeviceQueueService should dispatch real-time event with home_page type on delivery,HomePage delivery with active device connection,User has active device session,"1. Deliver HomePage to user with active device
+2. Monitor DeviceQueueService events","1. Event is dispatched with type home_page
+2. Event is received in real-time
+3. Payload contains HomePage reference",API,Manual,Regression Test,P2,Home Page Delivery,,,C1552416
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage record should NOT be created when callback status is fail,Callback with status=fail,Process step failed for user,"1. Send fail callback
+2. Check HomePage records for user","1. No HomePage record is created
+2. User status remains FAILED
+3. No push notification sent",API,Manual,Regression Test,P1,Home Page Delivery,,,C1552417
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check expired HomePage records should not be returned in user queries,HomePage with expiresAt in the past,HomePage created 25 hours ago (expired),"1. Wait for HomePage to expire (expiresAt < now)
+2. Query user's HomePage records
+3. Observe results","1. Expired record is not returned in query
+2. Only non-expired records are visible
+3. Record may still exist in DB but filtered",API,Manual,Regression Test,P2,Home Page Delivery,,,C1552418
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage should handle correctly when content.blocks contains empty array,Callback with result.homePage.content.blocks = [],Valid callback with empty blocks,"1. Send callback with empty content blocks
+2. Verify HomePage creation","1. HomePage record is created with empty blocks
+2. No rendering error occurs
+3. Record is valid but has no displayable content",API,Manual,Regression Test,P2,Home Page Delivery,,,C1552419
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage refId format should be run_id:run_user_id and be unique per record,Multiple deliveries for different users in same run,Run with 3 users,"1. Deliver HomePage to 3 users in same run
+2. Retrieve all records
+3. Compare refIds","1. Each refId follows run_id:run_user_id format
+2. All 3 refIds are unique
+3. refId can be used to identify specific delivery",API,Manual,Regression Test,P1,Home Page Delivery,,,C1552420
+EkoAI Console > Release 18.00 (Morning Brief) > Home Page Delivery (API),Admin,API,Check HomePage delivery should handle correctly when 50 users receive delivery simultaneously,50 concurrent HomePage deliveries,Run with 50 users / all process steps completed,"1. Trigger delivery for 50 users at once
+2. Monitor record creation
+3. Verify all records","1. All 50 HomePage records are created
+2. No duplicate or missing records
+3. Each record has correct refId and content",API,Manual,Regression Test,P1,Home Page Delivery,,,C1552421
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check recognized widget types should render correctly when HomePage contains valid widgets,HomePage with text / image / list widget types,User has a HomePage with multiple recognized widgets,"1. Open HomePage on user device
+2. Observe widget rendering","1. Text widget renders with correct content
+2. Image widget displays the image
+3. List widget shows items in order
+4. All widgets render without error",Web,Manual,Smoke Test,P1,Widget Rendering,,,C1552422
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check widgets should render in array order as defined in content.blocks,HomePage with 3 widgets in specific order: header / image / footer,User has a HomePage with ordered widgets,"1. Open HomePage
+2. Verify widget display order","1. Header widget appears first
+2. Image widget appears second
+3. Footer widget appears last
+4. Order matches content.blocks array index",Web,Manual,Smoke Test,P1,Widget Rendering,,,C1552423
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check unrecognized widget type should be silently ignored during rendering,HomePage with unknown widget type: custom_chart_v2,User has a HomePage containing an unrecognized widget type,"1. Open HomePage with unrecognized widget
+2. Observe rendering behavior","1. Unrecognized widget is skipped
+2. Other widgets render normally
+3. No error message shown to user
+4. Page layout is not broken",Web,Manual,Sanity Test,P1,Widget Rendering,,,C1552424
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check corrupted widget config should be ignored without generating errors,HomePage with one widget having malformed JSON structure,User has a HomePage with corrupted widget config,"1. Open HomePage with corrupted widget
+2. Observe rendering behavior","1. Corrupted widget is ignored
+2. Other valid widgets render normally
+3. No error is shown to user
+4. No crash or blank page",Web,Manual,Sanity Test,P2,Widget Rendering,,,C1552425
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check nested wrapper widgets should render correctly up to maximum 3 levels deep,HomePage with 3-level nested wrapper structure,User has a HomePage with nested wrappers,"1. Open HomePage with 3-level nested widgets
+2. Observe rendering of each level","1. Level 1 wrapper renders correctly
+2. Level 2 nested wrapper renders inside level 1
+3. Level 3 nested wrapper renders inside level 2
+4. All content at each level is visible",Web,Manual,Regression Test,P1,Widget Rendering,,,C1552426
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check widget rendering should handle correctly when nesting exceeds 3 levels,HomePage with 4-level nested wrapper structure,User has a HomePage with excessive nesting,"1. Open HomePage with 4-level nested widgets
+2. Observe rendering behavior","1. First 3 levels render correctly
+2. 4th level is either ignored or rendered flat
+3. No error or crash occurs
+4. Page remains usable",Web,Manual,Regression Test,P1,Widget Rendering,,,C1552427
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check wrapper widget should enforce maximum 10 widgets per wrapper limit,Wrapper with 11 child widgets,User has a HomePage with wrapper containing 11 widgets,"1. Open HomePage with 11-widget wrapper
+2. Observe rendering behavior","1. First 10 widgets render correctly
+2. 11th widget is either ignored or handled gracefully
+3. No layout overflow or crash",Web,Manual,Regression Test,P1,Widget Rendering,,,C1552428
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check widget structure should include type / mode / structure / more fields,Widget JSON: { type: text / mode: default / structure: {...} / more: {...} },User has a HomePage with fully structured widget,"1. Inspect widget JSON structure
+2. Verify all required fields are present","1. Widget has type field (determines rendering)
+2. Widget has mode field
+3. Widget has structure field with content
+4. Widget has more field for expansion",API,Manual,Regression Test,P2,Widget Rendering,,,C1552429
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check carousel widget should render with swipeable navigation when type is carousel,HomePage with carousel widget containing 5 items,User has a HomePage with carousel widget,"1. Open HomePage
+2. Locate carousel widget
+3. Swipe through items","1. Carousel renders with first item visible
+2. Swipe navigation works between items
+3. All 5 items are accessible
+4. Indicator shows current position",Web,Manual,Regression Test,P2,Widget Rendering,,,C1552430
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check widget rendering should handle correctly when content.blocks is completely empty,HomePage with content.blocks = [],User has a HomePage with no widgets,"1. Open HomePage with empty blocks
+2. Observe page rendering","1. Page renders without widgets
+2. Empty state or blank content area shown
+3. No error or crash
+4. Page chrome (header / footer) still renders",Web,Manual,Regression Test,P2,Widget Rendering,,,C1552431
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check widget rendering should handle correctly when a single widget has very large content payload,Text widget with 10000+ characters,User has a HomePage with oversized widget content,"1. Open HomePage with very large text widget
+2. Observe rendering and scrolling","1. Widget renders without timeout
+2. Content is scrollable or truncated gracefully
+3. Other widgets are not affected
+4. Page performance remains acceptable",Web,Manual,Regression Test,P2,Widget Rendering,,,C1552432
+EkoAI Console > Release 18.00 (Morning Brief) > Widget Rendering (UI),User,Web,Check image widget should display placeholder when image URL is broken or returns 404,Image widget with broken URL: https://example.com/missing.png,User has a HomePage with image widget pointing to invalid URL,"1. Open HomePage with broken image widget
+2. Observe image area","1. Broken image shows placeholder or fallback
+2. Other widgets render normally
+3. No error overlay on the page
+4. Layout is not broken by missing image",Web,Manual,Regression Test,P2,Widget Rendering,,,C1552433
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check API request should be authenticated when valid EkoApiKey is provided,Valid API key with correct scope,API key exists with appropriate permissions,"1. Send API request with valid EkoApiKey in header
+2. Observe response","1. Request is authenticated successfully
+2. Response returns expected data
+3. No auth error",API,Manual,Smoke Test,P1,Security,,,C1552434
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check API request should be rejected when invalid EkoApiKey is provided,Invalid or expired API key,None,"1. Send API request with invalid API key
+2. Observe response","1. Request returns 401 Unauthorized
+2. Error message indicates invalid API key
+3. No data is returned",API,Manual,Smoke Test,P1,Security,,,C1552435
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check HMAC signature should be valid when external server receives EkoAI webhook request,Webhook request to process endpoint,Process endpoint has HMAC verification enabled,"1. Trigger job with HMAC-enabled process endpoint
+2. Capture webhook request
+3. Verify HMAC signature","1. x-hmac-signature header is present
+2. Signature is valid when verified with shared secret
+3. Payload matches signed content",API,Manual,Sanity Test,P1,Security,,,C1552436
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check callback endpoint should enforce scheduled_job_api_key auth independently from EkoApiKey,Callback request with EkoApiKey but no scbk_ key,Valid EkoApiKey exists but callback key is missing,"1. Send callback with valid EkoApiKey only
+2. Omit scheduled_job_api_key
+3. Observe response","1. Callback returns 401 Unauthorized
+2. EkoApiKey alone is not sufficient for callbacks
+3. scbk_ key is required separately",API,Manual,Sanity Test,P1,Security,,,C1552437
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check API request should be rejected when API key scope does not match required permission,API key with read-only scope / attempting write operation,API key exists with limited scope,"1. Send POST request with read-only API key
+2. Observe response","1. Request returns 403 Forbidden
+2. Error indicates insufficient scope
+3. Write operation is not executed",API,Manual,Regression Test,P1,Security,,,C1552438
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check API request should be rejected when no authentication header is provided,Request without any auth header,None,"1. Send API request without any auth header
+2. Observe response","1. Request returns 401 Unauthorized
+2. Error indicates missing authentication",API,Manual,Regression Test,P1,Security,,,C1552439
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check callback key should be unique per ScheduledJob and not reusable across jobs,Two different ScheduledJobs,Two jobs exist with different callback keys,"1. Create Job A and note its scbk_ key
+2. Create Job B
+3. Attempt to use Job A key for Job B callback","1. Job A and Job B have different scbk_ keys
+2. Using wrong key returns 401
+3. Each key only works for its own job",API,Manual,Regression Test,P1,Security,,,C1552440
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check PassportJS EkoApiKey strategy should handle correctly when key format is malformed,Malformed key: not-a-valid-key-format,None,"1. Send request with malformed API key
+2. Observe PassportJS handling","1. Request returns 401 Unauthorized
+2. No server error or crash
+3. Error is logged for monitoring",API,Manual,Regression Test,P2,Security,,,C1552441
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check API should prevent cross-tenant data access when using valid key from different tenant,Valid API key from Tenant A / accessing Tenant B data,Multi-tenant setup with separate API keys,"1. Use Tenant A API key
+2. Request data belonging to Tenant B
+3. Observe response","1. Request returns 403 or 404
+2. No Tenant B data is returned
+3. Cross-tenant isolation is enforced",API,Manual,Regression Test,P1,Security,,,C1552442
+EkoAI Console > Release 18.00 (Morning Brief) > Security (API),Admin,API,Check webhook HMAC should reject tampered payload at process endpoint,Modified webhook payload with original HMAC signature,Process endpoint verifies HMAC,"1. Capture a valid webhook request
+2. Modify the payload body
+3. Replay with original HMAC signature","1. HMAC verification fails
+2. Endpoint rejects the tampered request
+3. Integrity violation is detectable",API,Manual,Regression Test,P2,Security,,,C1552443
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should return current run status when valid job and run IDs are provided,POST {endpoint}/status-check with valid IDs,Job run is in PROCESSING state,"1. Send POST to status-check endpoint
+2. Include valid job ID and run ID
+3. Observe response","1. Response returns 200 OK
+2. Status shows current run state (PROCESSING)
+3. Per-user breakdown is included",API,Manual,Smoke Test,P1,Status Check,,,C1552444
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should return completed status after run finishes successfully,Completed run with all users SUCCESS,Job run has completed,"1. Send status-check for completed run
+2. Observe response","1. Status shows SUCCESS
+2. All users show SUCCESS status
+3. Completion timestamp is present",API,Manual,Smoke Test,P1,Status Check,,,C1552445
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should return PARTIAL status when run has mixed results,Run with 7 SUCCESS / 3 FAILED,Job run has completed with mixed results,"1. Send status-check for partially successful run
+2. Observe response","1. Status shows PARTIAL
+2. Success count shows 7
+3. Failed count shows 3
+4. Per-user details are available",API,Manual,Sanity Test,P1,Status Check,,,C1552446
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should return 404 when run ID does not exist,Non-existent run ID,None,"1. Send status-check with fabricated run ID
+2. Observe response","1. Response returns 404 Not Found
+2. Error message indicates run not found",API,Manual,Regression Test,P1,Status Check,,,C1552447
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should require authentication,Status-check request without auth header,None,"1. Send status-check without authentication
+2. Observe response","1. Response returns 401 Unauthorized
+2. No run data is returned",API,Manual,Regression Test,P1,Status Check,,,C1552448
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should return FAILED status when all users in run have failed,Run where all 5 users failed,Job run completed with all failures,"1. Send status-check for fully failed run
+2. Observe response","1. Status shows FAILED
+2. All 5 users show FAILED status
+3. Error details are available per user",API,Manual,Regression Test,P2,Status Check,,,C1552449
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should handle correctly when called rapidly in succession,10 rapid status-check requests within 1 second,Job run is in PROCESSING state,"1. Send 10 rapid status-check requests
+2. Observe all responses","1. All 10 requests return valid responses
+2. No rate-limit error (unless configured)
+3. Status data is consistent across calls",API,Manual,Regression Test,P2,Status Check,,,C1552450
+EkoAI Console > Release 18.00 (Morning Brief) > Status Check (API),Admin,API,Check status check should return real-time progress during long-running job with 100 users,Long-running job with 100 users / partial completion,Job run is actively processing 100 users,"1. Send status-check while job is processing
+2. Check progress after 30 seconds
+3. Check again after 60 seconds","1. First check shows partial progress (e.g. 20/100)
+2. Second check shows increased progress (e.g. 50/100)
+3. Per-user status updates in real-time",API,Manual,Regression Test,P2,Status Check,,,C1552451
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check ScheduledJob CRUD operations should work correctly on CosmosDB,Standard CRUD payloads,CosmosDB is the active database,"1. Create a ScheduledJob on CosmosDB
+2. Read the record
+3. Update a field
+4. Delete the record","1. Create returns success with generated ID
+2. Read returns correct data
+3. Update reflects changes
+4. Delete removes the record",API,Manual,Smoke Test,P1,Database,,,C1552452
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check ScheduledJob CRUD operations should work correctly on DynamoDB,Standard CRUD payloads,DynamoDB is the active database,"1. Create a ScheduledJob on DynamoDB
+2. Read the record
+3. Update a field
+4. Delete the record","1. Create returns success with generated ID
+2. Read returns correct data
+3. Update reflects changes
+4. Delete removes the record",API,Manual,Smoke Test,P1,Database,,,C1552453
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check repository abstraction should produce identical results for CosmosDB and DynamoDB operations,Same CRUD operations on both databases,Both databases are accessible,"1. Perform create/read/update/delete on CosmosDB
+2. Perform identical operations on DynamoDB
+3. Compare results","1. Response structures are identical
+2. Data types are consistent
+3. Query ordering is the same
+4. No database-specific behavior leaks through abstraction",API,Manual,Sanity Test,P1,Database,,,C1552454
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check BullMQ dynamic queue should be created with unique name per job run,Multiple job runs,Redis is available for BullMQ,"1. Trigger run A
+2. Trigger run B
+3. Inspect Redis queue names","1. Run A queue has unique name containing run ID
+2. Run B queue has different unique name
+3. Queues are isolated",API,Manual,Sanity Test,P2,Database,,,C1552455
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check Redis should clean up completed BullMQ queues after job run finishes,Completed job run,Job run has finished processing all users,"1. Complete a job run
+2. Wait for cleanup interval
+3. Check Redis for orphan queues","1. Dynamic queue is cleaned up after completion
+2. Redis memory is released
+3. No orphan queues remain",API,Manual,Regression Test,P1,Database,,,C1552456
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check DynamoDB TTL should automatically remove expired records,HomePage record with expired TTL,DynamoDB TTL is configured on expiresAt field,"1. Create HomePage record with short TTL
+2. Wait for TTL expiration
+3. Verify record removal","1. Record is automatically deleted after TTL
+2. Query no longer returns expired record
+3. Cleanup happens without manual intervention",API,Manual,Regression Test,P1,Database,,,C1552457
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check database should handle concurrent writes when multiple callbacks arrive simultaneously,10 concurrent callbacks for same run,10 users completing process at same time,"1. Simulate 10 concurrent callback writes
+2. Verify all writes succeed
+3. Check data integrity","1. All 10 writes are processed
+2. No data corruption or lost updates
+3. Each user status is correctly recorded",API,Manual,Regression Test,P1,Database,,,C1552458
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check system should handle gracefully when Redis is temporarily unavailable,Redis connection interrupted,System is running normally / Redis goes down,"1. Simulate Redis connection failure
+2. Observe BullMQ behavior
+3. Restore Redis
+4. Observe recovery","1. Error is logged when Redis is unavailable
+2. No data loss for in-progress runs
+3. System recovers when Redis comes back
+4. Queued jobs resume processing",API,Manual,Regression Test,P1,Database,,,C1552459
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check CosmosDB query should return results in consistent order for pagination,Query with limit and offset for 50 records,50 ScheduledJob records exist in CosmosDB,"1. Query page 1 (limit 10 / offset 0)
+2. Query page 2 (limit 10 / offset 10)
+3. Verify no duplicates or gaps","1. Page 1 returns first 10 records
+2. Page 2 returns next 10 records
+3. No record appears in both pages
+4. Total across pages matches 50",API,Manual,Regression Test,P2,Database,,,C1552460
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check system should handle gracefully when CosmosDB request units are throttled (429),CosmosDB returns 429 Too Many Requests,High load on CosmosDB partition,"1. Simulate CosmosDB 429 response
+2. Observe retry behavior","1. System retries with backoff
+2. No data loss
+3. Request eventually succeeds
+4. 429 is logged for monitoring",API,Manual,Regression Test,P2,Database,,,C1552461
+EkoAI Console > Release 18.00 (Morning Brief) > Database and Infra (API),Admin,API,Check BullMQ should handle correctly when Redis memory is near capacity during large job run,Redis at 90% memory / job with 500 users,Redis memory is nearly full,"1. Trigger job with 500 users when Redis is near capacity
+2. Monitor queue behavior
+3. Observe error handling","1. System detects memory pressure
+2. Either queues are processed in batches or error is raised
+3. No silent data loss
+4. Alert or log is generated",API,Manual,Regression Test,P2,Database,,,C1552462
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check etag-based update should prevent data corruption when cutoff and action complete simultaneously,Cutoff timeout and last action completing at same time,Run is at 24h mark / last user action is completing,"1. Simulate cutoff trigger at same time as final action completion
+2. Observe etag conflict resolution","1. Etag check detects concurrent modification
+2. One operation succeeds / other retries or fails gracefully
+3. Final run status is consistent (not corrupted)",API,Manual,Smoke Test,P1,Race Conditions,,,C1552463
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check concurrent callbacks for different users in same run should not cause data corruption,5 callbacks arriving within 100ms for different users,Run with 5 users / all processes completing simultaneously,"1. Send 5 callbacks for different users nearly simultaneously
+2. Verify all user statuses
+3. Check run aggregate status","1. All 5 user statuses are correctly updated
+2. No status is lost or overwritten
+3. Run aggregate counts match (5 success)",API,Manual,Smoke Test,P1,Race Conditions,,,C1552464
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check job config update should not affect currently running job run,Config update during active run,Job run is in PROCESSING state,"1. Start a job run
+2. While run is processing / update job configuration
+3. Observe running job behavior","1. Running job uses frozen snapshot from trigger time
+2. Config changes do not affect active run
+3. Next run will use updated config",API,Manual,Regression Test,P1,Race Conditions,,,C1552465
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check scheduler should handle correctly when job is disabled while being triggered,isEnabled set to false during trigger processing,Job nextRun is due / admin disables job simultaneously,"1. At trigger time / simultaneously set isEnabled=false
+2. Observe whether run starts or is aborted","1. System handles the race condition without error
+2. Either run starts (was triggered before disable) or is prevented
+3. No partial/corrupt state",API,Manual,Regression Test,P1,Race Conditions,,,C1552466
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check audience deletion should be handled when group is removed during active run,Group deleted from Eko Platform during run processing,Run is processing users from a group / group gets deleted,"1. Start run with group audience
+2. Delete the group during processing
+3. Observe per-user processing","1. Already-dispatched user requests continue
+2. Not-yet-dispatched users may fail with clear error
+3. Run completes without crash",API,Manual,Regression Test,P1,Race Conditions,,,C1552467
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check HomePage PUT update should handle etag conflict when two retries arrive simultaneously,Two retry callbacks for same user and run at same instant,User has existing HomePage / two retry callbacks race,"1. Send two PUT callbacks for same user at same time
+2. Observe conflict resolution","1. One PUT succeeds
+2. Second PUT either retries with new etag or fails gracefully
+3. Final record is consistent
+4. No data corruption",API,Manual,Regression Test,P1,Race Conditions,,,C1552468
+EkoAI Console > Release 18.00 (Morning Brief) > Race Conditions (API),Admin,API,Check job deletion should be handled gracefully when delete occurs during active run processing,Job delete request while run is PROCESSING,Active run in progress / admin deletes the job,"1. Start a job run
+2. While processing / delete the job
+3. Observe run behavior","1. Active run either completes or is gracefully terminated
+2. No orphan records left in database
+3. No server error or crash",API,Manual,Regression Test,P2,Race Conditions,,,C1552469
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check GET /v1/scheduled-jobs should return paginated list of scheduled jobs,10 scheduled jobs exist,Admin is authenticated with valid API key,"1. Send GET /v1/scheduled-jobs
+2. Observe response","1. Response returns 200 OK
+2. Response body contains array of jobs
+3. Pagination fields (page / limit / total) are present
+4. Jobs contain expected fields",API,Manual,Smoke Test,P1,API Endpoints,,,C1552470
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check POST /v1/scheduled-jobs should create a new scheduled job,Valid payload: name / rrule / process endpoint / audience / action mode,Admin is authenticated with valid API key,"1. Send POST /v1/scheduled-jobs with valid payload
+2. Observe response","1. Response returns 201 Created
+2. Response body contains job ID
+3. Job appears in GET list
+4. scbk_ callback key is generated",API,Manual,Smoke Test,P1,API Endpoints,,,C1552471
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check GET /v1/scheduled-jobs/:id should return single job details,Valid job ID,Admin is authenticated / job exists,"1. Send GET /v1/scheduled-jobs/:id
+2. Observe response","1. Response returns 200 OK
+2. Response contains all job configuration fields
+3. nextRun / isEnabled / RRULE are present",API,Manual,Smoke Test,P1,API Endpoints,,,C1552472
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check PUT /v1/scheduled-jobs/:id should update existing job configuration,Updated payload: new name and schedule,Admin is authenticated / job exists,"1. Send PUT /v1/scheduled-jobs/:id with updated fields
+2. Observe response
+3. GET the job to verify","1. Response returns 200 OK
+2. Updated fields are reflected
+3. nextRun is recalculated if schedule changed",API,Manual,Smoke Test,P1,API Endpoints,,,C1552473
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check DELETE /v1/scheduled-jobs/:id should remove the job,Valid job ID,Admin is authenticated / job exists,"1. Send DELETE /v1/scheduled-jobs/:id
+2. Observe response
+3. GET the deleted job","1. Response returns 200 OK or 204 No Content
+2. Subsequent GET returns 404
+3. Job no longer appears in list",API,Manual,Smoke Test,P1,API Endpoints,,,C1552474
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check POST /v1/scheduled-jobs should return 400 when required fields are missing,Payload missing cron / process / audience fields,Admin is authenticated with valid API key,"1. Send POST /v1/scheduled-jobs with incomplete payload
+2. Observe response","1. Response returns 400 Bad Request
+2. Error body lists missing required fields
+3. No job is created",API,Manual,Regression Test,P1,API Endpoints,,,C1552475
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check GET /v1/scheduled-jobs/:id should return 404 when job ID does not exist,Non-existent job ID,Admin is authenticated with valid API key,"1. Send GET /v1/scheduled-jobs/:nonexistent
+2. Observe response","1. Response returns 404 Not Found
+2. Error message indicates job not found",API,Manual,Regression Test,P1,API Endpoints,,,C1552476
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check POST /v1/scheduled-jobs/runs/callback should process valid callback payload,Valid callback: id / status / quotaConsumed / result,Job run exists / valid callback key,"1. Send POST /v1/scheduled-jobs/runs/callback with valid payload
+2. Observe response","1. Response returns 200 OK
+2. User run status is updated
+3. Callback data is stored",API,Manual,Regression Test,P1,API Endpoints,,,C1552477
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check HomePage API should return user's active HomePage records,User with 2 active HomePage records,API key with read scope,"1. Send GET request for user's HomePage records
+2. Observe response","1. Response returns 200 OK
+2. Array contains 2 active records
+3. Expired records are excluded
+4. Each record has content.blocks and refId",API,Manual,Regression Test,P2,API Endpoints,,,C1552478
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check API should return 405 Method Not Allowed when using wrong HTTP method,GET request to callback endpoint (expects POST),Admin is authenticated,"1. Send GET /v1/scheduled-jobs/runs/callback
+2. Observe response","1. Response returns 405 Method Not Allowed
+2. Error indicates POST is required",API,Manual,Regression Test,P2,API Endpoints,,,C1552479
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check API pagination should handle correctly when requesting page beyond total results,page=100 when only 10 jobs exist,Admin is authenticated / 10 jobs exist,"1. Send GET /v1/scheduled-jobs?page=100
+2. Observe response","1. Response returns 200 OK
+2. Empty array in results
+3. Total count still shows 10
+4. No error thrown",API,Manual,Regression Test,P2,API Endpoints,,,C1552480
+EkoAI Console > Release 18.00 (Morning Brief) > API Endpoints (API),Admin,API,Check API should handle correctly when request body exceeds maximum allowed size,POST body with 10MB payload,Admin is authenticated,"1. Send POST /v1/scheduled-jobs with oversized body
+2. Observe response","1. Response returns 413 Payload Too Large or 400
+2. Error message indicates size limit
+3. No server crash",API,Manual,Regression Test,P2,API Endpoints,,,C1552481
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check FAILURE LOGS panel should display jobs requiring attention when failures exist,Jobs with failed runs (SUCCESS RATE < 100%),Admin is on Morning Brief Dashboard / at least 1 job has failed runs,"1. Navigate to Morning Brief Dashboard
+2. Observe FAILURE LOGS stat card
+3. Click the expand/view button on the FAILURE LOGS card","1. FAILURE LOGS card shows count of failed job runs
+2. Expand button is clickable
+3. List of jobs with failures is displayed or modal opens",Web,Manual,Sanity Test,P1,Dashboard,,,C1552482
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check SUCCESS RATE stat card should display correct percentage based on run history,Jobs with known success/failure counts,Admin is on Morning Brief Dashboard with jobs that have run history,"1. Navigate to Morning Brief Dashboard
+2. Observe SUCCESS RATE stat card
+3. Compare displayed percentage with actual run history","1. SUCCESS RATE shows percentage (e.g. 21.98%)
+2. Percentage reflects successful runs / total runs
+3. Stat updates after new runs complete",Web,Manual,Regression Test,P2,Dashboard,,,C1552483
+EkoAI Console > Release 18.00 (Morning Brief) > Dashboard (UI),Admin,Web,Check job card should display description subtitle under job name on Dashboard,Job with description: 'Morning brief description text',Admin is on Dashboard / job has description set,"1. Navigate to Morning Brief Dashboard
+2. Observe job card layout
+3. Check if description is visible under job name","1. Job name is displayed prominently
+2. Description shows as subtitle below name
+3. Description is truncated if too long",Web,Manual,Regression Test,P2,Dashboard,,,C1552484
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check Action dropdown should be disabled and pre-set to Home page on configuration page,,Admin is on Job Configuration page of an existing Morning Brief job,"1. Navigate to job configuration page
+2. Observe the Action dropdown in Set Action section","1. Action dropdown shows 'Home page'
+2. Dropdown is disabled (cannot be changed)
+3. This reflects the fixed Morning Brief action type",Web,Manual,Smoke Test,P1,Job Configuration,,,C1552485
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check timeout format should use hh:mm:ss format with placeholder 00 : 00 : 00 on configuration page,Timeout: 00:10:00 (10 minutes),Admin is on Job Configuration page,"1. Navigate to job configuration page
+2. Observe the Timeout field placeholder and format
+3. Enter a timeout value
+4. Observe formatting","1. Timeout placeholder shows '00 : 00 : 00'
+2. Format hint shows 'hh:mm:ss (e.g. 00:01:00 = 1 min)'
+3. Maximum allowed is 23:59:59
+4. Field accepts valid HH:MM:SS values",Web,Manual,Regression Test,P2,Job Configuration,,,C1552486
+EkoAI Console > Release 18.00 (Morning Brief) > History Logs (UI),Admin,Web,Check History Log search should filter runs when entering job name keyword,Search keyword matching job name,Admin is on History Log tab with multiple run records,"1. Navigate to History Log tab
+2. Enter job name in search input
+3. Click Search button
+4. Observe filtered results","1. Only runs matching the search keyword are displayed
+2. Run count decreases to match filter
+3. Search can be cleared to show all runs",Web,Manual,Sanity Test,P2,History Logs,,,C1552487
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Custom recurrence modal should open when selecting ""Custom..."" from Repeat dropdown in Create wizard",,"Admin is logged in to EkoAI Console
+Create Scheduled Job wizard is open at Step 1 (Job Configuration)","1. Click the Repeat dropdown (first .ant-select-selector on wizard page)
+2. Observe the dropdown options
+3. Select ""Custom...""
+4. Observe the result","1. Repeat dropdown shows preset options: Weekly on Monday / Monthly / Annually / Every weekday / Once / Custom...
+2. Selecting ""Custom..."" opens a modal dialog
+3. Modal header reads ""Custom recurrence""
+4. Modal overlays the wizard",Web,Manual,Smoke Test,P1,Custom Recurrence,,,C1568884
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Custom recurrence modal should display all required UI elements,,"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Observe the modal layout
+2. Check each section: Repeat every, Repeat on, Ends
+3. Check available buttons","1. Modal shows ""Repeat every"" row: number spinner (default 1) + unit dropdown (day/week/month/year)
+2. Modal shows ""Repeat on"" row: day buttons S/M/T/W/T/F/S (visible when week is selected)
+3. Modal shows ""Ends"" section: Never / On / After N occurrences radio buttons
+4. Cancel and Confirm buttons present at bottom",Web,Manual,Smoke Test,P1,Custom Recurrence,,,C1568885
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check ""Repeat on"" day buttons should appear only when weekly unit is selected",,"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Select ""week"" unit from the unit dropdown
+2. Observe the ""Repeat on"" row
+3. Change unit to ""day""
+4. Observe the ""Repeat on"" row again","1. When ""week"" is selected: day buttons S/M/T/W/T/F/S are visible and clickable
+2. When ""day"" is selected: ""Repeat on"" row is hidden
+3. State is correct after switching back and forth",Web,Manual,Sanity Test,P1,Custom Recurrence,,,C1568886
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check ""Repeat on"" day buttons should be hidden when daily / monthly / annually unit is selected",,"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Select ""day"" unit → observe
+2. Select ""month"" unit → observe
+3. Select ""year"" unit → observe","1. ""day"" unit: ""Repeat on"" row not visible
+2. ""month"" unit: ""Repeat on"" row not visible
+3. ""year"" unit: ""Repeat on"" row not visible
+4. No layout shift or broken UI when switching units",Web,Manual,Sanity Test,P1,Custom Recurrence,,,C1568887
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check weekly recurrence with multiple days (Mon/Wed/Fri) should be saved when clicking Confirm,"Repeat every: 1 week
+Repeat on: Monday, Wednesday, Friday
+Ends: Never","Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Ensure unit is ""week"" with interval 1
+2. Click the M (Monday) day button
+3. Click the W (Wednesday) day button
+4. Click the second T (Friday) day button
+5. Verify Ends is set to ""Never""
+6. Click Confirm","1. M, W, F buttons show selected/highlighted state after clicking
+2. Clicking Confirm closes the modal
+3. Repeat dropdown in the wizard now shows ""Custom"" or a summary of the schedule
+4. No error is shown",Web,Manual,Sanity Test,P1,Custom Recurrence,,,C1568888
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check weekly recurrence with single day selection should be saved when clicking Confirm,"Repeat every: 1 week
+Repeat on: Monday only
+Ends: Never","Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Ensure unit is ""week""
+2. Click only the M (Monday) button
+3. Click Confirm","1. Monday is highlighted/selected
+2. Modal closes on Confirm
+3. Repeat dropdown shows custom schedule
+4. No validation error",Web,Manual,Sanity Test,P2,Custom Recurrence,,,C1568889
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Confirm should be blocked or show error when weekly unit is selected but no day is chosen,"Repeat every: 1 week
+Repeat on: no day selected","Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Select ""week"" unit
+2. Ensure no day buttons are selected (deselect if any pre-selected)
+3. Click Confirm","1. Confirm button is disabled, OR
+2. Clicking Confirm shows inline validation error such as ""Please select at least one day""
+3. Modal does NOT close
+4. No job configuration is saved",Web,Manual,Regression Test,P1,Custom Recurrence,,,C1568890
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Ends ""Never"" should be the default selection when Custom recurrence modal first opens",,"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. Open Custom recurrence modal for the first time (no prior custom value)
+2. Observe the Ends section","1. ""Never"" radio button is selected by default
+2. No additional date/count input is shown
+3. ""On"" and ""After"" radio buttons are visible but not selected",Web,Manual,Sanity Test,P1,Custom Recurrence,,,C1568891
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Ends ""On"" should show date picker input when selected",,"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. In Ends section, click the ""On"" radio button
+2. Observe the UI change
+3. Click the date picker
+4. Select a future date (e.g., 2026-12-31)","1. Selecting ""On"" reveals a date picker input field
+2. ""After N occurrences"" input is hidden
+3. Date picker allows selecting a future date
+4. Selected date is displayed in the input field",Web,Manual,Sanity Test,P2,Custom Recurrence,,,C1568892
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Ends ""After N occurrences"" should show number input and accept valid values when selected",After value: 5,"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. In Ends section, click the ""After"" radio button
+2. Observe the UI change
+3. Enter 5 in the occurrences number input
+4. Click Confirm","1. Selecting ""After"" reveals a number input for occurrences
+2. Date picker is hidden
+3. Value 5 is accepted in the input
+4. Confirm closes modal and saves the After=5 configuration",Web,Manual,Sanity Test,P2,Custom Recurrence,,,C1568893
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Repeat every interval should support values greater than 1 (e.g., every 2 weeks)","Repeat every: 2 weeks
+Repeat on: Monday
+Ends: Never","Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. In ""Repeat every"" section, change the number from 1 to 2
+2. Ensure unit is ""week""
+3. Select Monday from day buttons
+4. Click Confirm","1. Number field accepts value 2
+2. Modal closes on Confirm
+3. Repeat dropdown shows ""Custom"" or ""Every 2 weeks on Monday""
+4. No error",Web,Manual,Regression Test,P2,Custom Recurrence,,,C1568894
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Cancel button should dismiss modal without saving any Custom recurrence settings,Configured: every 2 weeks on Mon/Wed (not yet confirmed),"Admin is on Step 1 of Create wizard
+Repeat dropdown is visible
+""Custom..."" has been selected and modal is open","1. In modal: change interval to 2, select week, click M and W
+2. Click the Cancel button
+3. Observe the repeat dropdown value in the wizard","1. Modal closes immediately on Cancel
+2. Repeat dropdown retains its original value (e.g., ""Weekly on Monday"" or ""Once"") unchanged
+3. No custom recurrence is applied
+4. No error message",Web,Manual,Regression Test,P2,Custom Recurrence,,,C1568895
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,"Check Custom recurrence modal should open when selecting ""Custom..."" from Repeat dropdown on Edit Scheduler configuration page",An existing scheduled job with any repeat setting,"Admin is logged in to EkoAI Console
+An existing scheduled job is open on the Job Configuration page","1. Locate the Repeat dropdown on the Job Configuration page
+2. Click the dropdown
+3. Select ""Custom...""
+4. Observe","1. Dropdown shows preset options including ""Custom...""
+2. Selecting ""Custom..."" opens the Custom recurrence modal
+3. Modal header reads ""Custom recurrence""
+4. Modal functions the same as in the Create wizard",Web,Manual,Smoke Test,P1,Custom Recurrence,,,C1568896
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check Custom recurrence modal should be pre-populated with previously saved values when re-opened,"Job saved with custom recurrence: every 1 week on Mon/Wed/Fri, Ends Never","Admin has already saved a job with Custom recurrence (weekly Mon/Wed/Fri)
+Admin is on the Job Configuration page","1. Click the Repeat dropdown on config page
+2. Select ""Custom...""
+3. Observe the pre-filled values in the modal","1. Modal opens with ""week"" unit already selected
+2. M, W, F day buttons are pre-selected/highlighted
+3. Ends section shows ""Never"" selected
+4. Interval shows 1
+5. No data from a previous session bleeds in",Web,Manual,Sanity Test,P2,Custom Recurrence,,,C1568897
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check schedule should update correctly when Custom recurrence is confirmed and saved on configuration page,Change from weekly (Mon only) → weekly (Mon/Wed/Fri),"Admin is on Job Configuration page
+Job currently has ""Weekly on Monday"" schedule","1. Click Repeat dropdown → select ""Custom...""
+2. In modal: ensure week unit, select M / W / F
+3. Click Confirm
+4. Click Save change
+5. Navigate away and return to configuration page","1. Confirm closes the modal and updates the Repeat dropdown display
+2. Save change button completes without error
+3. On reload, Repeat dropdown shows ""Custom"" or the updated schedule
+4. nextRun timestamp reflects the new schedule",Web,Manual,Regression Test,P2,Custom Recurrence,,,C1568898
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check ""Repeat on"" day buttons cannot be fully deselected — minimum one day must remain selected for weekly recurrence",Unit = week,Admin has opened Custom recurrence modal with unit set to week,"1. Open Custom recurrence modal
+2. Observe Monday (M) is pre-selected
+3. Select Sunday (S) to have two days active
+4. Click M to deselect it (S remains)
+5. Click S to attempt deselecting the last selected day
+6. Observe button state","1. In step 4 M deselects successfully (S still active)
+2. In step 5 S remains selected — it cannot be deselected
+3. At least 1 day is always selected
+4. No explicit error shown — UI silently prevents 0-day state",Web,Manual,Regression Test,P1,Custom Recurrence,,,C1571989
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,Check Repeat every interval should clamp to minimum 1 when 0 or negative value is entered,"Interval values: 0, -1, -99",Admin has opened Custom recurrence modal,"1. Open Custom recurrence modal
+2. Enter 0 in ""Repeat every"" number input
+3. Observe displayed value
+4. Enter -1
+5. Observe displayed value
+6. Click Confirm","1. Value 0 is immediately clamped/corrected to 1
+2. Value -1 is immediately clamped/corrected to 1
+3. No validation error message shown
+4. Confirm button remains enabled
+5. Recurrence saves successfully with interval = 1",Web,Manual,Regression Test,P2,Custom Recurrence,,,C1571990
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Ends ""After"" occurrences field should default to 10 and enforce min=1 max=999 boundary","Occurrences values to test: 0, -1, 1, 10, 999, 1000",Admin has opened Custom recurrence modal and selected Ends = After,"1. Open Custom recurrence modal
+2. Select ""After"" radio for Ends
+3. Verify default value is 10
+4. Enter 0 → observe clamp
+5. Enter -1 → observe clamp
+6. Enter 1 → verify accepted
+7. Enter 999 → verify accepted
+8. Enter 1000 → observe clamp to 999","1. Default occurrences = 10
+2. Value 0 clamps to 1 (min=1)
+3. Value -1 clamps to 1 (min=1)
+4. Value 1 accepted
+5. Value 999 accepted (max=999)
+6. Value 1000 clamps to 999
+7. No explicit error messages shown
+8. Confirm remains enabled throughout",Web,Manual,Regression Test,P1,Custom Recurrence,,,C1571991
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check Ends ""On"" with no date selected — Confirm should require date selection or default gracefully","Ends = On, date picker left empty",Admin has opened Custom recurrence modal with unit = week and Ends set to On,"1. Open Custom recurrence modal
+2. Select ""On"" radio for Ends
+3. Do NOT select any date in the date picker (leave as placeholder ""Select date"")
+4. Click Confirm button","EXPECTED (ideal): System shows validation error requesting a date OR Confirm button is disabled until date is selected
+ACTUAL BEHAVIOR (bug): System silently uses today's date as the end date without user selection — Repeat dropdown shows e.g. ""Weekly on Monday until Mar 30, 2026"" (today)
+Result: BUG — missing validation for empty ""On"" date field",Web,Manual,Regression Test,P1,Custom Recurrence,,,C1571992
+EkoAI Console > Release 18.00 (Morning Brief) > Create Scheduled Job (UI),Admin,Web,"Check ""Repeat on"" section should be hidden for day / month / year units and only visible for week unit","Units to test: day, week, month, year",Admin has opened Custom recurrence modal,"1. Open Custom recurrence modal (default unit = week)
+2. Verify ""Repeat on"" section (S M T W T F S buttons) is visible
+3. Change unit to ""day""
+4. Verify ""Repeat on"" section is hidden
+5. Change unit to ""month""
+6. Verify ""Repeat on"" section is hidden
+7. Change unit to ""year""
+8. Verify ""Repeat on"" section is hidden
+9. Change unit back to ""week""
+10. Verify ""Repeat on"" section reappears","1. Week: ""Repeat on"" with 7 day buttons (S M T W T F S) visible
+2. Day: ""Repeat on"" section hidden
+3. Month: ""Repeat on"" section hidden
+4. Year: ""Repeat on"" section hidden
+5. Switching back to week: section reappears with M pre-selected",Web,Manual,Sanity Test,P1,Custom Recurrence,,,C1571993
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,"Check Schedule Time field should remain visible for all Repeat options including ""Does not repeat""","Repeat options: Does not repeat, Daily, Weekly on Monday, Monthly on the fifth Monday, Annually on March 30, Every weekday (Monday to Friday), Custom...",Admin is on Job Configuration (Edit Scheduler) page,"1. Open Edit Scheduler for an existing job
+2. Click Repeat dropdown
+3. Select ""Does not repeat""
+4. Verify Schedule Time field is visible
+5. Repeat for each preset option (Daily / Weekly / Monthly / Annually / Every weekday)
+6. For each, verify Schedule Time remains visible and retains its value","1. Schedule Time field is visible for ALL repeat options
+2. ""Does not repeat"" does not hide Schedule Time
+3. Schedule Time value is preserved when switching options
+4. No option causes Schedule Time to disappear",Web,Manual,Sanity Test,P1,Custom Recurrence,,,C1571994
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,"Check Repeat dropdown should contain exactly 8 options including ""Custom..."" for opening recurrence modal",,"Admin is on Job Configuration (Edit Scheduler) page, no custom recurrence configured","1. Open Edit Scheduler for a job
+2. Click the Repeat dropdown
+3. Count and list all available options","1. Dropdown shows exactly 8 options:
+   - Does not repeat
+   - Daily
+   - Weekly on Monday
+   - Monthly on the fifth Monday
+   - Annually on March 30
+   - Every weekday (Monday to Friday)
+   - Once
+   - Custom...
+2. ""Custom..."" option triggers the Custom recurrence modal
+3. ""Once"" (custom_configured) can also trigger modal if previously configured",Web,Manual,Smoke Test,P1,Custom Recurrence,,,C1571995
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check selecting configured custom recurrence from dropdown should reopen modal pre-populated with saved settings,"Previously configured: week, Monday, Ends Never","Admin has previously saved a custom recurrence (e.g. ""Weekly on Monday until Mar 30, 2026"")","1. Open Edit Scheduler for a job with existing custom recurrence
+2. Click Repeat dropdown
+3. Select the custom description item (e.g. ""Weekly on Monday until Mar 30, 2026"")
+4. Observe if Custom recurrence modal opens
+5. Verify modal fields are pre-populated with saved values","1. Clicking the custom description opens the Custom recurrence modal
+2. Modal shows previously saved settings:
+   - Repeat every = saved interval
+   - Unit = saved unit (e.g. weeks)
+   - Repeat on = saved day selection (e.g. M)
+   - Ends = saved option (Never/On/After)
+3. User can modify and Confirm or Cancel",Web,Manual,Regression Test,P1,Custom Recurrence,,,C1571996
+EkoAI Console > Release 18.00 (Morning Brief) > Job Configuration (UI),Admin,Web,Check Cancel on Custom recurrence modal should revert Repeat dropdown to its previous value without saving,"Initial Repeat = ""Weekly on Monday until Mar 30, 2026"", modify to 3 weeks, After 999",Admin has opened Custom recurrence modal from Edit Scheduler,"1. Open Edit Scheduler page, note current Repeat value (custom description)
+2. Click Repeat dropdown and select the custom item to reopen modal
+3. Change settings in modal (e.g. change interval to 3, change Ends to After 999)
+4. Click Cancel button
+5. Observe Repeat dropdown value","1. After Cancel, modal closes
+2. Repeat dropdown shows the PREVIOUS custom description (before modal was reopened)
+3. Changes made inside the modal (interval=3, After=999) are NOT saved
+4. Dropdown does NOT show ""Custom..."" — it retains the saved description",Web,Manual,Regression Test,P1,Custom Recurrence,,,C1571997
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify Audience tab navigates from Job Configuration,,Admin on Edit Scheduler > Job Configuration tab,"1. Click 'Audience' tab
+2. Observe page content","1. URL includes ?tab=audience
+2. 'Audience' heading visible
+3. 'Select Individual Users' section displayed
+4. 'Select Directory Groups' section displayed",Web,Manual,Smoke Test,P1,Audience,,,C1575513
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify search filters user list by name,,Admin on Audience tab with users loaded,"1. Type 'a' in Individual Users search box
+2. Observe filtered user list","1. Loading spinner appears briefly
+2. User list shows only users matching 'a'
+3. Non-matching users hidden",Web,Manual,Sanity Test,P1,Audience,,,C1575514
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify search filters directory group list by name,,Admin on Audience tab with groups loaded,"1. Type 'All' in Directory Groups search box
+2. Observe filtered group list","1. Group list shows groups matching 'All' (e.g. 'All Thailand')
+2. Non-matching groups hidden",Web,Manual,Sanity Test,P1,Audience,,,C1575515
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify search returns empty for no matching users,,Admin on Audience tab,"1. Type 'zzzznonexistent' in Individual Users search
+2. Observe result","1. User list shows no results or empty state
+2. No error displayed",Web,Manual,Regression Test,P2,Audience,,,C1575516
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify 'X selected' counter updates on user selection,,Admin on Audience tab with '0 selected' on Individual Users,"1. Check initial counter shows '0 selected'
+2. Select a user by clicking checkbox
+3. Observe counter","1. Counter updates to '1 selected'
+2. Total audiences counter also updates",Web,Manual,Sanity Test,P1,Audience,,,C1575517
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify 'X selected' counter updates on group selection,,Admin on Audience tab with '0 selected' on Directory Groups,"1. Check initial counter shows '0 selected'
+2. Select a group by clicking checkbox
+3. Observe counter","1. Counter updates to '1 selected'
+2. Total audiences includes group member count",Web,Manual,Sanity Test,P1,Audience,,,C1575518
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify Total audiences counter reflects combined users and groups,,Admin on Audience tab,"1. Select 1 individual user
+2. Select 1 group with N members
+3. Observe 'Total: X audiences' counter","1. Total = 1 (user) + N (group members)
+2. Counter updates in real-time",Web,Manual,Sanity Test,P1,Audience,,,C1575519
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify Update Audience button disabled when no changes made,,"Admin on Audience tab, no changes made","1. Observe 'Update Audience' button state
+2. Do not make any selection changes","1. 'Update Audience' button is disabled (grey/inactive)
+2. Button not clickable",Web,Manual,Sanity Test,P1,Audience,,,C1575520
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify Update Audience button enabled after selecting user,,Admin on Audience tab,"1. Select a new user by clicking checkbox
+2. Observe 'Update Audience' button","1. Button becomes enabled (green/active)
+2. Button is clickable",Web,Manual,Smoke Test,P1,Audience,,,C1575521
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify Update Audience saves selection successfully,,Admin selected at least 1 user on Audience tab,"1. Select a user
+2. Click 'Update Audience' button
+3. Observe result","1. Success toast/message appears
+2. Selection is persisted
+3. Refreshing page shows saved audience",Web,Manual,Smoke Test,P1,Audience,,,C1575522
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify selecting multiple users simultaneously,,Admin on Audience tab with user list loaded,"1. Select user A by clicking checkbox
+2. Select user B by clicking checkbox
+3. Select user C by clicking checkbox
+4. Observe 'X selected' counter","1. All 3 users show checked state
+2. Counter shows '3 selected'
+3. Total audiences updates to 3",Web,Manual,Regression Test,P1,Audience,,,C1575523
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify deselecting user by unchecking checkbox,,Admin on Audience tab with 2+ users selected,"1. Uncheck one previously selected user
+2. Observe counter and selection state","1. User becomes unchecked
+2. 'X selected' counter decrements by 1
+3. Total audiences counter also decrements",Web,Manual,Regression Test,P2,Audience,,,C1575524
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify user avatar displays with colored initials,,Admin on Audience tab with users visible,"1. Observe user list items
+2. Check avatar circles","1. Each user has a colored circle with 2-letter initials
+2. User name and email displayed next to avatar",Web,Manual,Sanity Test,P2,Audience,,,C1575525
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify group member count displays correctly,,Admin on Audience tab with groups loaded,"1. Observe Directory Groups list
+2. Check member count under group name","1. Each group shows 'N members' text
+2. Count matches actual group membership",Web,Manual,Sanity Test,P2,Audience,,,C1575526
+EkoAI Console > Release 18.00 (Morning Brief) > Recipients (UI),Admin,Web,Verify long user list scrolls without breaking layout,,Admin on Audience tab with many users (20+),"1. Scroll down in Individual Users list
+2. Scroll to bottom
+3. Scroll back up","1. Smooth scrolling without jank
+2. All users accessible
+3. Search box stays fixed at top",Web,Manual,Regression Test,P2,Audience,,,C1575527
