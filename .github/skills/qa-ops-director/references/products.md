@@ -58,6 +58,22 @@ When a skill needs product context, it reads `.sprint.json` first. If not found,
 
 ---
 
+## Product: ekoai-console
+
+| Field | Value |
+|---|---|
+| **Jira project** | `AE` |
+| **TestRail suite** | *(ask user before each TestRail operation)* |
+| **Jira board ID** | `530` (Broccoli board — verify each sprint as ID may change) |
+| **Archive path** | `archive/ekoai-console/` |
+| **E2E test path** | `tests/e2e/ekoai-console/` |
+| **API test path** | `tests/api/ekoai-console/` |
+| **Pages path** | `src/pages/ekoai-console/` |
+| **Selectors path** | `selectors/ekoai-console/` |
+| **Features** | ai-task-scheduler |
+
+---
+
 ## Adding a new product
 
 1. Add a section here with all fields filled in
