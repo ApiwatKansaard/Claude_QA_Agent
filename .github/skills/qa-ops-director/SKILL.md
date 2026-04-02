@@ -33,6 +33,7 @@ Parameters shown in `[brackets]` are positional — parse them from the message 
 
 | Command | Triggers | Parameters | File |
 |---|---|---|---|
+| `/qa:get-started` | onboarding-guide | *(none)* | [get-started.md](./commands/get-started.md) |
 | `/qa:morning-standup` | report-compiler | *(none)* | [morning-standup.md](./commands/morning-standup.md) |
 | `/qa:test-plan` | test-planner → **auto-chains** test-case-reviewer → **auto-fix** | `[Figma URL]` `[Confluence URL]` | [test-plan.md](./commands/test-plan.md) |
 | `/qa:review-testcases` | test-case-reviewer | `[test cases]` `[Figma URL]` `[Confluence URL]` | [review-testcases.md](./commands/review-testcases.md) |

@@ -2,7 +2,7 @@
 
 > **AI-Powered QA Assistant for Test Planning, Bug Triage, TestRail Management, and Automation**
 >
-> Last updated: 2026-03-30 · Maintainer: QA Engineering Team · Platform: **Claude Code**
+> Last updated: 2026-04-02 · Maintainer: QA Engineering Team · Platform: **Claude Code** (CLI + VSCode Extension)
 
 ---
 
@@ -19,28 +19,51 @@ a slash command and the agent handles the rest.
 - Create Jira bug tickets with proper custom fields (AE project, with cURL for API bugs)
 - Post Acceptance Criteria to sprint tickets
 - Generate morning standup and EOD reports
-- Run Playwright automation tests (90+ test cases)
-- Generate 2 HTML reports: Team Report + Risk Story Report
+- Run Playwright automation tests (196 test cases across 19 specs)
+- Mock webhook server for E2E testing of scheduled job triggers
+- Generate HTML reports: Team Report + Risk Story Report
 - Push test results to TestRail milestones/runs
 - Run daily automated AC scans via GitHub Actions
 
-### Current Coverage: Morning Brief 18.0
+### Current Coverage: AI Task Scheduler (Scheduled Jobs)
 
-| Area | Test Cases | Automated |
+| Area | Automated | Type |
 |---|---|---|
-| Dashboard (UI) | 12 | 9 |
-| Create Scheduled Job (UI) | 30 | 30 (incl. 24 custom recurrence) |
-| Job Configuration (UI) | 20 | 18 |
-| Recipients (UI) | 11 | 11 |
-| History Logs (UI) | 11 | 10 |
-| Widget Rendering (UI) | 12 | 12 |
-| Trigger Step (API) | 10 | 10 |
-| Process Step (API) | 12 | 12 |
-| Action Step (API) | 11 | 11 |
-| Callback (API) | 10 | 10 |
-| Security (API) | 10 | 10 |
-| Cutoff / HomePage / Status / DB / Race (API) | 59 | 0 (needs infra mock) |
-| **Total** | **208** | **143** |
+| Dashboard / List (UI) | 9 | E2E |
+| Create Scheduled Job (UI) | 12 | E2E |
+| Job Configuration (UI) | 12 | E2E |
+| Recipients / Audience (UI) | 13 | E2E |
+| History Logs (UI) | 12 | E2E |
+| Webhook E2E + Mock Server | 8 | E2E |
+| Webhook Failure Scenarios | 20 | E2E |
+| History Logs with Mock | 14 | E2E |
+| Trigger Step (API) | 9 | API |
+| Process Step (API) | 14 | API |
+| Action Step (API) | 10 | API |
+| Callback (API) | 10 | API |
+| Security (API) | 9 | API |
+| Cutoff Timeout (API) | 7 | API |
+| Status Check (API) | 7 | API |
+| Home Page Delivery (API) | 13 | API |
+| Widget Rendering (API) | 9 | API |
+| CRUD + General (API) | 9 | API |
+| **Total** | **196** | |
+
+### Latest Results (2026-04-02)
+
+| Environment | Passed | Failed | Skipped | Pass Rate |
+|---|---|---|---|---|
+| Staging (Full) | 146 | 0 | 50 | **100%** |
+| Prod (Smoke) | 50 | 0 | 17 | **100%** |
+
+### Products Supported
+
+| Product | Jira Project | Status |
+|---|---|---|
+| `agentic` | AE | Active — Scheduled Jobs, SharePoint KM |
+| `ekoai-console` | AE | Active — AI Task Scheduler |
+| `bots` | BOT | Registered — no sprints yet |
+| `asap` | ASAP | Registered — no sprints yet |
 
 ---
 
@@ -52,8 +75,7 @@ a slash command and the agent handles the rest.
 
 | Tool | Version | Check |
 |---|---|---|
-| VS Code | Latest | `code --version` |
-| GitHub Copilot extension | Latest | Installed from Extensions marketplace |
+| Claude Code CLI or VSCode Extension | Latest | `claude --version` or install from marketplace |
 | Node.js | 18+ | `node --version` |
 | Python | 3.8+ | `python3 --version` |
 | Git | Any | `git --version` |
@@ -61,8 +83,9 @@ a slash command and the agent handles the rest.
 ### Step 1: Clone & Install
 
 > **💡 AI-Guided Setup Available!** ไม่ต้องทำ Step 1-5 เอง — หลัง clone แล้ว
-> เปิด Copilot Chat ในโหมด **qa-ops-director** แล้วกด `/` → เลือก **`qa-setup`**
-> Agent จะ check prerequisites, รัน script, ติดตั้ง hook, แนะนำ credentials และ verify ให้ทั้งหมด
+> เปิด Claude Code แล้วพิมพ์ **`/qa-get-started`**
+> Agent จะ check prerequisites, ติดตั้ง dependencies, แนะนำ credentials,
+> verify ทุก tool, รัน smoke test, และ generate report แรกให้ — ทั้งหมดแบบ interactive step-by-step
 
 ```bash
 # Clone the repository
@@ -213,6 +236,7 @@ TestRail-related commands (`/qa:import-testrail`, `/qa:fetch-testrail`, etc.).
 
 | Command | What It Does | Required MCPs |
 |---|---|---|
+| `/qa:get-started` | **Interactive onboarding** — step-by-step setup for new QA members | None |
 | `/qa:test-plan` `[Figma URL]` `[Confluence URL]` | Generate test plan + test cases (4-phase auto pipeline) | Atlassian, Figma |
 | `/qa:review-testcases` `[test cases]` | Review test cases for coverage gaps | Atlassian, Figma |
 | `/qa:write-ac` `[Sprint Board URL]` | Generate & post Acceptance Criteria to Jira (10-phase) | Atlassian |
@@ -251,6 +275,7 @@ TestRail-related commands (`/qa:import-testrail`, `/qa:fetch-testrail`, etc.).
 Run these commands **in order** at the start of each sprint:
 
 ```
+0. /qa:get-started                   → First time? Run this! (interactive setup wizard)
 1. /qa:start-sprint                  → Set up sprint workspace
 2. /qa:test-plan [Figma] [Confluence]→ Generate + review + auto-fix test cases
 3. /qa:import-testrail [suite URL]   → Push test cases to TestRail
@@ -307,21 +332,23 @@ Run these commands **in order** at the start of each sprint:
 │   ├── repost-ac-tables.py      ← Reformat AC as ADF tables
 │   └── delete-old-ac-comments.py← Clean stale AC comments
 │
-├── console-morning-brief-18.0/  ← Morning Brief sprint data
-│   ├── console-morning-brief-testcases.csv  ← 208 test cases (15 cols)
-│   ├── console-morning-brief-test-plan.md   ← Test plan document
-│   ├── generate-csv.py          ← CSV generator script
-│   └── import-new-testrail-cases.py ← TestRail importer
-├── testrail-cache/              ← Cached TestRail data (gitignored, local only)
+├── ekoai-console-ai-task-scheduler/  ← Current sprint
+│   ├── webhook-testing-guide.md      ← Mock server + ngrok E2E guide
+│   └── bug-run-status-aggregation.md ← AE-14666 bug report
+├── testrail-cache/              ← Cached TestRail data (persists across sprints)
 ├── {sprint-folder}/             ← Active sprint artifacts (auto-created)
 └── archive/                     ← Completed sprint archives
+    ├── agentic/                 ← console-morning-brief-18.0, 18.1, 18.2, sharepoint-km
+    └── ekoai-console/           ← (future archives)
 
 ── Sibling Repo (QA_Automation) ──────────────────────
-QA_Automation/                   ← convolabai/QA_Automation
+QA_Automation/                   ← ApiwatKansaard/Claude_QA_Automation
 ├── playwright.config.ts
+├── src/mock-server/             ← ★ Mock webhook server for E2E testing
 ├── src/pages/                   ← Page Object Model classes
-├── tests/e2e/                   ← UI end-to-end tests
-├── tests/api/                   ← API integration tests
+├── src/helpers/                 ← Auth (Bearer + Basic), job factory, cleanup
+├── tests/e2e/                   ← UI end-to-end tests (100 cases)
+├── tests/api/                   ← API integration tests (97 cases)
 ├── selectors/                   ← JSON selector maps
 └── environments/                ← Per-environment .env files
 ```
@@ -450,7 +477,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details on:
 | Setup process change | `TEAM-SETUP.md`, `README.md` (quick start) |
 | New protected path | `CODEOWNERS`, `CONTRIBUTING.md`, `.githooks/pre-commit` |
 
-**Last verified:** 2026-03-30
+**Last verified:** 2026-04-02
 
 ---
 
