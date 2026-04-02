@@ -14,6 +14,15 @@ troubleshoots issues, and never skips ahead until the current step passes.
 **Supports both Claude Code and GitHub Copilot** — detects which platform the user is on
 and adjusts the setup path accordingly.
 
+## Pre-flight: What the agent needs to do BEFORE MCP is available
+
+Steps 0–3 use only Bash + Read + Write tools (no MCP needed).
+Steps 4+ require MCP tools (Jira, Confluence) which are available after reload.
+The agent must handle the full setup using only basic tools first.
+
+**Bootstrap script:** `scripts/bootstrap.sh` handles system-level installs.
+The agent runs it automatically and fills in the gaps interactively.
+
 ## Execution Steps
 
 ### Step 0 — Detect Platform & Welcome
@@ -66,204 +75,135 @@ If `$PLATFORM` = `copilot`, add:
    Let's proceed with setup!
 ```
 
-### Step 1 — Prerequisites Check
+### Step 1 — Run Bootstrap (Installs everything automatically)
 
-**Auto-check (no user input needed):**
-
-| Check | Command | Expected |
-|---|---|---|
-| Node.js | `node --version` | >= 18.0.0 |
-| Python | `python3 --version` | >= 3.8 |
-| Git | `git --version` | Any |
-| ngrok | `ngrok version` | Any (optional — warn if missing) |
-
-**Platform-specific checks:**
-
-| Check | Claude Code | Copilot |
-|---|---|---|
-| AI tool | Check CLAUDE.md loaded | Check Copilot Chat available |
-| MCP config location | `~/.claude/.mcp.json` | `.vscode/mcp.json` |
-
-**If a check fails:** Show the install command and wait for the user to fix it.
-```
-❌ Node.js not found. Install:
-   brew install node
-   
-   Let me know when you've installed it and I'll check again.
-```
-
-### Step 2 — Verify Repository Structure
-
-Check that both repos are cloned and accessible:
+Run the bootstrap script which handles: prerequisites check, sibling repo verification,
+npm install, Playwright browsers, mcp-atlassian, ngrok, and config file templates.
 
 ```bash
-# Check QA_Agent (current repo)
-ls CLAUDE.md .github/skills/qa-ops-director/SKILL.md
+bash scripts/bootstrap.sh
+```
 
-# Check QA_Automation (sibling repo)
+**The agent should run this and parse the output.** If any step fails, the script
+exits with an error message — the agent should show it and help the user fix it.
+
+If bootstrap succeeds, move to Step 2 (credentials).
+
+**If bootstrap script is not available** (old clone), do manual checks:
+
+```bash
+# Prerequisites
+node --version      # >= 18
+python3 --version   # >= 3.8
+git --version       # any
+
+# Sibling repo
 ls ../Claude_QA_Automation/playwright.config.ts
-ls ../Claude_QA_Automation/package.json
-```
 
-**If QA_Automation not found:**
-```
-⚠️ Claude_QA_Automation repo not found at ../Claude_QA_Automation/
-
-Please clone it:
-   cd ~/Documents
-   git clone <repo-url> Claude_QA_Automation
-
-Let me know when done.
-```
-
-### Step 3 — Install Dependencies
-
-```bash
-cd ../Claude_QA_Automation
-npm install
+# Install deps
+cd ../Claude_QA_Automation && npm install
 npx playwright install --with-deps chromium
+
+# Install MCP
+npm install -g mcp-atlassian
 ```
 
-Show progress and verify:
-```
-✅ npm install — 245 packages
-✅ Playwright chromium installed
-```
+### Step 2 — Configure Credentials (Interactive — agent writes files)
 
-### Step 4 — Configure Credentials
+The agent collects credentials interactively and writes all config files.
+**NEVER log passwords or tokens in output — only confirm they were saved.**
 
-Guide the user through each credential. Ask only for what's needed:
-
-**4a. Staging login credentials (REQUIRED)**
+**2a. Ask for all credentials at once:**
 
 ```
-📝 I need your staging login credentials.
-   Edit: Claude_QA_Automation/environments/.env.staging
+📝 I need 4 pieces of information to set up everything.
+   I'll create all config files for you automatically.
 
-   Required fields:
-   - ADMIN_EMAIL=yourname@amitysolutions.com
-   - ADMIN_PASSWORD=your-staging-password
-   
-   Have you filled these in? (yes/no)
+   1. Your Amity email:        (e.g., yourname@amitysolutions.com)
+   2. Atlassian API Token:     https://id.atlassian.com/manage-profile/security/api-tokens
+   3. TestRail API Key:        https://ekoapp20.testrail.io → My Settings → API Keys
+   4. Staging login password:  (your EkoAI Console staging password)
+
+   Please provide them one by one (I won't display them back).
 ```
 
-Verify by reading the .env file (check non-empty, don't log the password):
+**2b. Agent creates all files automatically using the credentials:**
+
+**File 1: `.env` (QA_Agent root)**
 ```bash
-# Verify (don't print values!)
-grep -c "ADMIN_EMAIL=.\+" ../Claude_QA_Automation/environments/.env.staging
-grep -c "ADMIN_PASSWORD=.\+" ../Claude_QA_Automation/environments/.env.staging
+# Agent writes this file — NEVER echo credentials to terminal
+cat > .env << EOF
+JIRA_EMAIL={email}
+JIRA_TOKEN={atlassian_token}
+ATLASSIAN_EMAIL={email}
+ATLASSIAN_API_TOKEN={atlassian_token}
+ATLASSIAN_BASE_URL=https://ekoapp.atlassian.net
+TESTRAIL_EMAIL={email}
+TESTRAIL_API_KEY={testrail_key}
+EOF
 ```
 
-**4b. Atlassian API Token (REQUIRED for Jira/Confluence)**
-
-```
-📝 Get your Atlassian API Token:
-   1. Go to: https://id.atlassian.com/manage-profile/security/api-tokens
-   2. Click "Create API token"
-   3. Copy the token
-
-   Now add it to the .env file:
-   Claude_QA_Agent/.env
-   
-   ATLASSIAN_EMAIL=yourname@amitysolutions.com
-   ATLASSIAN_API_TOKEN=your-token-here
-```
-
-**4c. TestRail API Key (REQUIRED for test management)**
-
-```
-📝 Get your TestRail API Key:
-   1. Go to: https://ekoapp20.testrail.io
-   2. Click your name → My Settings → API Keys
-   3. Add Key → copy it
-
-   Add to .env:
-   TESTRAIL_EMAIL=yourname@amitysolutions.com
-   TESTRAIL_API_KEY=your-key-here
-```
-
-**4d. Jira Keychain (REQUIRED for bug reports — macOS only)**
-
-```
-📝 Store Jira token in macOS Keychain (for bug report scripts):
-   
-   security add-generic-password -s 'jira-api-token' \
-     -a 'yourname@amitysolutions.com' \
-     -w 'your-atlassian-api-token'
-```
-
-For Windows/Linux users, set environment variables instead:
+**File 2: `~/.claude/.mcp.json` (Claude Code MCP — only if `$PLATFORM` = `claude-code`)**
 ```bash
-export JIRA_EMAIL="yourname@amitysolutions.com"
-export JIRA_TOKEN="your-atlassian-api-token"
-```
-
-**4e. MCP Server Config**
-
-**If `$PLATFORM` = `claude-code`:**
-
-Check if `~/.claude/.mcp.json` exists:
-- If yes → verify it has `atlassian` server entry
-- If no → create it with the user's credentials from `.env`:
-
-```json
+mkdir -p ~/.claude
+cat > ~/.claude/.mcp.json << EOF
 {
   "mcpServers": {
     "atlassian": {
       "command": "mcp-atlassian",
       "env": {
         "ATLASSIAN_BASE_URL": "https://ekoapp.atlassian.net",
-        "ATLASSIAN_EMAIL": "yourname@amitysolutions.com",
-        "ATLASSIAN_API_TOKEN": "your-token-here",
+        "ATLASSIAN_EMAIL": "{email}",
+        "ATLASSIAN_API_TOKEN": "{atlassian_token}",
         "LOG_LEVEL": "error",
         "NODE_ENV": "production"
       }
     }
   }
 }
+EOF
 ```
 
-Then instruct:
+**File 3: `.vscode/mcp.json` (Copilot — only if `$PLATFORM` = `copilot`)**
+Use `${input:}` prompts instead of hardcoded credentials — Copilot asks at runtime.
+
+**File 4: `environments/.env.staging` in QA_Automation**
+```bash
+# Update ADMIN_EMAIL and ADMIN_PASSWORD in existing file
+sed -i '' "s/ADMIN_EMAIL=.*/ADMIN_EMAIL={email}/" ../Claude_QA_Automation/environments/.env.staging
+sed -i '' "s/ADMIN_PASSWORD=.*/ADMIN_PASSWORD={staging_password}/" ../Claude_QA_Automation/environments/.env.staging
 ```
-After saving, reload the window:
+
+**File 5: macOS Keychain (for Jira bug reports)**
+```bash
+security add-generic-password -U -s 'jira-api-token' -a '{email}' -w '{atlassian_token}'
+```
+For Windows/Linux: add to `~/.bashrc` as `export JIRA_EMAIL=... JIRA_TOKEN=...`
+
+**2c. Verify all files were created:**
+```
+✅ .env created (Atlassian + TestRail)
+✅ ~/.claude/.mcp.json created (MCP servers)
+✅ environments/.env.staging updated (login credentials)
+✅ Keychain token stored (Jira bug reports)
+
+⚠️ IMPORTANT: Reload the window now!
    Cmd+Shift+P → "Reload Window"
+   
+   After reload, come back and type: /qa-get-started continue
+   (I'll pick up from Step 3 — tool verification)
 ```
 
-**If `$PLATFORM` = `copilot`:**
+### Step 3 — Reload & Resume
 
-Check if `.vscode/mcp.json` exists in the workspace:
-- If yes → verify it has `atlassian` server entry with credentials filled in
-- If no → create it:
+After the user reloads, MCP servers will be available.
+The agent should detect it's a continuation and skip to Step 4 (verify tools).
 
-```json
-{
-  "servers": {
-    "atlassian": {
-      "command": "mcp-atlassian",
-      "env": {
-        "ATLASSIAN_BASE_URL": "https://ekoapp.atlassian.net",
-        "ATLASSIAN_EMAIL": "${input:atlassianEmail}",
-        "ATLASSIAN_API_TOKEN": "${input:atlassianToken}",
-        "LOG_LEVEL": "error",
-        "NODE_ENV": "production"
-      }
-    }
-  },
-  "inputs": [
-    { "id": "atlassianEmail", "description": "Atlassian email", "type": "promptString" },
-    { "id": "atlassianToken", "description": "Atlassian API token", "type": "promptString", "password": true }
-  ]
-}
-```
+Check: Can I access MCP tools now?
+- If MCP tools available → proceed to Step 4
+- If not → guide the user to check `~/.claude/.mcp.json` or `.vscode/mcp.json`
 
-Then instruct:
-```
-After saving, reload VS Code:
-   Cmd+Shift+P → "Developer: Reload Window"
-   Copilot will prompt for your credentials on first use.
-```
-
-### Step 5 — Verify Tool Connectivity
+### Step 4 — Verify Tool Connectivity
 
 Run quick checks for each tool:
 
@@ -293,7 +233,7 @@ Present results as a table:
 
 **If a tool fails:** Show specific troubleshooting steps and offer to retry.
 
-### Step 6 — Run Smoke Test
+### Step 5 — Run Smoke Test
 
 Run a quick smoke test to verify everything end-to-end:
 
@@ -319,7 +259,7 @@ If tests fail, offer to diagnose:
 ❌ 3 tests failed. Want me to analyze the failures? (yes/no)
 ```
 
-### Step 7 — Generate First Report
+### Step 6 — Generate First Report
 
 ```bash
 cd ../Claude_QA_Automation
@@ -332,7 +272,7 @@ open reports/staging/team-report.html
    Opened in browser: reports/staging/team-report.html
 ```
 
-### Step 8 — Quick Tour of Commands
+### Step 7 — Quick Tour of Commands
 
 Present available commands based on platform:
 
@@ -381,7 +321,7 @@ Present available commands based on platform:
 💡 Try it now! Type: /qa-morning-standup
 ```
 
-### Step 9 — Readiness Checklist
+### Step 8 — Readiness Checklist
 
 Present final status with platform indicator:
 
