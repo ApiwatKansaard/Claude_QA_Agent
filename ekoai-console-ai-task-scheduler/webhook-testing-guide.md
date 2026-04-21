@@ -89,19 +89,27 @@ The mock server implements the contract defined in:
 
 ### Callback payload format (to EkoAI)
 
+**Endpoint:** `POST https://ekoai.{env}.ekoapp.com/v1/scheduled-jobs/runs/callback`
+**Header:** `x-api-key: scbk_<callbackApiKey>` (generate via `POST /v1/scheduled-jobs/{jobId}/callback-api-key`)
+
 ```json
 {
   "id": "<scheduleJobRunUserId>",
-  "status": "success",
-  "quotaConsumed": 0,
-  "result": {
-    "homePage": {
-      "widgets": [...],
-      "lang": "en"
-    }
+  "homePage": {
+    "html": "<div>Hello {{displayName}}</div><p>{{homePageUpdatedAtFormatted}}</p>",
+    "lang": "en"
   }
 }
 ```
+
+**Schema notes** (verified against staging 2026-04-21):
+- `id` is **required** (422 "id is required" if missing)
+- `homePage` is optional — id-only callback marks the run user as finished (fail-style)
+- `homePage.html` is a string (HTML content) — replaces the deprecated `widgets` array per Tech Spec AE-14600
+- **Do NOT include** `status`, `result`, `quotaConsumed`, or `failReason` at the root — server returns 422 `"status" is not allowed`
+- Payload body limit is ~1 MB — exceeding returns 413 `PayloadTooLargeException` (see [AE-14621](https://ekoapp.atlassian.net/browse/AE-14621))
+
+> ⚠️ The callback schema in [Doc] Project Team Guide | Scheduled Job (Confluence 3528917005, §5.2) still documents the legacy `{id, status, quotaConsumed, result, failReason}` shape, which the server no longer accepts. Follow the schema above instead.
 
 ## How to Run
 
@@ -190,15 +198,16 @@ When creating a scheduled job in EkoAI Console:
 
 ### Adding new action types
 
-When EkoAI adds new action types (e.g., `EKO_MESSAGE`, `EKO_TASK`), update the
-callback payload in `process-server.ts` to include the corresponding result fields:
+When EkoAI adds new action types (e.g., `EKO_MESSAGE`, `EKO_TASK`), extend the
+callback payload in `process-server.ts` with new root-level fields alongside
+`homePage` (the production validator rejects a `result` wrapper):
 
 ```typescript
-result: {
-  homePage: { ... },    // existing
-  tasks: { ... },       // future: EKO_TASK
-  message: { ... },     // future: EKO_MESSAGE
-}
+// Current (verified 2026-04-21)
+{ id, homePage: { html, lang } }
+
+// Future (hypothetical — confirm with backend before adding)
+{ id, homePage: { html, lang }, tasks: { ... }, message: { ... } }
 ```
 
 ### Adding failure scenario tests
