@@ -54,3 +54,4 @@ These rules are learned from team experience. Follow them strictly:
 - **HTML report:** ALWAYS generate team HTML report after every test run
 - **README:** ALWAYS update README.md when making significant changes (applies to BOTH repos)
 - **Prod test users:** Only use Sharp (Apiwat) and Boss (Tanawoot) as audience for prod scheduled jobs
+- **Morning Brief API test:** When user asks "รัน morning brief api" / "test morning brief" / "MB api retest" / "ตัด sharepoint" → run `cd /Users/amity/Documents/Claude_QA_Automation && npm run test:morning-brief` (single canonical command — auto-refreshes token, skips sharepoint-km, generates HTML report). Do NOT craft manual `npx playwright test` flags.
